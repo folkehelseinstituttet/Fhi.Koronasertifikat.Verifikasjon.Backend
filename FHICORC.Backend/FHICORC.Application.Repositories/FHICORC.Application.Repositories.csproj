@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="morelinq" Version="3.3.2" />
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+	  <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+	  <PackageReference Include="Z.EntityFramework.Extensions.EFCore" Version="5.1.34" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\FHICORC.Application.Models\FHICORC.Application.Models.csproj" />
+	</ItemGroup>
+
+</Project>
