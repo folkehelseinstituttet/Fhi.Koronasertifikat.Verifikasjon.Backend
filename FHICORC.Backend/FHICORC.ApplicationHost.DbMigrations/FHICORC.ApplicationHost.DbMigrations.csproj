@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FHICORC.Application.Common\FHICORC.Application.Common.csproj" />
+    <ProjectReference Include="..\FHICORC.Application.Models\FHICORC.Application.Models.csproj" />
+    <ProjectReference Include="..\FHICORC.Infrastructure.Database\FHICORC.Infrastructure.Database.csproj" />
+  </ItemGroup>
+
+</Project>
