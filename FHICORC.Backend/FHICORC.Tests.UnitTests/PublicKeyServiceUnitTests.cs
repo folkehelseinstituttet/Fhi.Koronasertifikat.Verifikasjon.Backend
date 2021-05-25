@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -12,6 +11,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FHICORC.Application.Common;
 using FHICORC.Application.Common.Interfaces;
+using FHICORC.Domain.Models;
 
 namespace FHICORC.Tests.UnitTests
 {
@@ -20,8 +20,22 @@ namespace FHICORC.Tests.UnitTests
     {
         private readonly Mock<PublicKeyCacheOptions> mockPublicKeyCacheOptions = new Mock<PublicKeyCacheOptions>();
         ILogger<PublicKeyService> nullLogger = new NullLoggerFactory().CreateLogger<PublicKeyService>();
-        private readonly Mock<ICertificatePublicKeyRepository> _certificatePublicKeyRepositoryMock = new Mock<ICertificatePublicKeyRepository>();
+        private readonly Mock<IEuCertificateRepository> _euCertificateRepositoryMock = new Mock<IEuCertificateRepository>(); 
         private ICacheManager cacheManager;
+
+        List<EuDocSignerCertificate> euDocSignerCertificates = new List<EuDocSignerCertificate>
+            {
+                new EuDocSignerCertificate
+                {
+                    KeyIdentifier = "kid",
+                    PublicKey = "pk"
+                },
+                new EuDocSignerCertificate
+                {
+                    KeyIdentifier = "kid1",
+                    PublicKey = "pk2"
+                }
+            };
 
         [SetUp]
         public void Setup()
@@ -39,21 +53,18 @@ namespace FHICORC.Tests.UnitTests
         }
 
         [Test]
-        public void When_PublicKeysAreNotFound_ShouldThrowError()
+        public void When_PublicKeysAreNotFoundInDB_ShouldThrowError()
         {
-            // Arrange 
-            _certificatePublicKeyRepositoryMock.Setup(p => p.GetPublicKeysFromFileAsync())
-                .Throws(new Exception("Zero or more than one publicKey file found."));
-
-            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _certificatePublicKeyRepositoryMock.Object);
+            _euCertificateRepositoryMock.Reset(); 
+            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object);
 
             // Act
             Assert.IsFalse(cacheManager.TryGetValue("publicKeyCacheKey", out PublicKeyResponseDto emptyCachedData));
             var result = _publicKeyService.GetPublicKeysAsync();
 
             // Assert
+            _euCertificateRepositoryMock.Verify(x => x.GetAllEuDocSignerCertificates(), Times.Once());
             Assert.IsNotNull(result.Exception);
-            Assert.AreEqual("One or more errors occurred. (Zero or more than one publicKey file found.)", result.Exception.Message);
         }
 
         [Test]
@@ -71,9 +82,10 @@ namespace FHICORC.Tests.UnitTests
                     }
                 }
             };
-
+            
             cacheManager.Set("publicKeyCacheKey", publicKeyReponseDto, mockPublicKeyCacheOptions.Object);
-            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _certificatePublicKeyRepositoryMock.Object);
+            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object);
+
 
             // Act 
             var result = _publicKeyService.GetPublicKeysAsync();
@@ -86,17 +98,9 @@ namespace FHICORC.Tests.UnitTests
         public async Task When_CacheIsEmpty_PopulateCache()
         {
             // Arrange 
-            var mockedReturnedDictionary = Task.Run(() =>
-            {
-                var dict = new Dictionary<string, string>();
-                dict.Add("kid1", "pk1");
-                dict.Add("kid2", "pk2");
-                return dict;
-            });
+            _euCertificateRepositoryMock.Setup(p => p.GetAllEuDocSignerCertificates()).ReturnsAsync(euDocSignerCertificates); 
+            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object);
 
-            _certificatePublicKeyRepositoryMock.Setup(p => p.GetPublicKeysFromFileAsync())
-                .Returns(mockedReturnedDictionary);
-            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _certificatePublicKeyRepositoryMock.Object);
 
             // Act & Assert
             Assert.IsFalse(cacheManager.TryGetValue("publicKeyCacheKey", out PublicKeyResponseDto emptyCachedData));
@@ -110,23 +114,16 @@ namespace FHICORC.Tests.UnitTests
         public async Task ResponseIsMappedTo_PublicKeyResponseDto()
         {
             // Arrange 
-            var mockedReturnedDictionary = Task.Run(() =>
-            {
-                var dict = new Dictionary<string, string>();
-                dict.Add("kid1", "pk1");
-                return dict;
-            });
+            _euCertificateRepositoryMock.Setup(p => p.GetAllEuDocSignerCertificates()).ReturnsAsync(euDocSignerCertificates);
+            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object);
 
-            _certificatePublicKeyRepositoryMock.Setup(p => p.GetPublicKeysFromFileAsync())
-                .Returns(mockedReturnedDictionary);
-            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _certificatePublicKeyRepositoryMock.Object);
 
             // Act & Assert
             var response = await _publicKeyService.GetPublicKeysAsync();
             var type = typeof(PublicKeyResponseDto);
             Assert.True(response.GetType().Equals(type));
-            Assert.True(response.pkList[0].kid.Equals("kid1"));
-            Assert.True(response.pkList[0].publicKey.Equals("pk1"));
+            Assert.True(response.pkList[0].kid.Equals("kid"));
+            Assert.True(response.pkList[0].publicKey.Equals("pk"));
         }
     }
 }

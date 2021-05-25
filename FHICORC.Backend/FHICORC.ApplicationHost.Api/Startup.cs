@@ -15,6 +15,9 @@ using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Application.Services;
 using FHICORC.Application.Validation;
 using FHICORC.ApplicationHost.Api.Middleware;
+using FHICORC.Infrastructure.Database;
+using FHICORC.Infrastructure.Database.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace FHICORC.ApplicationHost.Api
 {
@@ -67,11 +70,18 @@ namespace FHICORC.ApplicationHost.Api
 
             services.AddConfiguredSwaggerGen();
 
+            var connectionStrings = Configuration.GetSection($"{OptionsConfigurationRoot}:{nameof(ConnectionStringOptions)}").Get<ConnectionStringOptions>();
+            services.AddDbContext<CoronapassContext>(options =>
+                options.UseNpgsql(connectionStrings.PgsqlDatabase, b => b.MigrationsAssembly("FHICORC.Infrastructure.Database")));
+
             services.AddServiceDependencies();
             services.AddApplicationServices();
-            services.AddScoped<ICertificatePublicKeyRepository, CertificatePublicKeyRepository>(); 
+            services
+                .AddScoped<ICertificatePublicKeyRepository, CertificatePublicKeyRepository>()
+                .AddScoped<IEuCertificateRepository, EuCertificateRepository>(); 
 
             services.AddHealthChecks()
+                .AddDbContextCheck<CoronapassContext>()
                 .AddCheck<PublicKeyServiceHealthCheck>("publickey", tags: new []{"publickey"})
                 .AddCheck<TextServiceHealthCheck>("text", tags: new []{"text"});
         }
@@ -82,6 +92,7 @@ namespace FHICORC.ApplicationHost.Api
 
             if (env.IsDevelopment())
             {
+                app.ApplicationServices.InitializeDatabase<CoronapassContext>();
                 app.UseDeveloperExceptionPage();
             }
 
