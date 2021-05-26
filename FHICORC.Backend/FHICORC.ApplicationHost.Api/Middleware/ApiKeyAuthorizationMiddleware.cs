@@ -13,9 +13,11 @@ namespace FHICORC.ApplicationHost.Api.Middleware
         {
             _next = next;
         }
+
         public async Task InvokeAsync(HttpContext context, ILogger<ApiKeyAuthorizationMiddleware> logger, SecurityOptions securityOptions)
         {
-            if (securityOptions.CheckApiKeyHeader)
+            if (securityOptions.CheckApiKeyHeader &&
+                context.Features.Get<Microsoft.AspNetCore.Http.Features.IEndpointFeature>().Endpoint?.DisplayName != "Health checks")
             {
                 if (!context.Request.Headers.TryGetValue(securityOptions.ApiKeyHeader, out var extractedApiKey))
                 {
@@ -31,6 +33,7 @@ namespace FHICORC.ApplicationHost.Api.Middleware
                     return;
                 }
             }
+
             await _next(context);
         }
     }
