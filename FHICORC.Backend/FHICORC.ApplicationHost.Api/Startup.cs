@@ -95,6 +95,10 @@ namespace FHICORC.ApplicationHost.Api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/health", new HealthCheckOptions
+                {
+                    ResponseWriter = HealthChecksOutput.WriteResponse
+                });
                 endpoints.MapHealthChecks("/publickeyhealth", new HealthCheckOptions
                 {
                     Predicate = (check) => check.Tags.Contains("publickey"),
