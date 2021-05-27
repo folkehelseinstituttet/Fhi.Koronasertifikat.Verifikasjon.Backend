@@ -2,3 +2,19 @@ trigger: none
 
 pool:
   vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildConfiguration: 'Debug'
+
+steps:
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'build'
+      projects: '$(solution)'
+      configuration: '$(buildConfiguration)'
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'test'
+      projects: '**/*.Tests/*.csproj'
+      arguments: '-c $(BuildConfiguration) --no-restore'
