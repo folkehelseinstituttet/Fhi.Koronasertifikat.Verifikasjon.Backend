@@ -23,6 +23,8 @@ FROM build AS publish
 RUN dotnet publish "FHICORC.ApplicationHost.Api.csproj" -c Release -o /app/publish
 
 FROM base AS final
+RUN addgroup -S app && adduser -H -S -G app app
 WORKDIR /app
 COPY --from=publish /app/publish .
+USER app
 ENTRYPOINT ["dotnet", "FHICORC.ApplicationHost.Api.dll"]
