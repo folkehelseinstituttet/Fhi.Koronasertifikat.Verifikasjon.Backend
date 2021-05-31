@@ -1,5 +1,8 @@
 trigger: none
 
+pr:
+- dev
+
 pool:
   vmImage: 'ubuntu-20.04'
 
