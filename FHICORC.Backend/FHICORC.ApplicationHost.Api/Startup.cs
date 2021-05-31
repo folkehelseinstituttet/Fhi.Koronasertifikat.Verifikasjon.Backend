@@ -70,15 +70,22 @@ namespace FHICORC.ApplicationHost.Api
 
             services.AddConfiguredSwaggerGen();
 
-            var connectionStrings = Configuration.GetSection($"{OptionsConfigurationRoot}:{nameof(ConnectionStringOptions)}").Get<ConnectionStringOptions>();
-            services.AddDbContext<CoronapassContext>(options =>
-                options.UseNpgsql(connectionStrings.PgsqlDatabase, b => b.MigrationsAssembly("FHICORC.Infrastructure.Database")));
+            var featureToggles = Configuration.GetSection($"{OptionsConfigurationRoot}:{nameof(FeatureToggles)}").Get<FeatureToggles>() ?? new();
+            if (featureToggles.UseEuDgcGateway)
+            {
+                var connectionStrings = Configuration.GetSection($"{OptionsConfigurationRoot}:{nameof(ConnectionStringOptions)}").Get<ConnectionStringOptions>();
+                services.AddDbContext<CoronapassContext>(options =>
+                    options.UseNpgsql(connectionStrings.PgsqlDatabase, b => b.MigrationsAssembly("FHICORC.Infrastructure.Database")));
+            }
 
             services.AddServiceDependencies();
-            services.AddApplicationServices();
-            services
-                .AddScoped<ICertificatePublicKeyRepository, CertificatePublicKeyRepository>()
-                .AddScoped<IEuCertificateRepository, EuCertificateRepository>(); 
+            services.AddApplicationServices(featureToggles.UseEuDgcGateway);
+            services.AddScoped<ICertificatePublicKeyRepository, CertificatePublicKeyRepository>();
+
+            if (featureToggles.UseEuDgcGateway)
+            {
+                services.AddScoped<IEuCertificateRepository, EuCertificateRepository>();
+            }
 
             services.AddHealthChecks()
                 .AddDbContextCheck<CoronapassContext>()
@@ -92,7 +99,12 @@ namespace FHICORC.ApplicationHost.Api
 
             if (env.IsDevelopment())
             {
-                app.ApplicationServices.InitializeDatabase<CoronapassContext>();
+                var featureToggles = Configuration.GetSection($"{OptionsConfigurationRoot}:{nameof(FeatureToggles)}").Get<FeatureToggles>() ?? new();
+                if (featureToggles.UseEuDgcGateway)
+                {
+                    app.ApplicationServices.InitializeDatabase<CoronapassContext>();
+                }
+
                 app.UseDeveloperExceptionPage();
             }
 
