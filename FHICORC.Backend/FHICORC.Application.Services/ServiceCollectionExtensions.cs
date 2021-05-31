@@ -5,11 +5,20 @@ namespace FHICORC.Application.Services
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddApplicationServices(this IServiceCollection serviceCollection)
+        public static IServiceCollection AddApplicationServices(this IServiceCollection serviceCollection, bool useEuDgcg)
         {
-            return serviceCollection
-                .AddScoped<IPublicKeyService, PublicKeyService>()
-                .AddScoped<ITextService, TextService>();
+            if (useEuDgcg)
+            {
+                return serviceCollection
+                    .AddScoped<IPublicKeyService, PublicKeyService>()
+                    .AddScoped<ITextService, TextService>();
+            }
+            else
+            {
+                return serviceCollection
+                    .AddScoped<IPublicKeyService, JsonPublicKeyService>()
+                    .AddScoped<ITextService, TextService>();
+            }
         }
     }
 }

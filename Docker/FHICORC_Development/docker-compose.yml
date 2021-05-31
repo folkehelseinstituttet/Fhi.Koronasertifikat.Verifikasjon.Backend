@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  fhicorc-pgsql:
+    image: postgres:12-alpine
+    environment:
+      POSTGRES_PASSWORD: Netcompany-123
+    ports:
+      - "5432:5432"
+
+  fhicorc-pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: test@netcompany.com
+      PGADMIN_DEFAULT_PASSWORD: Netcompany-123
+    ports:
+      - "5050:80"
