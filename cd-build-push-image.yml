@@ -1,0 +1,21 @@
+trigger: none
+
+pr:
+- dev
+
+pool:
+  vmImage: 'ubuntu-20.04'
+
+variables:
+  buildContext: 'FHICORC.Backend'
+  imageName: 'fhicorc-verification-backend'
+
+steps:
+- task: Docker@2
+  displayName: Build and Push API docker image
+  inputs:
+    containerRegistry: 'FHI-Koronasertifikat.Verifisering-ACR-QA'
+    repository: '$(imageName)'
+    command: 'buildAndPush'
+    Dockerfile: '$(buildContext)/FHICORC.ApplicationHost.Api/Dockerfile'
+    buildContext: '$(buildContext)'
