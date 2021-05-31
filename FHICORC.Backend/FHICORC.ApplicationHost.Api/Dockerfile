@@ -11,6 +11,8 @@ COPY ["FHICORC.ApplicationHost.Api/FHICORC.ApplicationHost.Api.csproj", "FHICORC
 COPY ["FHICORC.Application.Common/FHICORC.Application.Common.csproj", "FHICORC.Application.Common/"]
 COPY ["FHICORC.Application.Models/FHICORC.Application.Models.csproj", "FHICORC.Application.Models/"]
 COPY ["FHICORC.Application.Repositories/FHICORC.Application.Repositories.csproj", "FHICORC.Application.Repositories/"]
+COPY ["FHICORC.Infrastructure.Database/FHICORC.Infrastructure.Database.csproj", "FHICORC.Infrastructure.Database/"]
+COPY ["FHICORC.Domain.Models/FHICORC.Domain.Models.csproj", "FHICORC.Domain.Models/"]
 COPY ["FHICORC.Integrations.Utilities/FHICORC.Integrations.Utilities.csproj", "FHICORC.Integrations.Utilities/"]
 COPY ["FHICORC.Application.Validation/FHICORC.Application.Validation.csproj", "FHICORC.Application.Validation/"]
 COPY ["FHICORC.Application.Services/FHICORC.Application.Services.csproj", "FHICORC.Application.Services/"]

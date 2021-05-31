@@ -16,13 +16,14 @@ namespace FHICORC.Application.Services
         private readonly ICacheManager _cacheManager;
         private readonly PublicKeyCacheOptions _publicKeyCacheOptions;
         private readonly ILogger<PublicKeyService> _logger;
-        private readonly ICertificatePublicKeyRepository _certificatePublicKeyRepository;
+        private readonly IEuCertificateRepository _euCertificateRepository;
 
-        public PublicKeyService(ILogger<PublicKeyService> logger, ICacheManager cacheManager, PublicKeyCacheOptions publicKeyCacheOptions, ICertificatePublicKeyRepository certificatePublicKeyRepository)
+        public PublicKeyService(ILogger<PublicKeyService> logger, ICacheManager cacheManager, PublicKeyCacheOptions publicKeyCacheOptions, IEuCertificateRepository euCertificateRepository)
+
         {
             _cacheManager = cacheManager;
             _publicKeyCacheOptions = publicKeyCacheOptions;
-            _certificatePublicKeyRepository = certificatePublicKeyRepository;
+            _euCertificateRepository = euCertificateRepository; 
             _logger = logger;
         }
 
@@ -35,14 +36,14 @@ namespace FHICORC.Application.Services
             }
             _logger.LogDebug("PublicKeys not found in cache. Fetching from repository");
 
-            var repoDictionary = await _certificatePublicKeyRepository.GetPublicKeysFromFileAsync();
+            var databaseResults = await _euCertificateRepository.GetAllEuDocSignerCertificates();
 
             var publicKeyResponseDto = new PublicKeyResponseDto()
             {
-                pkList = repoDictionary.Select(kvp => new CertificatePublicKey
+                pkList = databaseResults.Select(x => new CertificatePublicKey
                 {
-                    kid = kvp.Key,
-                    publicKey = kvp.Value
+                    kid = x.KeyIdentifier,
+                    publicKey = x.PublicKey
                 }).ToList()
             };
 

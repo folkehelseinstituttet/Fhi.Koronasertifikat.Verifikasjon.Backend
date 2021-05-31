@@ -19,6 +19,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FHICORC.Integrations.Utilit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FHICORC.Application.Repositories", "FHICORC.Application.Repositories\FHICORC.Application.Repositories.csproj", "{2DF56099-5A3C-465D-B1FE-3B84AC6E9BF8}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FHICORC.ApplicationHost.DbMigrations", "FHICORC.ApplicationHost.DbMigrations\FHICORC.ApplicationHost.DbMigrations.csproj", "{FC03572D-1F43-407E-B853-44566B454CD8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FHICORC.ApplicationHost.Hangfire", "FHICORC.ApplicationHost.Hangfire\FHICORC.ApplicationHost.Hangfire.csproj", "{D05E1CE6-5D27-411F-A67B-6F7000EC8972}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FHICORC.Infrastructure.Database", "FHICORC.Infrastructure.Database\FHICORC.Infrastructure.Database.csproj", "{7490D4C2-E4BE-420F-AFEA-C065970282D4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FHICORC.Integrations.DGCGateway", "FHICORC.Integrations.DGCGateway\FHICORC.Integrations.DGCGateway.csproj", "{2A764BDE-FC75-4BA7-9273-753C345418F8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FHICORC.Domain.Models", "FHICORC.Domain.Models\FHICORC.Domain.Models.csproj", "{56FAA8EA-71A3-421F-9CDF-917655D48273}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +67,26 @@ Global
 		{2DF56099-5A3C-465D-B1FE-3B84AC6E9BF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2DF56099-5A3C-465D-B1FE-3B84AC6E9BF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2DF56099-5A3C-465D-B1FE-3B84AC6E9BF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC03572D-1F43-407E-B853-44566B454CD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC03572D-1F43-407E-B853-44566B454CD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC03572D-1F43-407E-B853-44566B454CD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC03572D-1F43-407E-B853-44566B454CD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D05E1CE6-5D27-411F-A67B-6F7000EC8972}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D05E1CE6-5D27-411F-A67B-6F7000EC8972}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D05E1CE6-5D27-411F-A67B-6F7000EC8972}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D05E1CE6-5D27-411F-A67B-6F7000EC8972}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7490D4C2-E4BE-420F-AFEA-C065970282D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7490D4C2-E4BE-420F-AFEA-C065970282D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7490D4C2-E4BE-420F-AFEA-C065970282D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7490D4C2-E4BE-420F-AFEA-C065970282D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A764BDE-FC75-4BA7-9273-753C345418F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A764BDE-FC75-4BA7-9273-753C345418F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A764BDE-FC75-4BA7-9273-753C345418F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A764BDE-FC75-4BA7-9273-753C345418F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56FAA8EA-71A3-421F-9CDF-917655D48273}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56FAA8EA-71A3-421F-9CDF-917655D48273}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56FAA8EA-71A3-421F-9CDF-917655D48273}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56FAA8EA-71A3-421F-9CDF-917655D48273}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
