@@ -74,10 +74,10 @@ namespace FHICORC.Tests.UnitTests
             // Arrange //
             byte[] cachedData;
 
-            TextRequestDto _txtRequest = new TextRequestDto() { CurrentVersionNo = "1.5.3" };
+            TextRequestDto _txtRequest = new TextRequestDto() { CurrentVersionNo = "999.99.99" };
             // Act //
             var _txtResponse = await textService.GetLatestVersionAsync(_txtRequest);
-            var cacheResponse = cacheManager.TryGetValue("1.0.1", out cachedData);
+            var cacheResponse = cacheManager.TryGetValue(currentFileVersion, out cachedData);
 
             // Assert //
             Assert.IsTrue(_txtResponse.IsAppVersionUpToDate);
