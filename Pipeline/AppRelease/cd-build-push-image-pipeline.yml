@@ -1,0 +1,70 @@
+parameters:
+- name: containerRegistry
+  type: string
+  default: ''
+
+variables:
+  buildContext: 'FHICORC.Backend'
+  apiImageName: 'fhicorc-verification-backend'
+  hangfireImageName: 'fhicorc-verification-hangfire'
+  dbMigrationsImageName: 'fhicorc-verification-dbmigrations'
+
+stages:
+- stage: Build_images_stage
+  displayName: Build application images
+  jobs:
+  - job: Build_API_image_job
+    displayName: Build API image
+    steps:
+    - task: Docker@2
+      inputs:
+        repository: $(apiImageName)
+        command: build
+        DockerFile: $(buildContext)/FHICORC.ApplicationHost.Api/Dockerfile
+        buildContext: $(buildContext)
+  - job: Build_Hangfire_image_job
+    displayName: Build Hangfire image
+    steps:
+    - task: Docker@2
+      inputs:
+        repository: $(hangfireImageName)
+        command: build
+        DockerFile: $(buildContext)/FHICORC.ApplicationHost.Hangfire/Dockerfile
+        buildContext: $(buildContext)
+  - job: Build_DbMigrations_image_job
+    displayName: Build DbMigrations image
+    steps:
+    - task: Docker@2
+      inputs:
+        repository: $(dbMigrationsImageName)
+        command: build
+        DockerFile: $(buildContext)/FHICORC.ApplicationHost.DbMigrations/Dockerfile
+        buildContext: $(buildContext)
+
+- stage: Push_images_stage
+  displayName: Push images to repository
+  jobs:
+  - job: Push_API_image_job
+    displayName: Push API image to repository
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: ${{ parameters.containerRegistry }}
+        repository: $(apiImageName)
+        command: push
+  - job: Push_Hangfire_image_job
+    displayName: Push Hangfire image to repository
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: ${{ parameters.containerRegistry }}
+        repository: $(hangfireImageName)
+        command: push
+  - job: Push_DbMigrations_image_job
+    displayName: Push DbMigrations image to repository
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: ${{ parameters.containerRegistry }}
+        repository: $(dbMigrationsImageName)
+        command: push
