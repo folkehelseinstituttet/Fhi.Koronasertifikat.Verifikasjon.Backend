@@ -2,6 +2,9 @@ parameters:
 - name: containerRegistry
   type: string
   default: ''
+- name: imageTag
+  type: string
+  default: 'latest'
 
 variables:
   buildContext: 'FHICORC.Backend'
@@ -20,6 +23,7 @@ stages:
       inputs:
         containerRegistry: ${{ parameters.containerRegistry }}
         repository: $(apiImageName)
+        tags: ${{ parameters.imageTag }}
         command: build
         DockerFile: $(buildContext)/FHICORC.ApplicationHost.Api/Dockerfile
         buildContext: $(buildContext)
@@ -30,6 +34,7 @@ stages:
       inputs:
         containerRegistry: ${{ parameters.containerRegistry }}
         repository: $(hangfireImageName)
+        tags: ${{ parameters.imageTag }}
         command: build
         DockerFile: $(buildContext)/FHICORC.ApplicationHost.Hangfire/Dockerfile
         buildContext: $(buildContext)
@@ -40,6 +45,7 @@ stages:
       inputs:
         containerRegistry: ${{ parameters.containerRegistry }}
         repository: $(dbMigrationsImageName)
+        tags: ${{ parameters.imageTag }}
         command: build
         DockerFile: $(buildContext)/FHICORC.ApplicationHost.DbMigrations/Dockerfile
         buildContext: $(buildContext)
@@ -54,6 +60,7 @@ stages:
       inputs:
         containerRegistry: ${{ parameters.containerRegistry }}
         repository: $(apiImageName)
+        tags: ${{ parameters.imageTag }}
         command: push
   - job: Push_Hangfire_image_job
     displayName: Push Hangfire image to repository
@@ -62,6 +69,7 @@ stages:
       inputs:
         containerRegistry: ${{ parameters.containerRegistry }}
         repository: $(hangfireImageName)
+        tags: ${{ parameters.imageTag }}
         command: push
   - job: Push_DbMigrations_image_job
     displayName: Push DbMigrations image to repository
@@ -70,4 +78,5 @@ stages:
       inputs:
         containerRegistry: ${{ parameters.containerRegistry }}
         repository: $(dbMigrationsImageName)
+        tags: ${{ parameters.imageTag }}
         command: push

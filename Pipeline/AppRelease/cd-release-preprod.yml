@@ -7,3 +7,4 @@ extends:
   template: cd-build-push-image-pipeline.yml
   parameters:
     containerRegistry: FHI-Koronasertifikat.Verifisering-ACR-QA
+    imageTag: $(Build.BuildId)
