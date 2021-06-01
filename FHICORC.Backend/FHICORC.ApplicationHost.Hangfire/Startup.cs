@@ -30,7 +30,6 @@ namespace FHICORC.ApplicationHost.Hangfire
         }
 
         public IConfiguration Configuration { get; }
-        private const string OptionsConfigurationRoot = "HangfireOptions";
 
         /// <summary>
         /// This method gets called by the runtime. Use this method to add services to the container. 
@@ -38,19 +37,19 @@ namespace FHICORC.ApplicationHost.Hangfire
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddValidatedOptions<ConnectionStringOptions>(Configuration, OptionsConfigurationRoot)
-                .AddValidatedOptions<CronOptions>(Configuration, OptionsConfigurationRoot)
-                .AddValidatedOptions<CertificateOptions>(Configuration, OptionsConfigurationRoot)
-                .AddValidatedOptions<ServiceEndpoints>(Configuration, OptionsConfigurationRoot)
-                .AddValidatedOptions<FeatureToggles>(Configuration, OptionsConfigurationRoot)
-                .AddValidatedOptions<HangfireHealthOptions>(Configuration, OptionsConfigurationRoot);
+                .AddValidatedOptions<ConnectionStringOptions>(Configuration)
+                .AddValidatedOptions<CronOptions>(Configuration)
+                .AddValidatedOptions<CertificateOptions>(Configuration)
+                .AddValidatedOptions<ServiceEndpoints>(Configuration)
+                .AddValidatedOptions<FeatureToggles>(Configuration)
+                .AddValidatedOptions<HangfireHealthOptions>(Configuration);
 
             services
                 .AddControllers()
                 .AddApplicationPart(typeof(Startup).Assembly)
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ValidationAssemblyMarker>());
 
-            var connectionStrings = Configuration.RetrieveOptions<ConnectionStringOptions>(OptionsConfigurationRoot);
+            var connectionStrings = Configuration.GetSection($"{nameof(ConnectionStringOptions)}").Get<ConnectionStringOptions>();
             services.AddDbContext<HangfireContext>(options =>
                 options.UseNpgsql(connectionStrings.HangfirePgsqlDatabase));
 
@@ -64,7 +63,7 @@ namespace FHICORC.ApplicationHost.Hangfire
 
             services.AddDgcgGatewayIntegration();
 
-            HangfireHealthOptions hangfireHealthOptions = Configuration.RetrieveOptions<HangfireHealthOptions>(OptionsConfigurationRoot);
+            HangfireHealthOptions hangfireHealthOptions = Configuration.GetSection($"{nameof(HangfireHealthOptions)}").Get<HangfireHealthOptions>();
             services.AddHealthChecks()
                 .AddDbContextCheck<CoronapassContext>()
                 .AddDbContextCheck<HangfireContext>()

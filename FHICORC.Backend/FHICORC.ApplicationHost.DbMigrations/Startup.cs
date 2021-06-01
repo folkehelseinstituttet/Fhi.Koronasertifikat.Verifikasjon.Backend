@@ -22,7 +22,7 @@ namespace FHICORC.ApplicationHost.DbMigrations
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionStrings = Configuration.GetSection($"ApiOptions:{nameof(ConnectionStringOptions)}").Get<ConnectionStringOptions>();
+            var connectionStrings = Configuration.GetSection($"{nameof(ConnectionStringOptions)}").Get<ConnectionStringOptions>();
 
             services.AddDbContext<CoronapassContext>(options =>
                 options.UseNpgsql(connectionStrings.PgsqlDatabase, b => b.MigrationsAssembly("FHICORC.Infrastructure.Database")));
