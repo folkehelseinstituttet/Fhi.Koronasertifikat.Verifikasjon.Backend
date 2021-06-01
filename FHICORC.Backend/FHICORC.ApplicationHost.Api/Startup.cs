@@ -29,19 +29,18 @@ namespace FHICORC.ApplicationHost.Api
         }
 
         public IConfiguration Configuration { get; }
-        private const string OptionsConfigurationRoot = "ApiOptions";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddValidatedOptions<ConnectionStringOptions>(Configuration, OptionsConfigurationRoot)
-                .AddValidatedOptions<SecurityOptions>(Configuration, OptionsConfigurationRoot)
-                .AddValidatedOptions<FeatureToggles>(Configuration, OptionsConfigurationRoot)
-                .AddValidatedOptions<PublicKeyCacheOptions>(Configuration, OptionsConfigurationRoot)
-                .AddValidatedOptions<TextCacheOptions>(Configuration, OptionsConfigurationRoot)
-                .AddValidatedOptions<TextOptions>(Configuration, OptionsConfigurationRoot)
-                .AddValidatedOptions<ThrottlingCircuitBreakerOptions>(Configuration, OptionsConfigurationRoot);
+                .AddValidatedOptions<ConnectionStringOptions>(Configuration)
+                .AddValidatedOptions<SecurityOptions>(Configuration)
+                .AddValidatedOptions<FeatureToggles>(Configuration)
+                .AddValidatedOptions<PublicKeyCacheOptions>(Configuration)
+                .AddValidatedOptions<TextCacheOptions>(Configuration)
+                .AddValidatedOptions<TextOptions>(Configuration)
+                .AddValidatedOptions<ThrottlingCircuitBreakerOptions>(Configuration);
 
             services
                 .AddControllers()
@@ -70,10 +69,10 @@ namespace FHICORC.ApplicationHost.Api
 
             services.AddConfiguredSwaggerGen();
 
-            var featureToggles = Configuration.GetSection($"{OptionsConfigurationRoot}:{nameof(FeatureToggles)}").Get<FeatureToggles>() ?? new();
+            var featureToggles = Configuration.GetSection($"{nameof(FeatureToggles)}").Get<FeatureToggles>() ?? new();
             if (featureToggles.UseEuDgcGateway)
             {
-                var connectionStrings = Configuration.GetSection($"{OptionsConfigurationRoot}:{nameof(ConnectionStringOptions)}").Get<ConnectionStringOptions>();
+                var connectionStrings = Configuration.GetSection($"{nameof(ConnectionStringOptions)}").Get<ConnectionStringOptions>();
                 services.AddDbContext<CoronapassContext>(options =>
                     options.UseNpgsql(connectionStrings.PgsqlDatabase, b => b.MigrationsAssembly("FHICORC.Infrastructure.Database")));
             }
@@ -99,7 +98,7 @@ namespace FHICORC.ApplicationHost.Api
 
             if (env.IsDevelopment())
             {
-                var featureToggles = Configuration.GetSection($"{OptionsConfigurationRoot}:{nameof(FeatureToggles)}").Get<FeatureToggles>() ?? new();
+                var featureToggles = Configuration.GetSection($"{nameof(FeatureToggles)}").Get<FeatureToggles>() ?? new();
                 if (featureToggles.UseEuDgcGateway)
                 {
                     app.ApplicationServices.InitializeDatabase<CoronapassContext>();
