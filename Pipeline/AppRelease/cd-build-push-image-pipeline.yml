@@ -18,6 +18,7 @@ stages:
     steps:
     - task: Docker@2
       inputs:
+        containerRegistry: ${{ parameters.containerRegistry }}
         repository: $(apiImageName)
         command: build
         DockerFile: $(buildContext)/FHICORC.ApplicationHost.Api/Dockerfile
@@ -27,6 +28,7 @@ stages:
     steps:
     - task: Docker@2
       inputs:
+        containerRegistry: ${{ parameters.containerRegistry }}
         repository: $(hangfireImageName)
         command: build
         DockerFile: $(buildContext)/FHICORC.ApplicationHost.Hangfire/Dockerfile
@@ -36,6 +38,7 @@ stages:
     steps:
     - task: Docker@2
       inputs:
+        containerRegistry: ${{ parameters.containerRegistry }}
         repository: $(dbMigrationsImageName)
         command: build
         DockerFile: $(buildContext)/FHICORC.ApplicationHost.DbMigrations/Dockerfile
