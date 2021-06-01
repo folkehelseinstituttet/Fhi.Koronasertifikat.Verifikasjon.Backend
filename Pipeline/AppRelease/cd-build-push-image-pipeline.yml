@@ -11,64 +11,53 @@ variables:
   apiImageName: 'fhicorc-verification-backend'
   hangfireImageName: 'fhicorc-verification-hangfire'
   dbMigrationsImageName: 'fhicorc-verification-dbmigrations'
-  dockerBuildArguments: '--build-arg PAT=$(AzureDevOpsPAT) -t ${{ parameters.containerRegistry }}/$(imageRepository):${{ parameters.imageTag }}'
 
-jobs:
-- job: Build_image_job
-  displayName: Build application images
-  steps:
-  - task: Docker@2
-    displayName: Build API image
-    inputs:
-      containerRegistry: ${{ parameters.containerRegistry }}
-      repository: $(apiImageName)
-      tags: ${{ parameters.imageTag }}
-      command: build
-      DockerFile: $(buildContext)/FHICORC.ApplicationHost.Api/Dockerfile
-      buildContext: $(buildContext)
-      arguments: $(dockerBuildArguments)
-  - task: Docker@2
-    displayName: Build Hangfire image
-    inputs:
-      containerRegistry: ${{ parameters.containerRegistry }}
-      repository: $(hangfireImageName)
-      tags: ${{ parameters.imageTag }}
-      command: build
-      DockerFile: $(buildContext)/FHICORC.ApplicationHost.Hangfire/Dockerfile
-      buildContext: $(buildContext)
-      arguments: $(dockerBuildArguments)
-  - task: Docker@2
-    displayName: Build DbMigrations image
-    inputs:
-      containerRegistry: ${{ parameters.containerRegistry }}
-      repository: $(dbMigrationsImageName)
-      tags: ${{ parameters.imageTag }}
-      command: build
-      DockerFile: $(buildContext)/FHICORC.ApplicationHost.DbMigrations/Dockerfile
-      buildContext: $(buildContext)
-      arguments: $(dockerBuildArguments)
-- job: Push_image_job
-  displayName: Push images to repository
-  dependsOn: Build_image_job
-  steps:
-  - task: Docker@2
-    displayName: Push API image to repository
-    inputs:
-      containerRegistry: ${{ parameters.containerRegistry }}
-      repository: $(apiImageName)
-      tags: ${{ parameters.imageTag }}
-      command: push
-  - task: Docker@2
-    displayName: Push Hangfire image to repository
-    inputs:
-      containerRegistry: ${{ parameters.containerRegistry }}
-      repository: $(hangfireImageName)
-      tags: ${{ parameters.imageTag }}
-      command: push
-  - task: Docker@2
-    displayName: Push DbMigrations image to repository
-    inputs:
-      containerRegistry: ${{ parameters.containerRegistry }}
-      repository: $(dbMigrationsImageName)
-      tags: ${{ parameters.imageTag }}
-      command: push
+steps:
+- task: Docker@2
+  displayName: Build API image
+  inputs:
+    containerRegistry: ${{ parameters.containerRegistry }}
+    repository: $(apiImageName)
+    tags: ${{ parameters.imageTag }}
+    command: build
+    DockerFile: $(buildContext)/FHICORC.ApplicationHost.Api/Dockerfile
+    buildContext: $(buildContext)
+- task: Docker@2
+  displayName: Build Hangfire image
+  inputs:
+    containerRegistry: ${{ parameters.containerRegistry }}
+    repository: $(hangfireImageName)
+    tags: ${{ parameters.imageTag }}
+    command: build
+    DockerFile: $(buildContext)/FHICORC.ApplicationHost.Hangfire/Dockerfile
+    buildContext: $(buildContext)
+- task: Docker@2
+  displayName: Build DbMigrations image
+  inputs:
+    containerRegistry: ${{ parameters.containerRegistry }}
+    repository: $(dbMigrationsImageName)
+    tags: ${{ parameters.imageTag }}
+    command: build
+    DockerFile: $(buildContext)/FHICORC.ApplicationHost.DbMigrations/Dockerfile
+    buildContext: $(buildContext)
+- task: Docker@2
+  displayName: Push API image to repository
+  inputs:
+    containerRegistry: ${{ parameters.containerRegistry }}
+    repository: $(apiImageName)
+    tags: ${{ parameters.imageTag }}
+    command: push
+- task: Docker@2
+  displayName: Push Hangfire image to repository
+  inputs:
+    containerRegistry: ${{ parameters.containerRegistry }}
+    repository: $(hangfireImageName)
+    tags: ${{ parameters.imageTag }}
+    command: push
+- task: Docker@2 
+  displayName: Push DbMigrations image to repository
+  inputs:
+    containerRegistry: ${{ parameters.containerRegistry }}
+    repository: $(dbMigrationsImageName)
+    tags: ${{ parameters.imageTag }}
+    command: push
