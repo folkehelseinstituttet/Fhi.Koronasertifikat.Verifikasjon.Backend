@@ -12,71 +12,59 @@ variables:
   hangfireImageName: 'fhicorc-verification-hangfire'
   dbMigrationsImageName: 'fhicorc-verification-dbmigrations'
 
-stages:
-- stage: Build_images_stage
+jobs:
+- job: Build_image_job
   displayName: Build application images
-  jobs:
-  - job: Build_API_image_job
+  steps:
+  - task: Docker@2
     displayName: Build API image
-    steps:
-    - task: Docker@2
-      inputs:
-        containerRegistry: ${{ parameters.containerRegistry }}
-        repository: $(apiImageName)
-        tags: ${{ parameters.imageTag }}
-        command: build
-        DockerFile: $(buildContext)/FHICORC.ApplicationHost.Api/Dockerfile
-        buildContext: $(buildContext)
-  - job: Build_Hangfire_image_job
+    inputs:
+      containerRegistry: ${{ parameters.containerRegistry }}
+      repository: $(apiImageName)
+      tags: ${{ parameters.imageTag }}
+      command: build
+      DockerFile: $(buildContext)/FHICORC.ApplicationHost.Api/Dockerfile
+      buildContext: $(buildContext)
+  - task: Docker@2
     displayName: Build Hangfire image
-    steps:
-    - task: Docker@2
-      inputs:
-        containerRegistry: ${{ parameters.containerRegistry }}
-        repository: $(hangfireImageName)
-        tags: ${{ parameters.imageTag }}
-        command: build
-        DockerFile: $(buildContext)/FHICORC.ApplicationHost.Hangfire/Dockerfile
-        buildContext: $(buildContext)
-  - job: Build_DbMigrations_image_job
+    inputs:
+      containerRegistry: ${{ parameters.containerRegistry }}
+      repository: $(hangfireImageName)
+      tags: ${{ parameters.imageTag }}
+      command: build
+      DockerFile: $(buildContext)/FHICORC.ApplicationHost.Hangfire/Dockerfile
+      buildContext: $(buildContext)
+  - task: Docker@2
     displayName: Build DbMigrations image
-    steps:
-    - task: Docker@2
-      inputs:
-        containerRegistry: ${{ parameters.containerRegistry }}
-        repository: $(dbMigrationsImageName)
-        tags: ${{ parameters.imageTag }}
-        command: build
-        DockerFile: $(buildContext)/FHICORC.ApplicationHost.DbMigrations/Dockerfile
-        buildContext: $(buildContext)
-
-- stage: Push_images_stage
+    inputs:
+      containerRegistry: ${{ parameters.containerRegistry }}
+      repository: $(dbMigrationsImageName)
+      tags: ${{ parameters.imageTag }}
+      command: build
+      DockerFile: $(buildContext)/FHICORC.ApplicationHost.DbMigrations/Dockerfile
+      buildContext: $(buildContext)
+- job: Push_image_job
   displayName: Push images to repository
-  jobs:
-  - job: Push_API_image_job
+  dependsOn: Build_image_job
+  steps:
+  - task: Docker@2
     displayName: Push API image to repository
-    steps:
-    - task: Docker@2
-      inputs:
-        containerRegistry: ${{ parameters.containerRegistry }}
-        repository: $(apiImageName)
-        tags: ${{ parameters.imageTag }}
-        command: push
-  - job: Push_Hangfire_image_job
+    inputs:
+      containerRegistry: ${{ parameters.containerRegistry }}
+      repository: $(apiImageName)
+      tags: ${{ parameters.imageTag }}
+      command: push
+  - task: Docker@2
     displayName: Push Hangfire image to repository
-    steps:
-    - task: Docker@2
-      inputs:
-        containerRegistry: ${{ parameters.containerRegistry }}
-        repository: $(hangfireImageName)
-        tags: ${{ parameters.imageTag }}
-        command: push
-  - job: Push_DbMigrations_image_job
+    inputs:
+      containerRegistry: ${{ parameters.containerRegistry }}
+      repository: $(hangfireImageName)
+      tags: ${{ parameters.imageTag }}
+      command: push
+  - task: Docker@2
     displayName: Push DbMigrations image to repository
-    steps:
-    - task: Docker@2
-      inputs:
-        containerRegistry: ${{ parameters.containerRegistry }}
-        repository: $(dbMigrationsImageName)
-        tags: ${{ parameters.imageTag }}
-        command: push
+    inputs:
+      containerRegistry: ${{ parameters.containerRegistry }}
+      repository: $(dbMigrationsImageName)
+      tags: ${{ parameters.imageTag }}
+      command: push
