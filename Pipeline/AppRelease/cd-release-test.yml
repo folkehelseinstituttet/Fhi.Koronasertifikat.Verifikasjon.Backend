@@ -8,5 +8,5 @@ pool:
 extends:
   template: cd-build-push-image-pipeline.yml
   parameters:
-    containerRegistry: FHI-Koronasertifikat.Verifisering-ACR-QA
+    containerRegistry: FHI-Koronasertifikat.Verifisering-ACR-Test
     imageTag: $(Build.BuildId)
