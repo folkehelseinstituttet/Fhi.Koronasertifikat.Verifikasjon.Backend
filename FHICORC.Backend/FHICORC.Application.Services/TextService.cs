@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using FHICORC.Application.Common.Interfaces;
+using FHICORC.Application.Models.CustomExceptions;
 
 namespace FHICORC.Application.Services
 {
@@ -21,14 +22,16 @@ namespace FHICORC.Application.Services
         private readonly TextOptions _textOptions;
         private readonly DirectoryInfo _directorySelected;
         private const string LatestVersionNumberCacheKey = "LATEST_VERSION";
+        private readonly IMetricLogService _metricLogService;
 
-        public TextService(ILogger<TextService> logger, ICacheManager cacheManager, TextCacheOptions textCacheOptions, TextOptions textOptions)
+        public TextService(ILogger<TextService> logger, ICacheManager cacheManager, TextCacheOptions textCacheOptions, TextOptions textOptions, IMetricLogService metricLogService)
         {
             _logger = logger;
             _cacheManager = cacheManager;
             _textCacheOptions = textCacheOptions;
             _textOptions = textOptions;
             _directorySelected = new DirectoryInfo(_textOptions.TextsDirectory);
+            _metricLogService = metricLogService;
         }
 
         public async Task<TextResponseDto> GetLatestVersionAsync(TextRequestDto textRequestDto)
@@ -55,17 +58,24 @@ namespace FHICORC.Application.Services
             try
             {
                 var files = _directorySelected.GetFiles();
-                var fileName = files[0].Name;  // Get version from first file in the Text directory. All files will have same versioning
-
                 string sPattern = @"(?![\\_\.])[\d\.\\_]+(?i)(?=.json)"; // This regex is more robust than the one above
 
-                var serverMatches = Regex.Matches(fileName, sPattern); // Find the version number in fileName
-                string joinedServerVersion = string.Join(".", serverMatches.Select(x => x.Value));
+                MatchCollection serverMatches;
+                foreach (var file in files)
+                {
+                    serverMatches = Regex.Matches(file.Name, sPattern); // Find the version number in fileName
+                    if (serverMatches.Count == 1)
+                    {
+                        string joinedServerVersion = string.Join(".", serverMatches.First().Value);
 
-                string versionServer = new Version(joinedServerVersion).ToString();
+                        string versionServer = new Version(joinedServerVersion).ToString();
 
-                _cacheManager.Set(LatestVersionNumberCacheKey, versionServer, _textCacheOptions);
-                return versionServer;
+                        _cacheManager.Set(LatestVersionNumberCacheKey, versionServer, _textCacheOptions);
+                        return versionServer;
+                    }
+                }
+
+                throw new AppDictionaryFileCouldNotBeFoundException("App dictionary file with the right format could not be found.");
             }
             catch (Exception ex)
             {
@@ -96,9 +106,11 @@ namespace FHICORC.Application.Services
             {
                 resultDto.ZipContents = cachedData;
                 _logger.LogDebug("Texts successfully retrieved from cache, {VersionNo}", latestVersion);
+                _metricLogService.AddMetric("TextService_Files_CacheHit", true);
                 return resultDto;
             }
 
+            _metricLogService.AddMetric("TextService_Files_CacheHit", false);
             var files = _directorySelected.GetFiles();
 
             Dictionary<string, byte[]> fileDictionary = await CreateZipFiles(files);

@@ -19,6 +19,8 @@ using HealthChecks.Hangfire;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using FHICORC.ApplicationHost.Hangfire.Interfaces;
 using FHICORC.Integrations.DGCGateway;
+using FHICORC.Application.Common.Interfaces;
+using FHICORC.Application.Common.Logging.Metrics;
 
 namespace FHICORC.ApplicationHost.Hangfire
 {
@@ -57,6 +59,7 @@ namespace FHICORC.ApplicationHost.Hangfire
                 options.UseNpgsql(connectionStrings.PgsqlDatabase,
                     b => b.MigrationsAssembly("FHICORC.Infrastructure.Database")));
             services.AddScoped<IEuCertificateRepository, EuCertificateRepository>();
+            services.AddScoped<IMetricLogService, MetricLogService>();
 
             services.AddHangfire(configuration => configuration.UsePostgreSqlStorage(connectionStrings.HangfirePgsqlDatabase));
             services.AddHangfireTaskManagerAndTasks();
@@ -76,7 +79,7 @@ namespace FHICORC.ApplicationHost.Hangfire
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
-            IHangfireTaskManager hangfireTaskManager)
+            IHangfireTaskManager hangfireTaskManager, HangfireHealthOptions hangfireHealthOptions)
         {
             if (env.IsDevelopment())
             {
@@ -86,7 +89,11 @@ namespace FHICORC.ApplicationHost.Hangfire
 
             InitializeHangfireDatabase(app.ApplicationServices);
             app.UseHangfireDashboard();
-            app.UseHangfireServer();
+            app.UseHangfireServer(options: new BackgroundJobServerOptions 
+                {
+                    WorkerCount = hangfireHealthOptions.WorkerCount
+                });
+
             hangfireTaskManager.SetupHangfireTasks();
 
             app.UseRouting();

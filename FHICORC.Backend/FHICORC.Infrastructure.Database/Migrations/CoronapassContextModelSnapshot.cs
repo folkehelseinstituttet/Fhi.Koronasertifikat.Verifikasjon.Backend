@@ -18,7 +18,7 @@ namespace FHICORC.Infrastructure.Database.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("ProductVersion", "5.0.4")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-            
+
             modelBuilder.Entity("FHICORC.Domain.Models.EuDocSignerCertificate", b =>
                 {
                     b.Property<int>("EuDocSignerCertificateId")

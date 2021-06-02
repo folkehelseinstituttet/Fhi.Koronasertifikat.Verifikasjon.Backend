@@ -10,15 +10,9 @@
 
 
 	<ItemGroup>
-	  <ProjectReference Include="..\FHICORC.Application.Common\FHICORC.Application.Common.csproj" />
+    <ProjectReference Include="..\FHICORC.Application.Common\FHICORC.Application.Common.csproj" />
 	  <ProjectReference Include="..\FHICORC.Application.Models\FHICORC.Application.Models.csproj" />
 	  <ProjectReference Include="..\FHICORC.Application.Repositories\FHICORC.Application.Repositories.csproj" />
-	</ItemGroup>
-
-
-	<ItemGroup>
-	  <Reference Include="Microsoft.Extensions.Http">
-	    <HintPath>..\..\..\..\Program Files\dotnet\packs\Microsoft.AspNetCore.App.Ref\5.0.0\ref\net5.0\Microsoft.Extensions.Http.dll</HintPath>
-	  </Reference>
+	  <ProjectReference Include="..\FHICORC.Integrations.DGCGateway\FHICORC.Integrations.DGCGateway.csproj" />
 	</ItemGroup>
 </Project>

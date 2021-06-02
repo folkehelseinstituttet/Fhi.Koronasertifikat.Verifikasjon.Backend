@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,7 +18,6 @@ using FHICORC.Application.Validation;
 using FHICORC.ApplicationHost.Api.Middleware;
 using FHICORC.Infrastructure.Database;
 using FHICORC.Infrastructure.Database.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace FHICORC.ApplicationHost.Api
 {
@@ -88,8 +88,8 @@ namespace FHICORC.ApplicationHost.Api
 
             services.AddHealthChecks()
                 .AddDbContextCheck<CoronapassContext>()
-                .AddCheck<PublicKeyServiceHealthCheck>("publickey", tags: new []{"publickey"})
-                .AddCheck<TextServiceHealthCheck>("text", tags: new []{"text"});
+                .AddCheck<PublicKeyServiceHealthCheck>("publickey", tags: new[] { "publickey" })
+                .AddCheck<TextServiceHealthCheck>("text", tags: new[] { "text" });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -111,7 +111,7 @@ namespace FHICORC.ApplicationHost.Api
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "FHICORC.ApplicationHost.Api v1"));
 
-            app.UseRouting();               
+            app.UseRouting();
             app.UseServiceMiddleware();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>

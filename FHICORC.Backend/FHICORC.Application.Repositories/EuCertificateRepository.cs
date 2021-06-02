@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using FHICORC.Application.Common.Interfaces;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Domain.Models;
 using FHICORC.Infrastructure.Database.Context;
-using Z.BulkOperations;
+using Npgsql.Bulk;
 
 namespace FHICORC.Application.Repositories
 {
@@ -14,11 +15,15 @@ namespace FHICORC.Application.Repositories
     {
         private readonly CoronapassContext _coronapassContext;
         private readonly ILogger<EuCertificateRepository> _logger;
+        private readonly IMetricLogService _metricLogService;
+        private readonly NpgsqlBulkUploader _bulkUploader;
 
-        public EuCertificateRepository(CoronapassContext coronapassContext, ILogger<EuCertificateRepository> logger)
+        public EuCertificateRepository(CoronapassContext coronapassContext, ILogger<EuCertificateRepository> logger, IMetricLogService metricLogService)
         {
             _coronapassContext = coronapassContext;
             _logger = logger;
+            _metricLogService = metricLogService;
+            _bulkUploader = new NpgsqlBulkUploader(coronapassContext);
         }
 
         public async Task<bool> PersistEuDocSignerCertificate(EuDocSignerCertificate euDocSignerCertificate)
@@ -37,28 +42,32 @@ namespace FHICORC.Application.Repositories
             
         }
 
-        public async Task<bool> BulkUpsertEuDocSignerCertificates(List<EuDocSignerCertificate> euDocSignerCertificates)
+        public async Task<bool> CleanupAndPersistEuDocSignerCertificates(List<EuDocSignerCertificate> euDocSignerCertificates)
         {
-            try
+            await using (var transaction = await _coronapassContext.Database.BeginTransactionAsync())
             {
-                var deleted = await _coronapassContext.EuDocSignerCertificates.DeleteFromQueryAsync();
-                _logger.LogDebug("Deleted EuDocSignerCertificates {DeletedRows}", deleted);
+                try
+                {
+                    var euCertTableName = _coronapassContext.Model.FindEntityType(typeof(EuDocSignerCertificate)).GetTableName();
+                    var rowsAffected = _coronapassContext.Database.ExecuteSqlRaw($"delete from \"{euCertTableName}\"");
 
-                var insertedResult = new ResultInfo();
-                await _coronapassContext.EuDocSignerCertificates.BulkInsertAsync(euDocSignerCertificates,
-                    options =>
-                    {
-                        options.UseRowsAffected = true;
-                        options.ResultInfo = insertedResult;
-                    });
+                    _metricLogService.AddMetric("EUCertificate_DeletedEUDocs", rowsAffected);
+                    _logger.LogDebug("Deleted EuDocSignerCertificates {DeletedRows}", rowsAffected);
 
-                _logger.LogDebug("Inserted EuDocSignerCertificates {InsertedRows}", insertedResult.RowsAffected);
-                return true;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e,"Failed to upsert items into EuDocSignerCertificates");
-                return false;
+                    await _bulkUploader.InsertAsync<EuDocSignerCertificate>(euDocSignerCertificates, InsertConflictAction.DoNothing());
+
+                    _logger.LogDebug("Inserted EuDocSignerCertificates {InsertedRows}", euDocSignerCertificates.Count);
+                    _metricLogService.AddMetric("EUCertificate_InsertedEUDocs", euDocSignerCertificates.Count);
+
+                    await transaction.CommitAsync();
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    await transaction.RollbackAsync();
+                    _logger.LogError(e, "Failed to upsert items into EuDocSignerCertificates");
+                    return false;
+                }
             }
         }
 
