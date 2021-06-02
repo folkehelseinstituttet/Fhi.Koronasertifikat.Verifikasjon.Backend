@@ -6,5 +6,6 @@ namespace FHICORC.Application.Models.Options
     {
         public string NBTlsCertificatePath { get; set; }
         public string DGCGTrustAnchorPath { get; set; }
+        public bool DisableDGCGServerCertValidation { get; set; }
     }
 }

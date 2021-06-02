@@ -22,7 +22,7 @@ namespace FHICORC.ApplicationHost.DbMigrations
                 {
                     webBuilder.UseStartup<Startup>();
                 })
-                .UseConsoleLifetime()
-                .UseSerilogConfiguration("DbMigrations");
+            .UseConsoleLifetime()
+            .UseSerilogConfiguration("DbMigrations");
     }
 }

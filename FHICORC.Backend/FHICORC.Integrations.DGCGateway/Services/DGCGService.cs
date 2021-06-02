@@ -25,31 +25,24 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
         public async Task<DgcgTrustListResponseDto> GetTrustListAsync(string certificateType = "")
         {
-            try
-            {
-                var fullResponse = await _dgcgClient.FetchTrustListAsync(certificateType);
 
-                var CertificateCount = fullResponse.TrustListItems.Count;
-                if (_featureToggles.DisableTrustListVerification)
-                {
-                    return fullResponse; 
-                }
-                else
-                {
-                    var verifiedResponse = _dgcgResponseVerification.VerifyResponseFromGateway(fullResponse);
-                    if (verifiedResponse.TrustListItems.Count < CertificateCount)
-                    {
-                        _logger.LogInformation("Unsuccessfully verified DSC(S) {count} ", CertificateCount - fullResponse.TrustListItems.Count);
-                    }
-                    _logger.LogInformation("Verified successfully {count} ", verifiedResponse.TrustListItems.Count);
-                    return verifiedResponse;
-                }
-            } 
-            catch (Exception e)
+            var fullResponse = await _dgcgClient.FetchTrustListAsync(certificateType);
+
+            var CertificateCount = fullResponse.TrustListItems.Count;
+            if (_featureToggles.DisableTrustListVerification)
             {
-                _logger.LogError(e, "Failed to fetch TrustList from DGCG.");
+                return fullResponse; 
             }
-            return new DgcgTrustListResponseDto { TrustListItems = new List<DgcgTrustListItem>() };
-        }
+            else
+            {
+                var verifiedResponse = _dgcgResponseVerification.VerifyResponseFromGateway(fullResponse);
+                if (verifiedResponse.TrustListItems.Count < CertificateCount)
+                {
+                    _logger.LogInformation("Unsuccessfully verified DSC(S) {count} ", CertificateCount - fullResponse.TrustListItems.Count);
+                }
+                _logger.LogInformation("Verified successfully {count} ", verifiedResponse.TrustListItems.Count);
+                return verifiedResponse;
+            }
+        } 
     }
 }
