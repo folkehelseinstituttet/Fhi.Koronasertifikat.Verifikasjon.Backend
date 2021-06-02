@@ -1,0 +1,63 @@
+parameters:
+- name: containerRegistry
+  type: string
+  default: ''
+- name: imageTag
+  type: string
+  default: 'latest'
+
+variables:
+  buildContext: 'FHICORC.Backend'
+  apiImageName: 'fhicorc-verification-backend'
+  hangfireImageName: 'fhicorc-verification-hangfire'
+  dbMigrationsImageName: 'fhicorc-verification-dbmigrations'
+
+steps:
+- task: Docker@2
+  displayName: Build API image
+  inputs:
+    containerRegistry: ${{ parameters.containerRegistry }}
+    repository: $(apiImageName)
+    tags: ${{ parameters.imageTag }}
+    command: build
+    DockerFile: $(buildContext)/FHICORC.ApplicationHost.Api/Dockerfile
+    buildContext: $(buildContext)
+- task: Docker@2
+  displayName: Build Hangfire image
+  inputs:
+    containerRegistry: ${{ parameters.containerRegistry }}
+    repository: $(hangfireImageName)
+    tags: ${{ parameters.imageTag }}
+    command: build
+    DockerFile: $(buildContext)/FHICORC.ApplicationHost.Hangfire/Dockerfile
+    buildContext: $(buildContext)
+- task: Docker@2
+  displayName: Build DbMigrations image
+  inputs:
+    containerRegistry: ${{ parameters.containerRegistry }}
+    repository: $(dbMigrationsImageName)
+    tags: ${{ parameters.imageTag }}
+    command: build
+    DockerFile: $(buildContext)/FHICORC.ApplicationHost.DbMigrations/Dockerfile
+    buildContext: $(buildContext)
+- task: Docker@2
+  displayName: Push API image to repository
+  inputs:
+    containerRegistry: ${{ parameters.containerRegistry }}
+    repository: $(apiImageName)
+    tags: ${{ parameters.imageTag }}
+    command: push
+- task: Docker@2
+  displayName: Push Hangfire image to repository
+  inputs:
+    containerRegistry: ${{ parameters.containerRegistry }}
+    repository: $(hangfireImageName)
+    tags: ${{ parameters.imageTag }}
+    command: push
+- task: Docker@2 
+  displayName: Push DbMigrations image to repository
+  inputs:
+    containerRegistry: ${{ parameters.containerRegistry }}
+    repository: $(dbMigrationsImageName)
+    tags: ${{ parameters.imageTag }}
+    command: push
