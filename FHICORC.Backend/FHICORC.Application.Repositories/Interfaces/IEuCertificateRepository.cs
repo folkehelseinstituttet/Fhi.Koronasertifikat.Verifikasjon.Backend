@@ -11,7 +11,7 @@ namespace FHICORC.Application.Repositories.Interfaces
     {
         Task<bool> PersistEuDocSignerCertificate(EuDocSignerCertificate euDocSignerCertificate);
 
-        Task<bool> BulkUpsertEuDocSignerCertificates(List<EuDocSignerCertificate> euDocSignerCertificates);
+        Task<bool> CleanupAndPersistEuDocSignerCertificates(List<EuDocSignerCertificate> euDocSignerCertificates);
 
         Task<List<EuDocSignerCertificate>> GetAllEuDocSignerCertificates();
 

@@ -1,5 +1,4 @@
-﻿
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using FHICORC.Application.Models;
 using Newtonsoft.Json;
@@ -9,7 +8,6 @@ using RestSharp;
 using System.Net;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 
 namespace FHICORC.Integrations.DGCGateway.Services
 {
@@ -40,14 +38,21 @@ namespace FHICORC.Integrations.DGCGateway.Services
             client.Proxy = new WebProxy();
             var restRequest = new RestRequest(certificateType, Method.GET);
 
+            if (_certificateOptions.DisableDGCGServerCertValidation)
+            {
+                _logger.LogWarning("DGCG server certificate validation is disabled.");
+                client.RemoteCertificateValidationCallback += (sender, cert, chain, error) => { return true; };
+            }
+
             var response = await client.ExecuteGetAsync(restRequest);
             var parsedResponse = JsonConvert.DeserializeObject<DgcgTrustListItem[]>(response.Content);
-
+            _logger.LogDebug("DGCG Response {StatusCode} {Content}", response.StatusCode, response.Content);
+            _logger.LogDebug("DGCG ParsedResponse {ItemCount}", parsedResponse == null ? "empty" : parsedResponse.Length);
             var resultDto = new DgcgTrustListResponseDto();
             if (parsedResponse == null)
             {
                 _logger.LogError("Could not JSON deserialize response from DGCG. {StatusCode} - {ErrorMessage} - {Exception} - {Content}", response.StatusCode, response.ErrorMessage, response.ErrorException, response.Content);
-                resultDto.TrustListItems = new List<DgcgTrustListItem>();
+                throw new GeneralDgcgFaultException("Parsed response is null"); 
             }
             else
             {

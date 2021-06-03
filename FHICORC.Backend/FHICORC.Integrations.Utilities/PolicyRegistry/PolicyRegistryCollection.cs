@@ -9,12 +9,12 @@ namespace FHICORC.Integrations.Utilities
     {
         public static AsyncPolicy CircuitBreakerPolicyCbs(ThrottlingCircuitBreakerOptions throttlingCircuitBreakerOptions)
         {
-            return Policy.Handle<Exception>().ThrottlingCircuitBreakerAsync(throttlingCircuitBreakerOptions);
+            return Policy.Handle<Exception>().ThrottlingCircuitBreakerAsync(throttlingCircuitBreakerOptions);  
         }
 
         public static AsyncPolicy CircuitBreakerPolicyIdws(ThrottlingCircuitBreakerOptions throttlingCircuitBreakerOptions)
         {
-            return Policy.Handle<Exception>().ThrottlingCircuitBreakerAsync(throttlingCircuitBreakerOptions);
+            return Policy.Handle<Exception>().ThrottlingCircuitBreakerAsync(throttlingCircuitBreakerOptions); 
         }
     }
 }

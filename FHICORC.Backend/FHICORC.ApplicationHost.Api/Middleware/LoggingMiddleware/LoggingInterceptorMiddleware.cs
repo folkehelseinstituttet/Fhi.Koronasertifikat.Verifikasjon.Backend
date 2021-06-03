@@ -1,34 +1,41 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Serilog.Context;
 using Serilog.Core;
+using FHICORC.Application.Common.Interfaces;
+using System;
 using System.Threading.Tasks;
-using FHICORC.Application.Common.Logging.Metrics;
-using Microsoft.Extensions.Logging;
 
 namespace FHICORC.ApplicationHost.Api.Middleware.LoggingMiddleware
 {
     public class LoggingInterceptorMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly Stopwatch _stopwatch;
 
         public LoggingInterceptorMiddleware(RequestDelegate next)
         {
             _next = next;
-            _stopwatch = new Stopwatch();
         }
 
-        public async Task Invoke(HttpContext context, ILogEventEnricher logEventEnricher, ILogger<LoggingInterceptorMiddleware> logger)
+        public async Task Invoke(HttpContext context, ILogEventEnricher logEventEnricher, IMetricLogService metricLogService)
         {
             using (LogContext.Push(logEventEnricher))
             {
-                _stopwatch.Start();
+                if (context.Request.Path != "/error")
+                {
+                    metricLogService.AddMetric("API_Path", context.Request.Path);
+                    context.Items.Add("StartTime", DateTime.UtcNow);
+                }
                 await _next(context);
-                _stopwatch.Stop();
-                logger.MetricLogMessage("API call with path '{APIPath}' finished in {ElapsedTime} ms. API response status code: {APIStatusCode}.",
-                    context.Request.Path, _stopwatch.ElapsedMilliseconds, context.Response.StatusCode);
-                _stopwatch.Reset();
+                context.Items.TryGetValue("StartTime", out var startTime);
+
+                if (startTime != null)
+                {
+                    var timeDiff = DateTime.UtcNow - (DateTime)startTime;
+                    metricLogService.AddMetric("API_ElapsedTime", (int)timeDiff.TotalMilliseconds);
+                }
+
+                metricLogService.AddMetric("API_StatusCode", context.Response.StatusCode);
+                metricLogService.DumpMetricsToLog("API request handled");
             }
         }
     }
