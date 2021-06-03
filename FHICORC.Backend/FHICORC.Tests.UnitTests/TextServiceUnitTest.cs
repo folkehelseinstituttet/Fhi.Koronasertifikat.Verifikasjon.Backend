@@ -25,6 +25,7 @@ namespace FHICORC.Tests.UnitTests
         private ICacheManager cacheManager;
         private readonly TextOptions textOptions = new TextOptions() { TextsDirectory = "../../../../../AppDictionary" };
         private readonly Mock<ILogger<TextService>> loggerMock = new Mock<ILogger<TextService>>();
+        private readonly Mock<IMetricLogService> mockMetricLogService = new Mock<IMetricLogService>();
         private TextService textService;
         private byte[] cacheData = new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 };
         private string currentFileVersion = "";
@@ -41,9 +42,8 @@ namespace FHICORC.Tests.UnitTests
             services.AddSingleton<ICacheManager, CacheManager>();
             serviceProvider = services.BuildServiceProvider();
             cacheManager = serviceProvider.GetService<ICacheManager>();
-
             //Text Service instance 
-            textService = new TextService(loggerMock.Object, cacheManager, mockTextCacheOptions.Object, textOptions);
+            textService = new TextService(loggerMock.Object, cacheManager, mockTextCacheOptions.Object, textOptions, mockMetricLogService.Object);
 
             //Current file version 
             currentFileVersion = getServerVersion(dirInfo);
@@ -91,7 +91,7 @@ namespace FHICORC.Tests.UnitTests
         public async Task LastestVersionNumberCache_ContainValue_ReturnsUpToDate()
         {
             cacheManager.Set("LATEST_VERSION", "1.5", mockTextCacheOptions.Object);
-            TextService specificTextService = new TextService(loggerMock.Object, cacheManager, mockTextCacheOptions.Object, textOptions);
+            TextService specificTextService = new TextService(loggerMock.Object, cacheManager, mockTextCacheOptions.Object, textOptions, mockMetricLogService.Object);
             TextRequestDto _txtRequest = new TextRequestDto() { CurrentVersionNo = "1.5" };
 
             // Act //
@@ -147,7 +147,7 @@ namespace FHICORC.Tests.UnitTests
             byte[] cachedData;
             cacheManager.Set("LATEST_VERSION", "2.0", mockTextCacheOptions.Object);
             cacheManager.Set("2.0", cacheData, mockTextCacheOptions.Object);
-            TextService specificTextService = new TextService(loggerMock.Object, cacheManager, mockTextCacheOptions.Object, textOptions);
+            TextService specificTextService = new TextService(loggerMock.Object, cacheManager, mockTextCacheOptions.Object, textOptions, mockMetricLogService.Object);
 
             // Act //
             TextRequestDto _txtRequest = new TextRequestDto() { CurrentVersionNo = "0.9" };
@@ -159,22 +159,25 @@ namespace FHICORC.Tests.UnitTests
             Assert.AreEqual(textResponse.ZipContents, cachedData);
         }
 
-
-
-
-
         private string getServerVersion(DirectoryInfo dirInfo)
         {
-            var file = dirInfo.GetFiles().First();
+            var files = dirInfo.GetFiles();
             string sPattern = @"(?![\\_\.])[\d\.\\_]+(?i)(?=.json)"; // This regex is more robust than the one above
 
-            // Find the version number in fileName
-            var Server_Matches = Regex.Matches(file.Name, sPattern);
-            string joined_ServerVersion = string.Join(".", Server_Matches.Select(x => x.Value));
+            foreach (var file in files)
+            {
+                var Server_Matches = Regex.Matches(file.Name, sPattern);
+                if (Server_Matches.Count == 1)
+                {
+                    string joined_ServerVersion = string.Join(".", Server_Matches.First().Value);
 
-            Version versionServer = new Version(joined_ServerVersion);
-            var serverVersion = versionServer.ToString();
-            return serverVersion;
+                    Version versionServer = new Version(joined_ServerVersion);
+                    var serverVersion = versionServer.ToString();
+                    return serverVersion;
+                }
+            }
+
+            throw new Exception("could not find files with correct format");
         }
     }
 }

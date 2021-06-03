@@ -8,5 +8,7 @@ namespace FHICORC.Application.Models.Options
         public int MaximumJobsFailed { get; set; }
         [Required]
         public int MinimumAvailableServers { get; set; }
+        [Required]
+        public int WorkerCount { get; set; }
     }
 }

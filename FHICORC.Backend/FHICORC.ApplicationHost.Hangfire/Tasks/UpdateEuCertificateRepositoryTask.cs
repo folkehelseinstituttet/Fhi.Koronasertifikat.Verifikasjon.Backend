@@ -2,10 +2,11 @@ using System;
 using System.Threading.Tasks;
 using Hangfire;
 using Microsoft.Extensions.Logging;
-using FHICORC.Application.Common.Logging.Metrics;
+using FHICORC.Application.Common.Interfaces;
 using FHICORC.Application.Models.Options;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.ApplicationHost.Hangfire.Interfaces;
+using FHICORC.Integrations.DGCGateway;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
 
 namespace FHICORC.ApplicationHost.Hangfire.Tasks
@@ -13,23 +14,25 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
     public class UpdateEuCertificateRepositoryTask : IUpdateEuCertificateRepositoryTask
     {
         // This cannot be moved to AppSettings as it is used in attribute and therefore must be constant.
-        public const int DisableConcurrentTimeout = 20;
+        public const int DisableConcurrentTimeout = 10;
 
         private readonly ILogger<UpdateEuCertificateRepositoryTask> _logger;
         private readonly CronOptions _cronOptions;
         private readonly IDgcgService _dgcgService;
         private readonly IDgcgResponseParser _dgcgResponseParser;
         private readonly IEuCertificateRepository _euCertificateRepository;
+        private readonly IMetricLogService _metricLogService;
 
         public UpdateEuCertificateRepositoryTask(ILogger<UpdateEuCertificateRepositoryTask> logger, CronOptions cronOptions,
             IDgcgService dgcgService, IDgcgResponseParser dgcgResponseParser,
-            IEuCertificateRepository euCertificateRepository)
+            IEuCertificateRepository euCertificateRepository, IMetricLogService metricLogService)
         {
             _logger = logger;
             _cronOptions = cronOptions;
             _dgcgService = dgcgService;
             _dgcgResponseParser = dgcgResponseParser;
             _euCertificateRepository = euCertificateRepository;
+            _metricLogService = metricLogService;
         }
 
         public void SetupTask()
@@ -49,14 +52,25 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
             {
                 var trustlistResponse = await _dgcgService.GetTrustListAsync();
                 var euDocSignerCertificates = _dgcgResponseParser.ParseToEuDocSignerCertificate(trustlistResponse);
-                await _euCertificateRepository.BulkUpsertEuDocSignerCertificates(euDocSignerCertificates);
-                
-                _logger.MetricLogMessage("UpdateEuCertificateRepository Success");
+                await _euCertificateRepository.CleanupAndPersistEuDocSignerCertificates(euDocSignerCertificates);
+
+                _metricLogService.AddMetric("UpdateEuCertificateRepository_Success", true);
+            }
+            catch (GeneralDgcgFaultException e)
+            {
+                _logger.LogError(e, "FaultException caught"); 
+                _metricLogService.AddMetric("UpdateEuCertificateRepository_Success", false);
+                throw;
             }
             catch (Exception e)
             {
-                _logger.LogWarning("UpdateEuCertificateRepository fails", e.StackTrace);
+                _logger.LogError(e, "UpdateEuCertificateRepository fails");
+                _metricLogService.AddMetric("UpdateEuCertificateRepository_Success", false);
                 throw;
+            }
+            finally
+            {
+                _metricLogService.DumpMetricsToLog("UpdateEuCertificateRepository finished");
             }
         }
     }

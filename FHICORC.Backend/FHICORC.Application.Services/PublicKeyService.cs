@@ -17,14 +17,19 @@ namespace FHICORC.Application.Services
         private readonly PublicKeyCacheOptions _publicKeyCacheOptions;
         private readonly ILogger<PublicKeyService> _logger;
         private readonly IEuCertificateRepository _euCertificateRepository;
+        private readonly SecurityOptions _securityOptions;
+        private readonly IMetricLogService _metricLogService;
 
-        public PublicKeyService(ILogger<PublicKeyService> logger, ICacheManager cacheManager, PublicKeyCacheOptions publicKeyCacheOptions, IEuCertificateRepository euCertificateRepository)
+        public PublicKeyService(ILogger<PublicKeyService> logger, ICacheManager cacheManager, PublicKeyCacheOptions publicKeyCacheOptions,
+                                IEuCertificateRepository euCertificateRepository, SecurityOptions securityOptions, IMetricLogService metricLogService)
 
         {
             _cacheManager = cacheManager;
             _publicKeyCacheOptions = publicKeyCacheOptions;
             _euCertificateRepository = euCertificateRepository; 
             _logger = logger;
+            _securityOptions = securityOptions;
+            _metricLogService = metricLogService;
         }
 
         public async Task<PublicKeyResponseDto> GetPublicKeysAsync()
@@ -32,9 +37,11 @@ namespace FHICORC.Application.Services
             if (_cacheManager.TryGetValue(CacheKey, out PublicKeyResponseDto cachedData))
             {
                 _logger.LogDebug("PublicKeys found in cache");
+                _metricLogService.AddMetric("PublicKey_CacheHit", true);
                 return cachedData;
             }
             _logger.LogDebug("PublicKeys not found in cache. Fetching from repository");
+            _metricLogService.AddMetric("PublicKey_CacheHit", false);
 
             var databaseResults = await _euCertificateRepository.GetAllEuDocSignerCertificates();
 
@@ -47,9 +54,23 @@ namespace FHICORC.Application.Services
                 }).ToList()
             };
 
+            SeedNorwegianDsc(ref publicKeyResponseDto);
+            
             _cacheManager.Set(CacheKey, publicKeyResponseDto, _publicKeyCacheOptions);
 
             return publicKeyResponseDto;
+        }
+
+        private void SeedNorwegianDsc(ref PublicKeyResponseDto responseDto)
+        {
+            if (!responseDto.pkList.Exists(pk => pk.kid.Equals(_securityOptions.NorwegianDscKid)))
+            {
+                responseDto.pkList.Add(new CertificatePublicKey
+                {
+                    kid = _securityOptions.NorwegianDscKid,
+                    publicKey = _securityOptions.NorwegianDscPublicKey
+                });
+            }
         }
     }
 }

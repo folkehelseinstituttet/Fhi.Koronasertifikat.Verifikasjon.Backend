@@ -18,8 +18,10 @@ namespace FHICORC.Tests.UnitTests
     [Category("Unit")]
     public class PublicKeyServiceUnitTests
     {
+        private readonly Mock<SecurityOptions> mockSecurityOptions = new Mock<SecurityOptions>();
         private readonly Mock<PublicKeyCacheOptions> mockPublicKeyCacheOptions = new Mock<PublicKeyCacheOptions>();
         ILogger<PublicKeyService> nullLogger = new NullLoggerFactory().CreateLogger<PublicKeyService>();
+        private readonly Mock<IMetricLogService> mockMetricLogService = new Mock<IMetricLogService>();
         private readonly Mock<IEuCertificateRepository> _euCertificateRepositoryMock = new Mock<IEuCertificateRepository>(); 
         private ICacheManager cacheManager;
 
@@ -49,14 +51,13 @@ namespace FHICORC.Tests.UnitTests
             services.AddSingleton<ICacheManager, CacheManager>();
             var serviceProvider = services.BuildServiceProvider();
             cacheManager = serviceProvider.GetService<ICacheManager>();
-
         }
 
         [Test]
         public void When_PublicKeysAreNotFoundInDB_ShouldThrowError()
         {
-            _euCertificateRepositoryMock.Reset(); 
-            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object);
+            _euCertificateRepositoryMock.Reset();
+            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object, mockSecurityOptions.Object, mockMetricLogService.Object);
 
             // Act
             Assert.IsFalse(cacheManager.TryGetValue("publicKeyCacheKey", out PublicKeyResponseDto emptyCachedData));
@@ -84,7 +85,7 @@ namespace FHICORC.Tests.UnitTests
             };
             
             cacheManager.Set("publicKeyCacheKey", publicKeyReponseDto, mockPublicKeyCacheOptions.Object);
-            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object);
+            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object, mockSecurityOptions.Object, mockMetricLogService.Object);
 
 
             // Act 
@@ -99,7 +100,7 @@ namespace FHICORC.Tests.UnitTests
         {
             // Arrange 
             _euCertificateRepositoryMock.Setup(p => p.GetAllEuDocSignerCertificates()).ReturnsAsync(euDocSignerCertificates); 
-            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object);
+            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object, mockSecurityOptions.Object, mockMetricLogService.Object);
 
 
             // Act & Assert
@@ -115,7 +116,7 @@ namespace FHICORC.Tests.UnitTests
         {
             // Arrange 
             _euCertificateRepositoryMock.Setup(p => p.GetAllEuDocSignerCertificates()).ReturnsAsync(euDocSignerCertificates);
-            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object);
+            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object, mockSecurityOptions.Object, mockMetricLogService.Object);
 
 
             // Act & Assert
