@@ -1,0 +1,33 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-20.04'
+
+variables:
+  buildContext: 'FHICORC.Backend'
+  apiImageName: 'fhicorc-verification-backend'
+  hangfireImageName: 'fhicorc-verification-hangfire'
+  dbMigrationsImageName: 'fhicorc-verification-dbmigrations'
+
+steps:
+- task: Docker@2
+  displayName: Build API image
+  inputs:
+    repository: $(apiImageName)
+    command: build
+    DockerFile: $(buildContext)/FHICORC.ApplicationHost.Api/Dockerfile
+    buildContext: $(buildContext)
+- task: Docker@2
+  displayName: Build Hangfire image
+  inputs:
+    repository: $(hangfireImageName)
+    command: build
+    DockerFile: $(buildContext)/FHICORC.ApplicationHost.Hangfire/Dockerfile
+    buildContext: $(buildContext)
+- task: Docker@2
+  displayName: Build DbMigrations image
+  inputs:
+    repository: $(dbMigrationsImageName)
+    command: build
+    DockerFile: $(buildContext)/FHICORC.ApplicationHost.DbMigrations/Dockerfile
+    buildContext: $(buildContext)

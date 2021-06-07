@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.16.1" />
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FHICORC.Application.Models\FHICORC.Application.Models.csproj" />
+    <ProjectReference Include="..\FHICORC.ApplicationHost.Api\FHICORC.ApplicationHost.Api.csproj" />
+    <ProjectReference Include="..\FHICORC.ApplicationHost.Hangfire\FHICORC.ApplicationHost.Hangfire.csproj" />
+    <ProjectReference Include="..\FHICORC.Integrations.DGCGateway\FHICORC.Integrations.DGCGateway.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestFiles\tst_full_trustlist_response.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\tst_invalid_response.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DGCGTests\" />
+  </ItemGroup>
+
+</Project>

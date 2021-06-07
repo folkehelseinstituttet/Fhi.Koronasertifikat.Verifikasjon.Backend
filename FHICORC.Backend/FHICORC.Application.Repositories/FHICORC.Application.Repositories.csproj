@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="morelinq" Version="3.3.2" />
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NpgsqlBulk.EFCore" Version="0.9.0" />
+	  <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\FHICORC.Application.Models\FHICORC.Application.Models.csproj" />
+    <ProjectReference Include="..\FHICORC.Domain.Models\FHICORC.Domain.Models.csproj" />
+	  <ProjectReference Include="..\FHICORC.Infrastructure.Database\FHICORC.Infrastructure.Database.csproj" />
+	  <ProjectReference Include="..\FHICORC.Application.Common\FHICORC.Application.Common.csproj" />
+	</ItemGroup>
+
+</Project>

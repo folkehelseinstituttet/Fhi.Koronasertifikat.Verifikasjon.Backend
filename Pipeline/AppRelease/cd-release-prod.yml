@@ -1,0 +1,13 @@
+trigger: none
+
+pr: none
+
+pool:
+  vmImage: 'ubuntu-20.04'
+
+extends:
+  template: cd-build-push-image-pipeline.yml
+  parameters:
+    containerRegistry: FHI-Koronasertifikat.Verifisering-ACR-Prod
+    imageTag: $(Build.BuildId)
+    doRelease: ${{ eq(variables['Build.SourceBranch'], 'refs/heads/main') }}
