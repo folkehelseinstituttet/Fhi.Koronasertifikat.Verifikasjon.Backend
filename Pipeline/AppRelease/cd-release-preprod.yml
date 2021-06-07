@@ -10,3 +10,4 @@ extends:
   parameters:
     containerRegistry: FHI-Koronasertifikat.Verifisering-ACR-QA
     imageTag: $(Build.BuildId)
+    doRelease: ${{ startsWith(variables['Build.SourceBranch'], 'refs/heads/release/') }}
