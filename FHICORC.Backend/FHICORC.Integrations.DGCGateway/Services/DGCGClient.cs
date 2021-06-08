@@ -49,7 +49,18 @@ namespace FHICORC.Integrations.DGCGateway.Services
             }
 
             var response = await client.ExecuteGetAsync(restRequest);
-            var parsedResponse = JsonConvert.DeserializeObject<DgcgTrustListItem[]>(response.Content);
+            
+            DgcgTrustListItem[] parsedResponse;
+            try
+            {
+                parsedResponse = JsonConvert.DeserializeObject<DgcgTrustListItem[]>(response.Content);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Response parse failed (status code {StatusCode}): {Content} - {Exception}", response.StatusCode, response.Content, e);
+                throw;
+            }
+            
             _logger.LogDebug("DGCG Response {StatusCode} {Content}", response.StatusCode, response.Content);
             _logger.LogDebug("DGCG ParsedResponse {ItemCount}", parsedResponse == null ? "empty" : parsedResponse.Length);
             var resultDto = new DgcgTrustListResponseDto();
