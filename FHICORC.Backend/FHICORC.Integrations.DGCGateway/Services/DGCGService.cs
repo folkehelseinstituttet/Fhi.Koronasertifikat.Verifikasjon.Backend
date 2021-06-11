@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using FHICORC.Application.Models;
 using FHICORC.Application.Models.Options;
@@ -28,7 +26,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
             var fullResponse = await _dgcgClient.FetchTrustListAsync(certificateType);
 
-            var CertificateCount = fullResponse.TrustListItems.Count;
+            var certificateCount = fullResponse.TrustListItems.Count;
             if (_featureToggles.DisableTrustListVerification)
             {
                 return fullResponse; 
@@ -36,9 +34,9 @@ namespace FHICORC.Integrations.DGCGateway.Services
             else
             {
                 var verifiedResponse = _dgcgResponseVerification.VerifyResponseFromGateway(fullResponse);
-                if (verifiedResponse.TrustListItems.Count < CertificateCount)
+                if (verifiedResponse.TrustListItems.Count < certificateCount)
                 {
-                    _logger.LogInformation("Unsuccessfully verified DSC(S) {count} ", CertificateCount - fullResponse.TrustListItems.Count);
+                    _logger.LogInformation("Unsuccessfully verified DSC(S) {count} ", certificateCount - verifiedResponse.TrustListItems.Count);
                 }
                 _logger.LogInformation("Verified successfully {count} ", verifiedResponse.TrustListItems.Count);
                 return verifiedResponse;
