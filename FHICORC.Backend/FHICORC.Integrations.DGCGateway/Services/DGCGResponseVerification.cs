@@ -95,12 +95,12 @@ namespace FHICORC.Integrations.DGCGateway.Services
             {
                 if (!_certificateVerification.VerifyDSCSignedByCSCA(DSCItem, CSCACert))
                 {
-                    _logger.LogInformation("Failed to verify DSC is trusted by CSCA, {thumbprint}", DSCItem.thumbprint);
+                    _logger.LogInformation("Failed to verify DSC is trusted by CSCA, {thumbprint}, {kid}, {country}", DSCItem.thumbprint, DSCItem.kid, CSCATrustListItem.country);
                     continue;
                 }
                 if (!_certificateVerification.VerifyDSCByUploadCertificate(DSCItem, uploadCert))
                 {
-                    _logger.LogInformation("Failed to verify DSC is signed by TrustAnchor, {thumbprint}", DSCItem.thumbprint);
+                    _logger.LogInformation("Failed to verify DSC is signed by upload certificate, {thumbprint}, {kid}, {country}", DSCItem.thumbprint, DSCItem.kid, CSCATrustListItem.country);
                     continue;
                 }
                 verifiedDSCs.Add(DSCItem);
