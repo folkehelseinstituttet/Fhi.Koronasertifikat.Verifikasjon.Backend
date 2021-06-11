@@ -53,7 +53,7 @@ namespace FHICORC.Tests.UnitTests
         {
             var certificateVerification = new CertificateVerification(nullLogger);
 
-            var response = certificateVerification.VerifyByTrustAnchorSignature(CSCATrustListItem, trustAnchor);
+            var response = certificateVerification.VerifyItemByAnchorSignature(CSCATrustListItem, trustAnchor, "TrustAnchor");
 
             Assert.True(response); 
             Assert.NotNull(response);
@@ -65,7 +65,7 @@ namespace FHICORC.Tests.UnitTests
             var certificateVerification = new CertificateVerification(nullLogger);
             var UploadTrustListItem = fullTestTrustList.TrustListItems.Find(x => x.certificateType == CertificateType.UPLOAD.ToString());
 
-            var response = certificateVerification.VerifyByTrustAnchorSignature(UploadTrustListItem, trustAnchor);
+            var response = certificateVerification.VerifyItemByAnchorSignature(UploadTrustListItem, trustAnchor, "TrustAnchor");
 
             Assert.True(response);
             Assert.NotNull(response);
@@ -76,7 +76,7 @@ namespace FHICORC.Tests.UnitTests
         {
             var certificateVerification = new CertificateVerification(nullLogger);
 
-            var response = certificateVerification.VerifyByTrustAnchorSignature(InvalidCSCATrustListItem, trustAnchor);
+            var response = certificateVerification.VerifyItemByAnchorSignature(InvalidCSCATrustListItem, trustAnchor, "TrustAnchor");
 
             Assert.False(response);
             Assert.NotNull(response);
@@ -89,7 +89,7 @@ namespace FHICORC.Tests.UnitTests
 
             trustAnchor = BuildSelfSignedCertificate("DifferentTA");
 
-            var response = certificateVerification.VerifyByTrustAnchorSignature(CSCATrustListItem, trustAnchor);
+            var response = certificateVerification.VerifyItemByAnchorSignature(CSCATrustListItem, trustAnchor, "TrustAnchor");
 
             Assert.False(response);
             Assert.NotNull(response);
@@ -104,7 +104,7 @@ namespace FHICORC.Tests.UnitTests
             var UploadTrustListItem = fullTestTrustList.TrustListItems.Find(x => x.country == "DE" && x.certificateType == CertificateType.UPLOAD.ToString());
             var uploadCert = new X509Certificate2(Convert.FromBase64String(UploadTrustListItem.rawData));
 
-            var response = certificateVerification.VerifyDSCByUploadCertificate(DSCTrustListItem, uploadCert);
+            var response = certificateVerification.VerifyItemByAnchorSignature(DSCTrustListItem, uploadCert, "Upload");
 
             Assert.IsNotNull(response);
             Assert.True(response); 
@@ -119,7 +119,7 @@ namespace FHICORC.Tests.UnitTests
             var UploadTrustListItem = fullTestTrustList.TrustListItems.Find(x => x.country == "HR" && x.certificateType == CertificateType.UPLOAD.ToString());
             var uploadCert = new X509Certificate2(Convert.FromBase64String(UploadTrustListItem.rawData));
 
-            var response = certificateVerification.VerifyDSCByUploadCertificate(DSCTrustListItem, uploadCert);
+            var response = certificateVerification.VerifyItemByAnchorSignature(DSCTrustListItem, uploadCert, "Upload");
 
             Assert.IsNotNull(response);
             Assert.False(response);
@@ -134,7 +134,7 @@ namespace FHICORC.Tests.UnitTests
             var DSCItemList = fullTestTrustList.TrustListItems.Find(x => x.country == "IT" && x.certificateType == CertificateType.DSC.ToString());
             var CSCACert = new X509Certificate2(Convert.FromBase64String(CSCATrustListItemDE.rawData));
 
-            var response = certificateVerification.VerifyDSCSignedByCSCA(DSCItemList, CSCACert);
+            var response = certificateVerification.VerifyDscSignedByCsca(DSCItemList, CSCACert);
 
             Assert.IsNotNull(response);
             Assert.True(response);
@@ -149,7 +149,7 @@ namespace FHICORC.Tests.UnitTests
             var DSCItemList = fullTestTrustList.TrustListItems.Find(x => x.country == "DE" && x.certificateType == CertificateType.DSC.ToString());
             var CSCACert = new X509Certificate2(Convert.FromBase64String(CSCATrustListItemDE.rawData));
 
-            var response = certificateVerification.VerifyDSCSignedByCSCA(DSCItemList, CSCACert);
+            var response = certificateVerification.VerifyDscSignedByCsca(DSCItemList, CSCACert);
 
             Assert.IsNotNull(response);
             Assert.False(response);
