@@ -21,17 +21,12 @@ namespace FHICORC.Integrations.DGCGateway.Util
         {
             var dscCert = new X509Certificate2(Convert.FromBase64String(trustListItem.rawData));
 
-            // Validation from https://stackoverflow.com/questions/6497040/how-do-i-validate-that-a-certificate-was-created-by-a-particular-certification-a
-
             X509Chain chain = new X509Chain();
             chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
             chain.ChainPolicy.RevocationFlag = X509RevocationFlag.ExcludeRoot;
             chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
             chain.ChainPolicy.VerificationTime = DateTime.Now;
             chain.ChainPolicy.UrlRetrievalTimeout = new TimeSpan(0, 0, 0);
-
-            // This part is very important. You're adding your known root here.
-            // It doesn't have to be in the computer store at all. Neither certificates do.
             chain.ChainPolicy.ExtraStore.Add(cscaCertificate);
 
             bool isChainValid = chain.Build(dscCert);
@@ -39,7 +34,7 @@ namespace FHICORC.Integrations.DGCGateway.Util
             if (!isChainValid)
             {
                 string[] errors = chain.ChainStatus
-                    .Select(x => String.Format("{0} ({1})", x.StatusInformation.Trim(), x.Status))
+                    .Select(x => $"{x.StatusInformation.Trim()} ({x.Status})")
                     .ToArray();
                 string certificateErrorsString = "Unknown errors.";
 
@@ -52,7 +47,6 @@ namespace FHICORC.Integrations.DGCGateway.Util
                 return false;
             }
 
-            // This piece makes sure it actually matches your known root
             var result = chain.ChainElements
                 .Cast<X509ChainElement>()
                 .Any(x => x.Certificate.Thumbprint == cscaCertificate.Thumbprint);
