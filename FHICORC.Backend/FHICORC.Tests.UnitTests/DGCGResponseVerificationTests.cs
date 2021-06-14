@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System;
 
 namespace FHICORC.Tests.UnitTests
 {
@@ -52,23 +53,27 @@ namespace FHICORC.Tests.UnitTests
         public void All_Returned_Countries_Are_Verified()
         {
             var response = dGCGResponseVerification.VerifyResponseFromGateway(fullTestTrustList);
-            var countries = fullTestTrustList.TrustListItems.Select(x => x.country).Distinct().ToList();
+            var uploadCerts = fullTestTrustList.TrustListItems.Where(t => t.certificateType == CertificateType.UPLOAD.ToString()).ToList();
+            var cscaCerts = fullTestTrustList.TrustListItems.Where(t => t.certificateType == CertificateType.CSCA.ToString()).ToList();
 
             Assert.NotNull(response);
-            Assert.NotNull(countries.Count);
-            certificateVerification.Verify(x => x.VerifyByTrustAnchorSignature(It.IsAny<DgcgTrustListItem>(), It.IsAny<X509Certificate2>()), Times.Exactly(countries.Count));
+            Assert.NotNull(uploadCerts.Count);
+            Assert.NotNull(cscaCerts.Count);
+            certificateVerification.Verify(x => x.VerifyItemByAnchorSignature(It.IsAny<DgcgTrustListItem>(), It.IsAny<X509Certificate2>(), It.IsAny<string>()), Times.Exactly(uploadCerts.Count + cscaCerts.Count));
         }
         [Test]
         public void TrustLists_NotAdded_If_Validation_Fails()
         {
             //Setup mock 
-            certificateVerification.Setup(x => x.VerifyDSCSignedByCSCA(It.IsAny<DgcgTrustListItem>(), It.IsAny<X509Certificate2>())).Returns(false); 
+            certificateVerification.Setup(x => x.VerifyDscSignedByCsca(It.IsAny<DgcgTrustListItem>(), It.IsAny<X509Certificate2>())).Returns(false); 
 
             var DSCTrustListItemsDE = fullTestTrustList.TrustListItems.FindAll(x => x.country == "DE" && x.certificateType == CertificateType.DSC.ToString());
             var count = DSCTrustListItemsDE.Count;
-            var fullListCount = fullTestTrustList.TrustListItems.Count; 
+            var fullListCount = fullTestTrustList.TrustListItems.Count;
 
-            var response = dGCGResponseVerification.VerifyAndGetDSCs(fullTestTrustList, CSCATrustListItemDE, UploadTrustListDE);
+            var cscaList = new List<X509Certificate2> { new X509Certificate2(Convert.FromBase64String(CSCATrustListItemDE.rawData)) };
+            var uploadList = new List<X509Certificate2> { new X509Certificate2(Convert.FromBase64String(UploadTrustListDE.rawData)) };
+            var response = dGCGResponseVerification.VerifyAndGetDscs(fullTestTrustList, cscaList, uploadList, "DE");
 
             Assert.True(response.Count == 0);
         }
