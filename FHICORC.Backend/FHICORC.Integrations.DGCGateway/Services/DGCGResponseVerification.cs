@@ -42,11 +42,8 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     continue;
                 }
 
-                List<X509Certificate2> uploadCertificates = new List<X509Certificate2>();
-                foreach (var uploadTrustListItem in uploadTrustListItems)
-                {
-                    VerifyAgainstTrustAnchor(uploadTrustListItem, trustAnchor, verifiedResponse.TrustListItems, uploadCertificates);
-                }
+                (List<DgcgTrustListItem> verifiedUpItems, List<X509Certificate2> uploadCertificates) = VerifyAgainstTrustAnchor(uploadTrustListItems, trustAnchor);
+                verifiedResponse.TrustListItems.AddRange(verifiedUpItems);
 
                 /* CSCA Verification */
                 var cscaTrustListItems = gatewayResponse.TrustListItems.FindAll(x => x.country == country && x.certificateType == CertificateType.CSCA.ToString());
@@ -56,11 +53,8 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     continue;
                 }
 
-                List<X509Certificate2> cscaCertificates = new List<X509Certificate2>();
-                foreach (var cscaTrustListItem in cscaTrustListItems)
-                {
-                    VerifyAgainstTrustAnchor(cscaTrustListItem, trustAnchor, verifiedResponse.TrustListItems, cscaCertificates);
-                }
+                (List<DgcgTrustListItem> verifiedCscaItems, List<X509Certificate2> cscaCertificates) = VerifyAgainstTrustAnchor(cscaTrustListItems, trustAnchor);
+                verifiedResponse.TrustListItems.AddRange(verifiedCscaItems);
 
                 /* DSC Verification */
                 verifiedResponse.TrustListItems.AddRange(VerifyAndGetDscs(gatewayResponse, uploadCertificates, cscaCertificates, country));
@@ -69,29 +63,34 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
         }
 
-        public bool VerifyAgainstTrustAnchor(DgcgTrustListItem trustListItem, X509Certificate2 trustAnchor,
-            List<DgcgTrustListItem> verifiedTrustListItems, List<X509Certificate2> verifiedCertificates)
+        public (List<DgcgTrustListItem> TrustListItems, List<X509Certificate2> Certificates) VerifyAgainstTrustAnchor(
+            List<DgcgTrustListItem> trustListItems, X509Certificate2 trustAnchor)
         {
-            var validSignature = _certificateVerification.VerifyItemByAnchorSignature(trustListItem, trustAnchor, "TrustAnchor");
-            if (!validSignature)
+            var verifiedItems = new List<DgcgTrustListItem>();
+            var verifiedCertificates = new List<X509Certificate2>();
+            foreach (var trustListItem in trustListItems)
             {
-                _logger.LogError("Failed to verify certificate type {certificateType} for {country} with TrustAnchor",
-                    trustListItem.certificateType, trustListItem.country);
-                return false;
+                var validSignature = _certificateVerification.VerifyItemByAnchorSignature(trustListItem, trustAnchor, "TrustAnchor");
+                if (!validSignature)
+                {
+                    _logger.LogError("Failed to verify certificate type {certificateType} for {country} with TrustAnchor",
+                        trustListItem.certificateType, trustListItem.country);
+                    continue;
+                }
+
+                var cert = new X509Certificate2(Convert.FromBase64String(trustListItem.rawData));
+                if (cert.NotAfter < DateTime.Now)
+                {
+                    _logger.LogInformation("{certificateType} certificate {thumbprint} for {country} expired at {expiryDate}", 
+                        trustListItem.certificateType, cert.Thumbprint, trustListItem.country, cert.NotAfter);
+                    continue;
+                }
+
+                verifiedItems.Add(trustListItem);
+                verifiedCertificates.Add(cert);
             }
 
-            var cert = new X509Certificate2(Convert.FromBase64String(trustListItem.rawData));
-            if (cert.NotAfter < DateTime.Now)
-            {
-                _logger.LogInformation("{certificateType} certificate {thumbprint} for {country} expired at {expiryDate}", 
-                    trustListItem.certificateType, cert.Thumbprint, trustListItem.country, cert.NotAfter);
-                return false;
-            }
-
-            verifiedTrustListItems.Add(trustListItem);
-            verifiedCertificates.Add(cert);
-
-            return true;
+            return (verifiedItems, verifiedCertificates);
         }
 
         public List<DgcgTrustListItem> VerifyAndGetDscs(DgcgTrustListResponseDto gatewayResponse,
