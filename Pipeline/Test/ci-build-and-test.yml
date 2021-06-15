@@ -36,7 +36,8 @@ steps:
     inputs:
       targetType: 'inline'
       script: |
-        Get-ChildItem -Recurse -Filter "*.coverage"
+        $files = Get-ChildItem -Recurse -Filter "*.coverage"
+        Write-Output $files
         Get-ChildItem -Recurse -Filter "*.coverage" | % {
         "File '$($_.Name)'"
         $outfile = "$([System.IO.Path]::GetFileNameWithoutExtension($_.FullName)).coveragexml"
