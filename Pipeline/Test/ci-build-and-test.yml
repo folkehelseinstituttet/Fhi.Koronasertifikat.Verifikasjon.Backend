@@ -29,17 +29,14 @@ steps:
     inputs:
       command: 'test'
       projects: '**/*.UnitTests/*.csproj'
-      arguments: '-c $(BuildConfiguration) --no-restore --collect "Code Coverage"'
+      arguments: '-c $(BuildConfiguration) --no-restore'
       
   - task: PowerShell@2
     displayName: Convert coverage file
     inputs:
       targetType: 'inline'
       script: |
-        $files = Get-ChildItem -Recurse -Filter "*.coverage"
-        Write-Output $files
         Get-ChildItem -Recurse -Filter "*.coverage" | % {
-        "File '$($_.Name)'"
         $outfile = "$([System.IO.Path]::GetFileNameWithoutExtension($_.FullName)).coveragexml"
         $output = [System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($_.FullName), $outfile)
         "Analyse '$($_.Name)' with output '$outfile'..."
