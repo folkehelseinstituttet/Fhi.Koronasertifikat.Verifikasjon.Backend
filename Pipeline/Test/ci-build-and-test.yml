@@ -1,20 +1,52 @@
 pool:
   vmImage: 'windows-latest'
+  demands:
+    - MSBuild
 
 variables:
   solution: '**/*.sln'
   buildConfiguration: 'Debug'
+  sonarqubeProject: 'FHICORC-KORONASERT'
 
 steps:
+  - task: SonarQubePrepare@4
+    inputs:
+      SonarQube: 'SonarQube-Netcompany'
+      scannerMode: 'MSBuild'
+      projectKey: $(sonarqubeProject)
+      projectName: $(sonarqubeProject)
+      extraProperties: 'sonar.cs.vscoveragexml.reportsPaths=**/*.coveragexml'
+      
   - task: DotNetCoreCLI@2
     displayName: Build solution
     inputs:
       command: 'build'
       projects: '$(solution)'
       configuration: '$(buildConfiguration)'
+      
   - task: DotNetCoreCLI@2
     displayName: Unit tests
     inputs:
       command: 'test'
       projects: '**/*.UnitTests/*.csproj'
       arguments: '-c $(BuildConfiguration) --no-restore'
+      
+  - task: PowerShell@2
+    displayName: Convert coverage file
+    inputs:
+      targetType: 'inline'
+      script: |
+        Get-ChildItem -Recurse -Filter "*.coverage" | % {
+        $outfile = "$([System.IO.Path]::GetFileNameWithoutExtension($_.FullName)).coveragexml"
+        $output = [System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($_.FullName), $outfile)
+        "Analyse '$($_.Name)' with output '$outfile'..."
+        . "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Team Tools\Dynamic CodeCoverage Tools\CodeCoverage.exe" analyze /output:$output $_.FullName
+        }
+        "Done"
+
+  - task: SonarQubeAnalyze@4
+    displayName: SonarQube Analysis
+
+  - task: SonarQubePublish@4
+    inputs:
+      pollingTimeoutSec: '300'
