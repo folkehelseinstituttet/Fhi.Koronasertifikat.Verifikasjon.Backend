@@ -29,7 +29,7 @@ steps:
     inputs:
       command: 'test'
       projects: '**/*.UnitTests/*.csproj'
-      arguments: '-c $(BuildConfiguration) --no-restore --collect "DotnetCodeCoverage"'
+      arguments: '-c $(BuildConfiguration) --no-restore --collect "Code Coverage"'
       
   - task: PowerShell@2
     displayName: Convert coverage file
