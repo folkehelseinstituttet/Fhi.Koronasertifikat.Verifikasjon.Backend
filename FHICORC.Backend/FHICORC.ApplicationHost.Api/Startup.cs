@@ -39,8 +39,7 @@ namespace FHICORC.ApplicationHost.Api
                 .AddValidatedOptions<FeatureToggles>(Configuration)
                 .AddValidatedOptions<PublicKeyCacheOptions>(Configuration)
                 .AddValidatedOptions<TextCacheOptions>(Configuration)
-                .AddValidatedOptions<TextOptions>(Configuration)
-                .AddValidatedOptions<ThrottlingCircuitBreakerOptions>(Configuration);
+                .AddValidatedOptions<TextOptions>(Configuration);
 
             services
                 .AddControllers()
