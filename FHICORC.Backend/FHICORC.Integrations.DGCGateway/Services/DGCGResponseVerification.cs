@@ -39,7 +39,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 if (uploadTrustListItems.Count == 0)
                 {
                     _logger.LogError("Failed to find upload certificate from {country} in trustlist.", country);
-                    continue;
                 }
 
                 (List<DgcgTrustListItem> verifiedUpItems, List<X509Certificate2> uploadCertificates) = VerifyAgainstTrustAnchor(uploadTrustListItems, trustAnchor);
@@ -50,13 +49,17 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 if (cscaTrustListItems.Count == 0)
                 {
                     _logger.LogError("Failed to find CSCA Certificate(s) from {country} in trustlist.", country);
-                    continue;
                 }
 
                 (List<DgcgTrustListItem> verifiedCscaItems, List<X509Certificate2> cscaCertificates) = VerifyAgainstTrustAnchor(cscaTrustListItems, trustAnchor);
                 verifiedResponse.TrustListItems.AddRange(verifiedCscaItems);
 
                 /* DSC Verification */
+                if (uploadTrustListItems.Count == 0 || cscaTrustListItems.Count == 0)
+                {
+                    continue;
+                }
+
                 verifiedResponse.TrustListItems.AddRange(VerifyAndGetDscs(gatewayResponse, uploadCertificates, cscaCertificates, country));
             }
             return verifiedResponse;
@@ -78,7 +81,18 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     continue;
                 }
 
-                var cert = new X509Certificate2(Convert.FromBase64String(trustListItem.rawData));
+                X509Certificate2 cert;
+                try
+                {
+                    cert = new X509Certificate2(Convert.FromBase64String(trustListItem.rawData));
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Failed to initialize certificate of {certificateType} for country {country}",
+                        trustListItem.certificateType, trustListItem.country);
+                    continue;
+                }
+
                 if (cert.NotAfter < DateTime.Now)
                 {
                     _logger.LogInformation("{certificateType} certificate {thumbprint} for {country} expired at {expiryDate}", 
@@ -113,9 +127,9 @@ namespace FHICORC.Integrations.DGCGateway.Services
                         dscItem.thumbprint, dscItem.kid, country);
                     continue;
                 }
-                if (cscaCertList.All(csca => !_certificateVerification.VerifyDscSignedByCsca(dscItem, csca)))
+                if (!_certificateVerification.VerifyDscSignedByCsca(dscItem, cscaCertList))
                 {
-                    _logger.LogInformation("Failed to verify DSC is trusted by CSCA, {thumbprint}, {kid}, {country}",
+                    _logger.LogInformation("Failed to verify DSC, {thumbprint}, {kid}, {country}",
                         dscItem.thumbprint, dscItem.kid, country);
                     continue;
                 }

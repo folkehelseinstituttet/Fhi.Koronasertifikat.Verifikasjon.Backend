@@ -39,7 +39,6 @@
     <ProjectReference Include="..\FHICORC.Application.Services\FHICORC.Application.Services.csproj" />
     <ProjectReference Include="..\FHICORC.Application.Validation\FHICORC.Application.Validation.csproj" />
     <ProjectReference Include="..\FHICORC.Infrastructure.Database\FHICORC.Infrastructure.Database.csproj" />
-    <ProjectReference Include="..\FHICORC.Integrations.Utilities\FHICORC.Integrations.Utilities.csproj" />
     <ProjectReference Include="..\FHICORC.Integrations.DGCGateway\FHICORC.Integrations.DGCGateway.csproj" />
   </ItemGroup>
 
