@@ -28,8 +28,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FHICORC.Application.Common"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FHICORC.ApplicationHost.DbMigrations", "FHICORC.ApplicationHost.DbMigrations\FHICORC.ApplicationHost.DbMigrations.csproj", "{733DDD3B-BA93-4F84-B692-9BEE2CDA1BFF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FHICORC.Integrations.Utilities", "FHICORC.Integrations.Utilities\FHICORC.Integrations.Utilities.csproj", "{63426366-B3B9-413B-8AA5-930EF4675B70}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FHICORC.Integrations.DGCGateway", "FHICORC.Integrations.DGCGateway\FHICORC.Integrations.DGCGateway.csproj", "{754CE616-AFE5-4F2A-8A28-89FE833773B7}"
 EndProject
 Global
@@ -82,10 +80,6 @@ Global
 		{733DDD3B-BA93-4F84-B692-9BEE2CDA1BFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{733DDD3B-BA93-4F84-B692-9BEE2CDA1BFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{733DDD3B-BA93-4F84-B692-9BEE2CDA1BFF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{63426366-B3B9-413B-8AA5-930EF4675B70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{63426366-B3B9-413B-8AA5-930EF4675B70}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{63426366-B3B9-413B-8AA5-930EF4675B70}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{63426366-B3B9-413B-8AA5-930EF4675B70}.Release|Any CPU.Build.0 = Release|Any CPU
 		{754CE616-AFE5-4F2A-8A28-89FE833773B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{754CE616-AFE5-4F2A-8A28-89FE833773B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{754CE616-AFE5-4F2A-8A28-89FE833773B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
