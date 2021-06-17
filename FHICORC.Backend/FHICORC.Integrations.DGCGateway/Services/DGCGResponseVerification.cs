@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using FHICORC.Application.Models;
 using FHICORC.Application.Models.Options;
 using FHICORC.Integrations.DGCGateway.Models;
@@ -35,77 +34,109 @@ namespace FHICORC.Integrations.DGCGateway.Services
             
             foreach (var country in countries)
             {
-                /* CSCA Verification */
-                var CSCATrustListItems = gatewayResponse.TrustListItems.FindAll(x => x.country == country && x.certificateType == CertificateType.CSCA.ToString());
-                var CSCATrustListItem = CSCATrustListItems.OrderByDescending(x => x.timestamp).FirstOrDefault();
-
-
-                if (CSCATrustListItem == null)
-                {
-                    _logger.LogError("Failed to find latest CSCA Certificate from {country} in trustlist.", country);
-                    continue;
-                }
-                if (!VerifyCSCAAgainstTrustAnchor(CSCATrustListItem, trustAnchor)) continue;
-
-                verifiedResponse.TrustListItems.Add(CSCATrustListItem);
-
                 /* Upload Verification */
-                var uploadCerts = gatewayResponse.TrustListItems.FindAll(x => x.country == CSCATrustListItem.country && x.certificateType == CertificateType.UPLOAD.ToString());
-                var UploadTrustListitem = uploadCerts.OrderByDescending(x => x.timestamp).FirstOrDefault();
+                var uploadTrustListItems = gatewayResponse.TrustListItems.FindAll(x => x.country == country && x.certificateType == CertificateType.UPLOAD.ToString());
+                if (uploadTrustListItems.Count == 0)
+                {
+                    _logger.LogError("Failed to find upload certificate from {country} in trustlist.", country);
+                }
 
-                if (!VerifyUploadAgainstTrustAnchor(UploadTrustListitem, CSCATrustListItem, trustAnchor)) continue;
+                (List<DgcgTrustListItem> verifiedUpItems, List<X509Certificate2> uploadCertificates) = VerifyAgainstTrustAnchor(uploadTrustListItems, trustAnchor);
+                verifiedResponse.TrustListItems.AddRange(verifiedUpItems);
 
-                verifiedResponse.TrustListItems.Add(UploadTrustListitem);
+                /* CSCA Verification */
+                var cscaTrustListItems = gatewayResponse.TrustListItems.FindAll(x => x.country == country && x.certificateType == CertificateType.CSCA.ToString());
+                if (cscaTrustListItems.Count == 0)
+                {
+                    _logger.LogError("Failed to find CSCA Certificate(s) from {country} in trustlist.", country);
+                }
+
+                (List<DgcgTrustListItem> verifiedCscaItems, List<X509Certificate2> cscaCertificates) = VerifyAgainstTrustAnchor(cscaTrustListItems, trustAnchor);
+                verifiedResponse.TrustListItems.AddRange(verifiedCscaItems);
 
                 /* DSC Verification */
-                verifiedResponse.TrustListItems.AddRange(VerifyAndGetDSCs(gatewayResponse, CSCATrustListItem, UploadTrustListitem));
+                if (uploadTrustListItems.Count == 0 || cscaTrustListItems.Count == 0)
+                {
+                    continue;
+                }
+
+                verifiedResponse.TrustListItems.AddRange(VerifyAndGetDscs(gatewayResponse, uploadCertificates, cscaCertificates, country));
             }
             return verifiedResponse;
 
         }
 
-        public bool VerifyCSCAAgainstTrustAnchor(DgcgTrustListItem CSCATrustListItem, X509Certificate2 trustAnchor)
+        public (List<DgcgTrustListItem> TrustListItems, List<X509Certificate2> Certificates) VerifyAgainstTrustAnchor(
+            List<DgcgTrustListItem> trustListItems, X509Certificate2 trustAnchor)
         {
-            return _certificateVerification.VerifyByTrustAnchorSignature(CSCATrustListItem, trustAnchor);
-        }
-
-        public bool VerifyUploadAgainstTrustAnchor(DgcgTrustListItem uploadTrustListItem, DgcgTrustListItem CSCATrustListItem, X509Certificate2 trustAnchor)
-        {
-            if (uploadTrustListItem == null)
+            var verifiedItems = new List<DgcgTrustListItem>();
+            var verifiedCertificates = new List<X509Certificate2>();
+            foreach (var trustListItem in trustListItems)
             {
-                _logger.LogError("Failed to find upload certificate for {country}", CSCATrustListItem.country);
-                return false;
+                var validSignature = _certificateVerification.VerifyItemByAnchorSignature(trustListItem, trustAnchor, "TrustAnchor");
+                if (!validSignature)
+                {
+                    _logger.LogError("Failed to verify certificate type {certificateType} for {country} with TrustAnchor",
+                        trustListItem.certificateType, trustListItem.country);
+                    continue;
+                }
+
+                X509Certificate2 cert;
+                try
+                {
+                    cert = new X509Certificate2(Convert.FromBase64String(trustListItem.rawData));
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Failed to initialize certificate of {certificateType} for country {country}",
+                        trustListItem.certificateType, trustListItem.country);
+                    continue;
+                }
+
+                if (cert.NotAfter < DateTime.Now)
+                {
+                    _logger.LogInformation("{certificateType} certificate {thumbprint} for {country} expired at {expiryDate}", 
+                        trustListItem.certificateType, cert.Thumbprint, trustListItem.country, cert.NotAfter);
+                    continue;
+                }
+
+                verifiedItems.Add(trustListItem);
+                verifiedCertificates.Add(cert);
             }
-            return _certificateVerification.VerifyByTrustAnchorSignature(uploadTrustListItem, trustAnchor);
+
+            return (verifiedItems, verifiedCertificates);
         }
 
-        public List<DgcgTrustListItem> VerifyAndGetDSCs(DgcgTrustListResponseDto gatewayResponse, DgcgTrustListItem CSCATrustListItem, DgcgTrustListItem TrustListItemUpload)
+        public List<DgcgTrustListItem> VerifyAndGetDscs(DgcgTrustListResponseDto gatewayResponse,
+            List<X509Certificate2> uploadCertList, List<X509Certificate2> cscaCertList, string country)
         {
-            var CSCACert = new X509Certificate2(Convert.FromBase64String(CSCATrustListItem.rawData));
-            var DSCItemList = gatewayResponse.TrustListItems.FindAll(x => x.country == CSCATrustListItem.country && x.certificateType == CertificateType.DSC.ToString());
-            var uploadCert = new X509Certificate2(Convert.FromBase64String(TrustListItemUpload.rawData));
-            var verifiedDSCs = new List<DgcgTrustListItem>(); 
+            var dscItemList = gatewayResponse.TrustListItems.FindAll(x => x.country == country && x.certificateType == CertificateType.DSC.ToString());
+            var verifiedDscs = new List<DgcgTrustListItem>(); 
 
-            if (DSCItemList.Count == 0)
+            if (dscItemList.Count == 0)
             {
-                _logger.LogError("Failed to find DSC certificate for {country}", CSCATrustListItem.country);
+                _logger.LogError("Failed to find DSC certificate for {country}", country);
                 return new List<DgcgTrustListItem>();
             }
-            foreach (var DSCItem in DSCItemList)
+
+            foreach (var dscItem in dscItemList)
             {
-                if (!_certificateVerification.VerifyDSCSignedByCSCA(DSCItem, CSCACert))
+                if (uploadCertList.All(up => !_certificateVerification.VerifyItemByAnchorSignature(dscItem, up, "Upload")))
                 {
-                    _logger.LogInformation("Failed to verify DSC is trusted by CSCA, {thumbprint}", DSCItem.thumbprint);
+                    _logger.LogInformation("Failed to verify DSC is signed by upload certificate, {thumbprint}, {kid}, {country}",
+                        dscItem.thumbprint, dscItem.kid, country);
                     continue;
                 }
-                if (!_certificateVerification.VerifyDSCByUploadCertificate(DSCItem, uploadCert))
+                if (!_certificateVerification.VerifyDscSignedByCsca(dscItem, cscaCertList))
                 {
-                    _logger.LogInformation("Failed to verify DSC is signed by TrustAnchor, {thumbprint}", DSCItem.thumbprint);
+                    _logger.LogInformation("Failed to verify DSC, {thumbprint}, {kid}, {country}",
+                        dscItem.thumbprint, dscItem.kid, country);
                     continue;
                 }
-                verifiedDSCs.Add(DSCItem);
+                verifiedDscs.Add(dscItem);
             }
-            return verifiedDSCs;
+
+            return verifiedDscs;
         }
     }
 }

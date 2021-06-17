@@ -21,6 +21,7 @@ using FHICORC.ApplicationHost.Hangfire.Interfaces;
 using FHICORC.Integrations.DGCGateway;
 using FHICORC.Application.Common.Interfaces;
 using FHICORC.Application.Common.Logging.Metrics;
+using Hangfire.Dashboard;
 
 namespace FHICORC.ApplicationHost.Hangfire
 {
@@ -88,7 +89,10 @@ namespace FHICORC.ApplicationHost.Hangfire
             }
 
             InitializeHangfireDatabase(app.ApplicationServices);
-            app.UseHangfireDashboard();
+            app.UseHangfireDashboard(options: new DashboardOptions
+            {
+                Authorization = new IDashboardAuthorizationFilter[0]
+            });
             app.UseHangfireServer(options: new BackgroundJobServerOptions 
                 {
                     WorkerCount = hangfireHealthOptions.WorkerCount

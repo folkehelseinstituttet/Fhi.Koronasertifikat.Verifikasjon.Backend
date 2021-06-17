@@ -1,20 +1,45 @@
 pool:
   vmImage: 'windows-latest'
+  demands:
+    - MSBuild
+    - vstest
 
 variables:
   solution: '**/*.sln'
   buildConfiguration: 'Debug'
+  sonarqubeProject: 'FHICORC-KORONASERT'
+  buildPlatform: 'Any CPU'
 
 steps:
+  - task: SonarQubePrepare@4
+    displayName: SonarQube preparation
+    inputs:
+      SonarQube: 'SonarQube-Netcompany'
+      scannerMode: 'MSBuild'
+      projectKey: $(sonarqubeProject)
+      projectName: $(sonarqubeProject)
+      extraProperties: |
+        sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)\**\*.trx
+        sonar.cs.vscoveragexml.reportsPaths=$(Agent.TempDirectory)\**\*.coveragexml
+      
   - task: DotNetCoreCLI@2
     displayName: Build solution
     inputs:
       command: 'build'
       projects: '$(solution)'
       configuration: '$(buildConfiguration)'
+      
   - task: DotNetCoreCLI@2
-    displayName: Unit tests
+    displayName: Run unit tests
     inputs:
       command: 'test'
       projects: '**/*.UnitTests/*.csproj'
-      arguments: '-c $(BuildConfiguration) --no-restore'
+      arguments: '-c $(BuildConfiguration) --no-restore --collect "Code Coverage"'
+
+  - task: SonarQubeAnalyze@4
+    displayName: SonarQube Analysis
+
+  - task: SonarQubePublish@4
+    displayName: Publish SonarQube results
+    inputs:
+      pollingTimeoutSec: '300'
