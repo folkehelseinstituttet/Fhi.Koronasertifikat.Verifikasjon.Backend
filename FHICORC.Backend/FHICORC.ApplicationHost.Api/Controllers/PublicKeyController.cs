@@ -6,7 +6,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
 {
     [ApiController]
     [ApiVersion("1")]
-    // [ApiVersion("2")] - add me when relevant. Remember to add [MapToApiVersion("2")] to new version of existing endpoints.
+    [ApiVersion("2")]
     [Route("v{version:apiVersion}/[controller]")]
     [Route("[controller]")]
     public class PublicKeyController : ControllerBase
@@ -18,7 +18,17 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         }
 
         [HttpGet]
+        [MapToApiVersion("1")]
         public async Task<IActionResult> GetPublicKey()
+        {
+            var publicKeyResponseDto = await _publicKeyService.GetPublicKeysAsync();
+
+            return Ok(publicKeyResponseDto.pkList);
+        }
+
+        [HttpGet]
+        [MapToApiVersion("2")]
+        public async Task<IActionResult> GetPublicKeyV2()
         {
             var publicKeyResponseDto = await _publicKeyService.GetPublicKeysAsync();
 
