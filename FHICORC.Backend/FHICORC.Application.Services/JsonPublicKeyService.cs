@@ -9,9 +9,9 @@ using FHICORC.Application.Common.Interfaces;
 
 namespace FHICORC.Application.Services
 {
-    public class JsonPublicKeyService : IPublicKeyService
+    public class JsonPublicKeyService : IJsonPublicKeyService
     {
-        private const string CacheKey = "publicKeyCacheKey";
+        private const string CacheKey = "jsonPublicKeyCacheKey";
 
         private readonly ICacheManager _cacheManager;
         private readonly PublicKeyCacheOptions _publicKeyCacheOptions;
