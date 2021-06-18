@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using FHICORC.Application.Models.Options;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace FHICORC.ApplicationHost.Api.Middleware.Swagger
@@ -10,15 +11,27 @@ namespace FHICORC.ApplicationHost.Api.Middleware.Swagger
     public class ConfigureSwaggerGenOptions : IConfigureOptions<SwaggerGenOptions>
     {
         private readonly SecurityOptions _securityOptions;
+        private readonly IApiVersionDescriptionProvider _provider;
 
-        public ConfigureSwaggerGenOptions(SecurityOptions securityOptions)
+        public ConfigureSwaggerGenOptions(SecurityOptions securityOptions, IApiVersionDescriptionProvider provider)
         {
             _securityOptions = securityOptions;
+            _provider = provider;
         }
 
         public void Configure(SwaggerGenOptions options)
         {
-            options.SwaggerDoc("v1", new OpenApiInfo { Title = "FHICORC.ApplicationHost.Api", Version = "v1" });
+            foreach (var description in _provider.ApiVersionDescriptions)
+            {
+                options.SwaggerDoc(
+                    description.GroupName,
+                    new OpenApiInfo()
+                    {
+                        Title = $"FHICORC.ApplicationHost.Api V{description.ApiVersion}",
+                        Version = description.ApiVersion.ToString(),
+                    });
+            }
+
             options.OperationFilter<SwaggerHeaderFilter>();
 
             if (_securityOptions.CheckApiKeyHeader)
