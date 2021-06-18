@@ -9,7 +9,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
 {
     [ApiController]
     [ApiVersion("1")]
-    // [ApiVersion("2")] - add me when relevant. Remember to add [MapToApiVersion("2")] to new version of existing endpoints.
+    [ApiVersion("2")]
     [Route("v{version:apiVersion}/[controller]")]
     [Route("[controller]")]
     public class TextController : ControllerBase
@@ -24,7 +24,20 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         }
 
         [HttpGet]
+        [MapToApiVersion("1")]
         public async Task<IActionResult> GetLatestVersion([FromHeader] TextRequestDto textRequestDto)
+        {
+            return await GetTextVersionResponse(textRequestDto);
+        }
+
+        [HttpGet]
+        [MapToApiVersion("2")]
+        public async Task<IActionResult> GetLatestVersionV2([FromHeader] TextRequestDto textRequestDto)
+        {
+            return await GetTextVersionResponse(textRequestDto);
+        }
+
+        private async Task<IActionResult> GetTextVersionResponse(TextRequestDto textRequestDto)
         {
             try
             {

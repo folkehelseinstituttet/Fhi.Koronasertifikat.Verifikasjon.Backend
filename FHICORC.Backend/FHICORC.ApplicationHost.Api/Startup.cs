@@ -1,4 +1,5 @@
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -51,7 +52,7 @@ namespace FHICORC.ApplicationHost.Api
             services.AddApiVersioning(config =>
             {
                 // Specify the default API Version
-                config.DefaultApiVersion = new ApiVersion(1, 0);
+                config.DefaultApiVersion = new ApiVersion(2, 0);
                 // If the client hasn't specified the API version in the request, use the default API version number
                 config.AssumeDefaultVersionWhenUnspecified = true;
                 // Advertise the API versions supported for the particular endpoint
@@ -64,6 +65,12 @@ namespace FHICORC.ApplicationHost.Api
                         },
                         new QueryStringApiVersionReader("v")
                 );
+            });
+            services.AddVersionedApiExplorer(o =>
+            {
+                o.DefaultApiVersion = new ApiVersion(2, 0);
+                o.AssumeDefaultVersionWhenUnspecified = true;
+                o.SubstituteApiVersionInUrl = true;
             });
 
             services.AddConfiguredSwaggerGen();
@@ -92,7 +99,7 @@ namespace FHICORC.ApplicationHost.Api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
         {
 
             if (env.IsDevelopment())
@@ -108,7 +115,31 @@ namespace FHICORC.ApplicationHost.Api
 
             app.UseExceptionHandler("/error");
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "FHICORC.ApplicationHost.Api v1"));
+
+            // A common endpoint that contains both versions
+            app.UseSwaggerUI(c =>
+            {
+                c.RoutePrefix = "swagger";
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    c.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", $"Version {description.GroupName}");
+                }
+            });
+
+            // Separate endpoints that contain only one version
+            foreach (var description in provider.ApiVersionDescriptions)
+            {
+                app.UseSwaggerUI(c =>
+                {
+                    c.RoutePrefix = $"swagger/{description.GroupName}";
+                    c.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", $"Version {description.GroupName}");
+                });
+                app.UseReDoc(c =>
+                {
+                    c.RoutePrefix = $"redoc/{description.GroupName}";
+                    c.SpecUrl($"/swagger/{description.GroupName}/swagger.json");
+                });
+            }
 
             app.UseRouting();
             app.UseServiceMiddleware();

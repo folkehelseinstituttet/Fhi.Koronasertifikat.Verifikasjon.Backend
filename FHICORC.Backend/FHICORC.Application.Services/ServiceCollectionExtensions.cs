@@ -11,6 +11,7 @@ namespace FHICORC.Application.Services
             {
                 return serviceCollection
                     .AddScoped<IPublicKeyService, PublicKeyService>()
+                    .AddScoped<IJsonPublicKeyService, JsonPublicKeyService>()
                     .AddScoped<ITextService, TextService>();
             }
             else

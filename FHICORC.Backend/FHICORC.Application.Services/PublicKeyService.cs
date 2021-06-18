@@ -19,9 +19,11 @@ namespace FHICORC.Application.Services
         private readonly IEuCertificateRepository _euCertificateRepository;
         private readonly SecurityOptions _securityOptions;
         private readonly IMetricLogService _metricLogService;
+        private readonly IJsonPublicKeyService _jsonPublicKeyService;
 
         public PublicKeyService(ILogger<PublicKeyService> logger, ICacheManager cacheManager, PublicKeyCacheOptions publicKeyCacheOptions,
-                                IEuCertificateRepository euCertificateRepository, SecurityOptions securityOptions, IMetricLogService metricLogService)
+                                IEuCertificateRepository euCertificateRepository, SecurityOptions securityOptions, IMetricLogService metricLogService,
+                                IJsonPublicKeyService jsonPublicKeyService)
 
         {
             _cacheManager = cacheManager;
@@ -30,6 +32,7 @@ namespace FHICORC.Application.Services
             _logger = logger;
             _securityOptions = securityOptions;
             _metricLogService = metricLogService;
+            _jsonPublicKeyService = jsonPublicKeyService;
         }
 
         public async Task<PublicKeyResponseDto> GetPublicKeysAsync()
@@ -54,23 +57,25 @@ namespace FHICORC.Application.Services
                 }).ToList()
             };
 
-            SeedNorwegianDsc(ref publicKeyResponseDto);
+            publicKeyResponseDto = await SeedAdditionalDscsFromJson(publicKeyResponseDto);
             
             _cacheManager.Set(CacheKey, publicKeyResponseDto, _publicKeyCacheOptions);
 
             return publicKeyResponseDto;
         }
 
-        private void SeedNorwegianDsc(ref PublicKeyResponseDto responseDto)
+        private async Task<PublicKeyResponseDto> SeedAdditionalDscsFromJson(PublicKeyResponseDto responseDto)
         {
-            if (!responseDto.pkList.Exists(pk => pk.kid.Equals(_securityOptions.NorwegianDscKid)))
+            var jsonPublicKeys = await _jsonPublicKeyService.GetPublicKeysAsync();
+            foreach (var jsonPk in jsonPublicKeys.pkList)
             {
-                responseDto.pkList.Add(new CertificatePublicKey
+                if (!responseDto.pkList.Exists(pk => pk.kid.Equals(jsonPk.kid)))
                 {
-                    kid = _securityOptions.NorwegianDscKid,
-                    publicKey = _securityOptions.NorwegianDscPublicKey
-                });
+                    responseDto.pkList.Add(jsonPk);
+                }
             }
+
+            return responseDto;
         }
     }
 }

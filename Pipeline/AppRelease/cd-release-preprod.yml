@@ -4,10 +4,16 @@ pr: none
 
 pool:
   vmImage: 'ubuntu-20.04'
+  
+variables:
+  version: 2.0.0
+  versionRev: $[counter(variables['version'], 1)]
+  finalVersion: $(version)-rc.$(versionRev)
 
 extends:
   template: cd-build-push-image-pipeline.yml
   parameters:
     containerRegistry: FHI-Koronasertifikat.Verifisering-ACR-QA
-    imageTag: $(Build.BuildId)
+    appVersion: $(finalVersion)
     doRelease: ${{ startsWith(variables['Build.SourceBranch'], 'refs/heads/release/') }}
+    environment: 'preprod'
