@@ -1,70 +1,141 @@
 parameters:
-- name: containerRegistry
-  type: string
-  default: ''
-- name: imageTag
-  type: string
-  default: 'latest'
-- name: doRelease
-  type: string
-  default: 'true'
-
-variables:
-  buildContext: 'FHICORC.Backend'
-  apiImageName: 'fhicorc-verification-backend'
-  hangfireImageName: 'fhicorc-verification-hangfire'
-  dbMigrationsImageName: 'fhicorc-verification-dbmigrations'
+  - name: containerRegistry
+    type: string
+    default: ''
+  - name: appVersion
+    type: string
+    default: ''
+  - name: doRelease
+    type: string
+    default: 'false'
+  - name: environment
+    type: string
+    default: ''
+  - name: buildContext
+    default: 'FHICORC.Backend'
+    type: string
+  - name: apiImageName
+    type: string
+    default: 'fhicorc-verification-backend'
+  - name: hangfireImageName
+    type: string
+    default: 'fhicorc-verification-hangfire'
+  - name: dbMigrationsImageName
+    type: string
+    default: 'fhicorc-verification-dbmigrations'
 
 jobs:
-- job: build_and_push_images_job
-  displayName: Build and push images
-  condition: eq('${{ parameters.doRelease }}', 'true')
-  steps:
-  - task: Docker@2
-    displayName: Build API image
-    inputs:
-      containerRegistry: ${{ parameters.containerRegistry }}
-      repository: $(apiImageName)
-      tags: ${{ parameters.imageTag }}
-      command: build
-      DockerFile: $(buildContext)/FHICORC.ApplicationHost.Api/Dockerfile
-      buildContext: $(buildContext)
-  - task: Docker@2
-    displayName: Build Hangfire image
-    inputs:
-      containerRegistry: ${{ parameters.containerRegistry }}
-      repository: $(hangfireImageName)
-      tags: ${{ parameters.imageTag }}
-      command: build
-      DockerFile: $(buildContext)/FHICORC.ApplicationHost.Hangfire/Dockerfile
-      buildContext: $(buildContext)
-  - task: Docker@2
-    displayName: Build DbMigrations image
-    inputs:
-      containerRegistry: ${{ parameters.containerRegistry }}
-      repository: $(dbMigrationsImageName)
-      tags: ${{ parameters.imageTag }}
-      command: build
-      DockerFile: $(buildContext)/FHICORC.ApplicationHost.DbMigrations/Dockerfile
-      buildContext: $(buildContext)
-  - task: Docker@2
-    displayName: Push API image to repository
-    inputs:
-      containerRegistry: ${{ parameters.containerRegistry }}
-      repository: $(apiImageName)
-      tags: ${{ parameters.imageTag }}
-      command: push
-  - task: Docker@2
-    displayName: Push Hangfire image to repository
-    inputs:
-      containerRegistry: ${{ parameters.containerRegistry }}
-      repository: $(hangfireImageName)
-      tags: ${{ parameters.imageTag }}
-      command: push
-  - task: Docker@2 
-    displayName: Push DbMigrations image to repository
-    inputs:
-      containerRegistry: ${{ parameters.containerRegistry }}
-      repository: $(dbMigrationsImageName)
-      tags: ${{ parameters.imageTag }}
-      command: push
+  - job: build_and_push_images_job
+    displayName: Build and push images
+    condition: eq('${{ parameters.doRelease }}', 'true')
+    steps:
+      - checkout: self
+        persistCredentials: true
+      - script: |
+          echo '##[error] containerRegistry must have a value'
+          exit 1
+        condition: eq('${{ parameters.containerRegistry }}', '')
+        displayName: Check if containerRegistry is defined
+      - script: |
+          echo '##[error] appVersion must have a value'
+          exit 1
+        condition: eq('${{ parameters.appVersion }}', '')
+        displayName: Check if appVersion is defined
+      - task: PowerShell@2
+        displayName: Check if Git tag already exists
+        condition: or(eq('${{ parameters.environment }}', 'prod'), eq('${{ parameters.environment }}', 'preprod'))
+        inputs:
+          targetType: 'inline'
+          script: |
+            $tag = (git tag -l ${{ parameters.appVersion }})
+            if (![string]::IsNullOrWhitespace($tag))
+            {
+              Write-Host "##[error] Tag $tag already exists in repository. Have you remembered to bump version number?"
+              exit 1
+            }
+      - task: Docker@2
+        displayName: Build API image
+        inputs:
+          containerRegistry: ${{ parameters.containerRegistry }}
+          repository: ${{ parameters.apiImageName }}
+          ${{ if ne(parameters.environment, 'test') }}:
+            tags: ${{ parameters.appVersion }}
+          ${{ if eq(parameters.environment, 'test') }}:
+            tags: |
+              ${{ parameters.appVersion }}
+              latest
+          command: build
+          DockerFile: ${{ parameters.buildContext }}/FHICORC.ApplicationHost.Api/Dockerfile
+          buildContext: ${{ parameters.buildContext }}
+      - task: Docker@2
+        displayName: Build Hangfire image
+        inputs:
+          containerRegistry: ${{ parameters.containerRegistry }}
+          repository: ${{ parameters.hangfireImageName }}
+          ${{ if ne(parameters.environment, 'test') }}:
+            tags: ${{ parameters.appVersion }}
+          ${{ if eq(parameters.environment, 'test') }}:
+            tags: |
+              ${{ parameters.appVersion }}
+              latest
+          command: build
+          DockerFile: ${{ parameters.buildContext }}/FHICORC.ApplicationHost.Hangfire/Dockerfile
+          buildContext: ${{ parameters.buildContext }}
+      - task: Docker@2
+        displayName: Build DbMigrations image
+        inputs:
+          containerRegistry: ${{ parameters.containerRegistry }}
+          repository: ${{ parameters.dbMigrationsImageName }}
+          ${{ if ne(parameters.environment, 'test') }}:
+            tags: ${{ parameters.appVersion }}
+          ${{ if eq(parameters.environment, 'test') }}:
+            tags: |
+              ${{ parameters.appVersion }}
+              latest
+          command: build
+          DockerFile: ${{ parameters.buildContext }}/FHICORC.ApplicationHost.DbMigrations/Dockerfile
+          buildContext: ${{ parameters.buildContext }}
+      - task: Docker@2
+        displayName: Push API image to repository
+        inputs:
+          containerRegistry: ${{ parameters.containerRegistry }}
+          repository: ${{ parameters.apiImageName }}
+          ${{ if ne(parameters.environment, 'test') }}:
+            tags: ${{ parameters.appVersion }}
+          ${{ if eq(parameters.environment, 'test') }}:
+            tags: |
+              ${{ parameters.appVersion }}
+              latest
+          command: push
+      - task: Docker@2
+        displayName: Push Hangfire image to repository
+        inputs:
+          containerRegistry: ${{ parameters.containerRegistry }}
+          repository: ${{ parameters.hangfireImageName }}
+          ${{ if ne(parameters.environment, 'test') }}:
+            tags: ${{ parameters.appVersion }}
+          ${{ if eq(parameters.environment, 'test') }}:
+            tags: |
+              ${{ parameters.appVersion }}
+              latest
+          command: push
+      - task: Docker@2 
+        displayName: Push DbMigrations image to repository
+        inputs:
+          containerRegistry: ${{ parameters.containerRegistry }}
+          repository: ${{ parameters.dbMigrationsImageName }}
+          ${{ if ne(parameters.environment, 'test') }}:
+            tags: ${{ parameters.appVersion }}
+          ${{ if eq(parameters.environment, 'test') }}:
+            tags: |
+              ${{ parameters.appVersion }}
+              latest
+          command: push
+      - task: GitTag@6
+        condition: or(eq('${{ parameters.environment }}', 'prod'), eq('${{ parameters.environment }}', 'preprod'))
+        inputs:
+          workingdir: $(System.DefaultWorkingDirectory)
+          tagUser: AzureDevOps
+          tagEmail: noreply@netcompany.com
+          tag: ${{ parameters.appVersion }}
+          tagMessage: Release ${{ parameters.appVersion }}

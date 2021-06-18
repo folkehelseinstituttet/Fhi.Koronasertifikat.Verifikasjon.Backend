@@ -5,6 +5,7 @@ pool:
     - vstest
 
 variables:
+  version: 2.0.0
   solution: '**/*.sln'
   buildConfiguration: 'Debug'
   sonarqubeProject: 'FHICORC-KORONASERT'
@@ -18,6 +19,7 @@ steps:
       scannerMode: 'MSBuild'
       projectKey: $(sonarqubeProject)
       projectName: $(sonarqubeProject)
+      projectVersion: $(version)
       extraProperties: |
         sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)\**\*.trx
         sonar.cs.vscoveragexml.reportsPaths=$(Agent.TempDirectory)\**\*.coveragexml
