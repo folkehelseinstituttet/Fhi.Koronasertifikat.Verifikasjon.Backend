@@ -19,7 +19,6 @@ namespace FHICORC.Application.Services
         private readonly ILogger<TextService> _logger;
         private readonly ICacheManager _cacheManager;
         private readonly TextCacheOptions _textCacheOptions;
-        private readonly TextOptions _textOptions;
         private readonly DirectoryInfo _directorySelected;
         private const string LatestVersionNumberCacheKey = "LATEST_VERSION";
         private readonly IMetricLogService _metricLogService;
@@ -29,8 +28,7 @@ namespace FHICORC.Application.Services
             _logger = logger;
             _cacheManager = cacheManager;
             _textCacheOptions = textCacheOptions;
-            _textOptions = textOptions;
-            _directorySelected = new DirectoryInfo(_textOptions.TextsDirectory);
+            _directorySelected = new DirectoryInfo(textOptions.TextsDirectory);
             _metricLogService = metricLogService;
         }
 

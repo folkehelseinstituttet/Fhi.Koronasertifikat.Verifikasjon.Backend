@@ -91,7 +91,7 @@ namespace FHICORC.ApplicationHost.Hangfire
             InitializeHangfireDatabase(app.ApplicationServices);
             app.UseHangfireDashboard(options: new DashboardOptions
             {
-                Authorization = new IDashboardAuthorizationFilter[0]
+                Authorization = Array.Empty<IDashboardAuthorizationFilter>()
             });
             app.UseHangfireServer(options: new BackgroundJobServerOptions 
                 {

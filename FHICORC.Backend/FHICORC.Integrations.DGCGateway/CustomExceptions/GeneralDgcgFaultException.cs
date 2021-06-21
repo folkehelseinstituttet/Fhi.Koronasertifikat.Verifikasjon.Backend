@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace FHICORC.Integrations.DGCGateway
 {
+    [Serializable]
     public class GeneralDgcgFaultException : Exception
     {
         public GeneralDgcgFaultException()
@@ -15,6 +17,11 @@ namespace FHICORC.Integrations.DGCGateway
 
         public GeneralDgcgFaultException(string message, Exception inner)
             : base(message, inner)
+        {
+        }
+
+        protected GeneralDgcgFaultException(SerializationInfo serializationInfo, StreamingContext streamingContext)
+            : base(serializationInfo, streamingContext)
         {
         }
     }
