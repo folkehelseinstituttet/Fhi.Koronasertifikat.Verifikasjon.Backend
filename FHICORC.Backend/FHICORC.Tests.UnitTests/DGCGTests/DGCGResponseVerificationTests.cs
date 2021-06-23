@@ -142,7 +142,7 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
         {
             // ARRANGE
             _certificateVerification.Setup(x => x.VerifyDscSignedByCsca(It.IsAny<DgcgTrustListItem>(), It.IsAny<List<X509Certificate2>>())).Returns(true);
-            _certificateVerification.Setup(x => x.VerifyItemByAnchorSignature(It.IsAny<DgcgTrustListItem>(), It.IsAny<X509Certificate2>(), It.IsAny<string>())).Returns(false);
+            _certificateVerification.Setup(x => x.VerifyItemByAnchorSignature(It.IsAny<DgcgTrustListItem>(), It.IsAny<List<X509Certificate2>>(), It.IsAny<string>())).Returns(false);
 
             var dscTrustListItemsDe = _fullTestTrustList.TrustListItems.FindAll(x => x.country == "DE" && x.certificateType == CertificateType.DSC.ToString());
             var dscDeCount = dscTrustListItemsDe.Count;
