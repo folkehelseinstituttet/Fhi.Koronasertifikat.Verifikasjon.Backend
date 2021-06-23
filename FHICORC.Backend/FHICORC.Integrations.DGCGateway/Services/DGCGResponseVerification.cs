@@ -146,7 +146,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
             return verifiedDscs;
         }
 
-        private TCert LoadCertificate(byte[] rawData)
+        private static TCert LoadCertificate(byte[] rawData)
         {
             if (typeof(TCert) == typeof(X509Certificate2))
             {
@@ -162,7 +162,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
             throw new InvalidOperationException("Only System.Security.Cryptography.X509Certificates.X509Certificate2 and Org.BouncyCastle.X509.X509Certificate is supported");
         }
 
-        private string GetThumbprint(TCert cert)
+        private static string GetThumbprint(TCert cert)
         {
             switch (cert)
             {
@@ -188,7 +188,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
             }
         }
 
-        private DateTime GetExpiry(TCert cert)
+        private static DateTime GetExpiry(TCert cert)
         {
             switch (cert)
             {
