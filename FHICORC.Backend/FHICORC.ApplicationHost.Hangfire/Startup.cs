@@ -65,7 +65,8 @@ namespace FHICORC.ApplicationHost.Hangfire
             services.AddHangfire(configuration => configuration.UsePostgreSqlStorage(connectionStrings.HangfirePgsqlDatabase));
             services.AddHangfireTaskManagerAndTasks();
 
-            services.AddDgcgGatewayIntegration();
+            var featureToggles = Configuration.GetSection($"{nameof(FeatureToggles)}").Get<FeatureToggles>() ?? new();
+            services.AddDgcgGatewayIntegration(featureToggles.UseBouncyCastleEuDgcValidation);
 
             HangfireHealthOptions hangfireHealthOptions = Configuration.GetSection($"{nameof(HangfireHealthOptions)}").Get<HangfireHealthOptions>();
             services.AddHealthChecks()
@@ -91,7 +92,7 @@ namespace FHICORC.ApplicationHost.Hangfire
             InitializeHangfireDatabase(app.ApplicationServices);
             app.UseHangfireDashboard(options: new DashboardOptions
             {
-                Authorization = new IDashboardAuthorizationFilter[0]
+                Authorization = Array.Empty<IDashboardAuthorizationFilter>()
             });
             app.UseHangfireServer(options: new BackgroundJobServerOptions 
                 {

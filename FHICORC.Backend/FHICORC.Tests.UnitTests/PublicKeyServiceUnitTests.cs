@@ -19,7 +19,6 @@ namespace FHICORC.Tests.UnitTests
     [Category("Unit")]
     public class PublicKeyServiceUnitTests
     {
-        private readonly Mock<SecurityOptions> mockSecurityOptions = new Mock<SecurityOptions>();
         private readonly Mock<PublicKeyCacheOptions> mockPublicKeyCacheOptions = new Mock<PublicKeyCacheOptions>();
         ILogger<PublicKeyService> nullLogger = new NullLoggerFactory().CreateLogger<PublicKeyService>();
         private readonly Mock<IMetricLogService> mockMetricLogService = new Mock<IMetricLogService>();
@@ -62,7 +61,7 @@ namespace FHICORC.Tests.UnitTests
         public void When_PublicKeysAreNotFoundInDB_ShouldThrowError()
         {
             _euCertificateRepositoryMock.Reset();
-            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object, mockSecurityOptions.Object, mockMetricLogService.Object, _jsonPublicKeyServiceMock.Object);
+            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object, mockMetricLogService.Object, _jsonPublicKeyServiceMock.Object);
 
             // Act
             Assert.IsFalse(cacheManager.TryGetValue("publicKeyCacheKey", out PublicKeyResponseDto emptyCachedData));
@@ -90,7 +89,7 @@ namespace FHICORC.Tests.UnitTests
             };
             
             cacheManager.Set("publicKeyCacheKey", publicKeyReponseDto, mockPublicKeyCacheOptions.Object);
-            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object, mockSecurityOptions.Object, mockMetricLogService.Object, _jsonPublicKeyServiceMock.Object);
+            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object, mockMetricLogService.Object, _jsonPublicKeyServiceMock.Object);
 
 
             // Act 
@@ -105,7 +104,7 @@ namespace FHICORC.Tests.UnitTests
         {
             // Arrange 
             _euCertificateRepositoryMock.Setup(p => p.GetAllEuDocSignerCertificates()).ReturnsAsync(euDocSignerCertificates); 
-            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object, mockSecurityOptions.Object, mockMetricLogService.Object, _jsonPublicKeyServiceMock.Object);
+            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object, mockMetricLogService.Object, _jsonPublicKeyServiceMock.Object);
 
 
             // Act & Assert
@@ -121,7 +120,7 @@ namespace FHICORC.Tests.UnitTests
         {
             // Arrange 
             _euCertificateRepositoryMock.Setup(p => p.GetAllEuDocSignerCertificates()).ReturnsAsync(euDocSignerCertificates);
-            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object, mockSecurityOptions.Object, mockMetricLogService.Object, _jsonPublicKeyServiceMock.Object);
+            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object, mockMetricLogService.Object, _jsonPublicKeyServiceMock.Object);
 
 
             // Act & Assert
@@ -143,7 +142,7 @@ namespace FHICORC.Tests.UnitTests
                 {
                     new CertificatePublicKey {kid = "jkid", publicKey = "jpk"}
                 }}));
-            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object, mockSecurityOptions.Object, mockMetricLogService.Object, jsonPublicKeyServiceMock.Object);
+            PublicKeyService _publicKeyService = new PublicKeyService(nullLogger, cacheManager, mockPublicKeyCacheOptions.Object, _euCertificateRepositoryMock.Object, mockMetricLogService.Object, jsonPublicKeyServiceMock.Object);
 
             // Act
             var response = await _publicKeyService.GetPublicKeysAsync();

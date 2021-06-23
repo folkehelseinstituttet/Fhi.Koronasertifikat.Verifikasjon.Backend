@@ -9,7 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace FHICORC.Integrations.DGCGateway.Util
 {
-    public class CertificateVerification: ICertificateVerification
+    public class CertificateVerification: ICertificateVerification<X509Certificate2>
     {
         private readonly ILogger<CertificateVerification> _logger;
 
@@ -23,7 +23,7 @@ namespace FHICORC.Integrations.DGCGateway.Util
             X509Certificate2 dscCert;
             try
             {
-                dscCert = new X509Certificate2(Convert.FromBase64String(trustListItem.rawData));
+                dscCert = new X509Certificate2(Base64Util.FromString(trustListItem.rawData));
             }
             catch (Exception e)
             {
@@ -90,6 +90,18 @@ namespace FHICORC.Integrations.DGCGateway.Util
             }
         }
 
+        public bool VerifyItemByAnchorSignature(DgcgTrustListItem trustListItem, List<X509Certificate2> anchorCertificates,
+            string anchorCertificateType)
+        {
+            foreach (var anchorCertificate in anchorCertificates)
+            {
+                if (VerifyItemByAnchorSignature(trustListItem, anchorCertificate, anchorCertificateType))
+                    return true;
+            }
+
+            return false;
+        }
+
         public bool VerifyItemByAnchorSignature(DgcgTrustListItem trustListItem, X509Certificate2 anchorCertificate, string anchorCertificateType)
         {
             byte[] cmsBytesSignature;
@@ -97,7 +109,7 @@ namespace FHICORC.Integrations.DGCGateway.Util
 
             try
             {
-                cmsBytesSignature = Convert.FromBase64String(trustListItem.signature);
+                cmsBytesSignature = Base64Util.FromString(trustListItem.signature);
             }
             catch (Exception e)
             {
@@ -107,7 +119,7 @@ namespace FHICORC.Integrations.DGCGateway.Util
 
             try
             {
-                trustListRawData = Convert.FromBase64String(trustListItem.rawData);
+                trustListRawData = Base64Util.FromString(trustListItem.rawData);
             }
             catch (Exception e)
             {
