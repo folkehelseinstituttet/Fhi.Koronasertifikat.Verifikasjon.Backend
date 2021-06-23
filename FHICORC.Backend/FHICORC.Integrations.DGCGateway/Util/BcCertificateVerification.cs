@@ -28,7 +28,7 @@ namespace FHICORC.Integrations.DGCGateway.Util
             try
             {
                 var parser = new X509CertificateParser();
-                var dsc = parser.ReadCertificate(Convert.FromBase64String(trustListItem.rawData));
+                var dsc = parser.ReadCertificate(Base64Util.FromString(trustListItem.rawData));
                 issuer = dsc.IssuerDN.ToString();
 
                 foreach (var cscaBc in cscaCertificates)
@@ -77,7 +77,7 @@ namespace FHICORC.Integrations.DGCGateway.Util
                 byte[] signatureData;
                 try
                 {
-                    signatureData = Convert.FromBase64String(trustListItem.signature);
+                    signatureData = Base64Util.FromString(trustListItem.signature);
                 }
                 catch (Exception e)
                 {
@@ -89,7 +89,7 @@ namespace FHICORC.Integrations.DGCGateway.Util
                 byte[] rawData;
                 try
                 {
-                    rawData = Convert.FromBase64String(trustListItem.rawData);
+                    rawData = Base64Util.FromString(trustListItem.rawData);
                 }
                 catch (Exception e)
                 {

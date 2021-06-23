@@ -11,6 +11,7 @@ using Azure.Identity;
 using Azure.Security.KeyVault.Certificates;
 using Azure.Security.KeyVault.Secrets;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
+using FHICORC.Integrations.DGCGateway.Util;
 using Microsoft.Extensions.Logging;
 
 namespace FHICORC.Integrations.DGCGateway.Services
@@ -95,7 +96,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 string version = segments[3].TrimEnd('/');
 
                 var secret = (await secretClient.GetSecretAsync(secretName, version)).Value;
-                return new X509Certificate2(Convert.FromBase64String(secret.Value));
+                return new X509Certificate2(Base64Util.FromString(secret.Value));
             }
 
             return new X509Certificate2(_certificateOptions.NBTlsCertificatePath, _certificateOptions.NBTlsCertificatePassword);

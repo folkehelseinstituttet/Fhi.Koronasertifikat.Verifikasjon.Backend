@@ -23,7 +23,7 @@ namespace FHICORC.Integrations.DGCGateway.Util
             X509Certificate2 dscCert;
             try
             {
-                dscCert = new X509Certificate2(Convert.FromBase64String(trustListItem.rawData));
+                dscCert = new X509Certificate2(Base64Util.FromString(trustListItem.rawData));
             }
             catch (Exception e)
             {
@@ -109,7 +109,7 @@ namespace FHICORC.Integrations.DGCGateway.Util
 
             try
             {
-                cmsBytesSignature = Convert.FromBase64String(trustListItem.signature);
+                cmsBytesSignature = Base64Util.FromString(trustListItem.signature);
             }
             catch (Exception e)
             {
@@ -119,7 +119,7 @@ namespace FHICORC.Integrations.DGCGateway.Util
 
             try
             {
-                trustListRawData = Convert.FromBase64String(trustListItem.rawData);
+                trustListRawData = Base64Util.FromString(trustListItem.rawData);
             }
             catch (Exception e)
             {
