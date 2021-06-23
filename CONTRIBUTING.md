@@ -35,6 +35,6 @@ Once you commented under an issue that you want to contribute, you can start wor
 After step 5, the team will start a review process of the PR.
 
 ## Licence
-Copyright (c) 2021 Norwegian Institute of Public Health (Norway)
+Copyright (c) 2021 Norwegian Institute of Public Health (Norway), 2021 Danish Health Authority  (Denmark)
 
  Fhi.Koronasertifikat.Verifikasjon.Backend is Open Source software released under the [MIT license](LICENSE.md)
