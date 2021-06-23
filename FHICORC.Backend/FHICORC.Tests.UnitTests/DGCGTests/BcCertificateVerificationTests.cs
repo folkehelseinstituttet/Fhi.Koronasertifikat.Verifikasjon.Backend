@@ -1,30 +1,32 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
-using Newtonsoft.Json;
-using NUnit.Framework;
-using FHICORC.Application.Models;
-using FHICORC.Application.Models.Options;
-using FHICORC.Integrations.DGCGateway.Models;
-using FHICORC.Integrations.DGCGateway.Util;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using FHICORC.Application.Models;
+using FHICORC.Application.Models.Options;
+using FHICORC.Integrations.DGCGateway.Models;
+using FHICORC.Integrations.DGCGateway.Util;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
+using Newtonsoft.Json;
+using NUnit.Framework;
+using Org.BouncyCastle.X509;
+using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
-namespace FHICORC.Tests.UnitTests
+namespace FHICORC.Tests.UnitTests.DGCGTests
 {
     [Category("Unit")]
-    public class CertificateVerificationTests
+    public class BcCertificateVerificationTests
     {
-        private readonly ILogger<CertificateVerification> _nullLogger = new NullLoggerFactory().CreateLogger<CertificateVerification>();
+        private readonly ILogger<BcCertificateVerification> _nullLogger = new NullLoggerFactory().CreateLogger<BcCertificateVerification>();
         private readonly Mock<CertificateOptions> _mockCertificateOptions = new Mock<CertificateOptions>();
         private DgcgTrustListResponseDto _fullTestTrustList;
         private DgcgTrustListResponseDto _invalidTrustList; 
-        private X509Certificate2 _trustAnchor;
+        private X509Certificate _trustAnchor;
         private DgcgTrustListItem _cscaTrustListItem;
         private DgcgTrustListItem _invalidCscaTrustListItem;
 
@@ -39,7 +41,8 @@ namespace FHICORC.Tests.UnitTests
             _invalidTrustList = new DgcgTrustListResponseDto { TrustListItems = parsedResponseInvalid.ToList() };
 
             _mockCertificateOptions.Object.DGCGTrustAnchorPath = "Certificates/ta_tst.pem";
-            _trustAnchor = new X509Certificate2(_mockCertificateOptions.Object.DGCGTrustAnchorPath);
+            var parser = new X509CertificateParser();
+            _trustAnchor = parser.ReadCertificate(File.ReadAllBytes(_mockCertificateOptions.Object.DGCGTrustAnchorPath));
 
             //Get one CSCA certificate
             var cscaTrustListItems = _fullTestTrustList.TrustListItems.FindAll(x => x.certificateType == CertificateType.CSCA.ToString());
@@ -52,7 +55,7 @@ namespace FHICORC.Tests.UnitTests
         [Test]
         public void Valid_CSCA_Verifies_Against_TrustAnchor()
         {
-            var certificateVerification = new CertificateVerification(_nullLogger);
+            var certificateVerification = new BcCertificateVerification(_nullLogger);
 
             var response = certificateVerification.VerifyItemByAnchorSignature(_cscaTrustListItem, _trustAnchor, "TrustAnchor");
 
@@ -63,7 +66,7 @@ namespace FHICORC.Tests.UnitTests
         [Test]
         public void Valid_Upload_Verifies_Against_TrustAnchor()
         {
-            var certificateVerification = new CertificateVerification(_nullLogger);
+            var certificateVerification = new BcCertificateVerification(_nullLogger);
             var uploadTrustListItem = _fullTestTrustList.TrustListItems.Find(x => x.certificateType == CertificateType.UPLOAD.ToString());
 
             var response = certificateVerification.VerifyItemByAnchorSignature(uploadTrustListItem, _trustAnchor, "TrustAnchor");
@@ -75,7 +78,7 @@ namespace FHICORC.Tests.UnitTests
         [Test]
         public void Invalid_CSCA_DoesNotVerify__Against_TrustAnchor()
         {
-            var certificateVerification = new CertificateVerification(_nullLogger);
+            var certificateVerification = new BcCertificateVerification(_nullLogger);
 
             var response = certificateVerification.VerifyItemByAnchorSignature(_invalidCscaTrustListItem, _trustAnchor, "TrustAnchor");
 
@@ -86,7 +89,7 @@ namespace FHICORC.Tests.UnitTests
         [Test]
         public void Incorrect_TrustAnchor_DoesNotVerify_Against_Valid_CSCA()
         {
-            var certificateVerification = new CertificateVerification(_nullLogger);
+            var certificateVerification = new BcCertificateVerification(_nullLogger);
 
             _trustAnchor = BuildSelfSignedCertificate("DifferentTA");
 
@@ -99,11 +102,12 @@ namespace FHICORC.Tests.UnitTests
         [Test] 
         public void DSC_Verified_By_Corresponding_Country_Upload()
         {
-            var certificateVerification = new CertificateVerification(_nullLogger);
+            var certificateVerification = new BcCertificateVerification(_nullLogger);
 
             var dscTrustListItem = _fullTestTrustList.TrustListItems.Find(x => x.country == "DE" && x.certificateType == CertificateType.DSC.ToString());
             var uploadTrustListItem = _fullTestTrustList.TrustListItems.Find(x => x.country == "DE" && x.certificateType == CertificateType.UPLOAD.ToString());
-            var uploadCert = new X509Certificate2(Base64Util.FromString(uploadTrustListItem.rawData));
+            var parser = new X509CertificateParser();
+            var uploadCert = parser.ReadCertificate(Base64Util.FromString(uploadTrustListItem.rawData));
 
             var response = certificateVerification.VerifyItemByAnchorSignature(dscTrustListItem, uploadCert, "Upload");
 
@@ -114,11 +118,12 @@ namespace FHICORC.Tests.UnitTests
         [Test]
         public void DSC_NotVerified_By_Incorrect_Country_Upload()
         {
-            var certificateVerification = new CertificateVerification(_nullLogger);
+            var certificateVerification = new BcCertificateVerification(_nullLogger);
 
             var dscTrustListItem = _fullTestTrustList.TrustListItems.Find(x => x.country == "DE" && x.certificateType == CertificateType.DSC.ToString());
             var uploadTrustListItem = _fullTestTrustList.TrustListItems.Find(x => x.country == "HR" && x.certificateType == CertificateType.UPLOAD.ToString());
-            var uploadCert = new X509Certificate2(Base64Util.FromString(uploadTrustListItem.rawData));
+            var parser = new X509CertificateParser();
+            var uploadCert = parser.ReadCertificate(Base64Util.FromString(uploadTrustListItem.rawData));
 
             var response = certificateVerification.VerifyItemByAnchorSignature(dscTrustListItem, uploadCert, "Upload");
 
@@ -129,11 +134,13 @@ namespace FHICORC.Tests.UnitTests
         [Test]
         public void DSC_Verified_By_CSCA()
         {
-            var certificateVerification = new CertificateVerification(_nullLogger);
+            var certificateVerification = new BcCertificateVerification(_nullLogger);
 
             var cscaTrustListItemDe = _fullTestTrustList.TrustListItems.Find(x => x.country == "IT" && x.certificateType == CertificateType.CSCA.ToString());
             var dscItemList = _fullTestTrustList.TrustListItems.Find(x => x.country == "IT" && x.certificateType == CertificateType.DSC.ToString());
-            var cscaCertList = new List<X509Certificate2> {new X509Certificate2(Base64Util.FromString(cscaTrustListItemDe.rawData))};
+            var parser = new X509CertificateParser();
+            var cscaCert = parser.ReadCertificate(Base64Util.FromString(cscaTrustListItemDe.rawData));
+            var cscaCertList = new List<X509Certificate> {cscaCert};
 
             var response = certificateVerification.VerifyDscSignedByCsca(dscItemList, cscaCertList);
 
@@ -144,11 +151,13 @@ namespace FHICORC.Tests.UnitTests
         [Test]
         public void DSC_NotVerified_By_CSCA()
         {
-            var certificateVerification = new CertificateVerification(_nullLogger);
+            var certificateVerification = new BcCertificateVerification(_nullLogger);
 
             var cscaTrustListItemDe = _fullTestTrustList.TrustListItems.Find(x => x.country == "SE" && x.certificateType == CertificateType.CSCA.ToString());
             var dscItemList = _fullTestTrustList.TrustListItems.Find(x => x.country == "DE" && x.certificateType == CertificateType.DSC.ToString());
-            var cscaCertList = new List<X509Certificate2> {new X509Certificate2(Base64Util.FromString(cscaTrustListItemDe.rawData))};
+            var parser = new X509CertificateParser();
+            var cscaCert = parser.ReadCertificate(Base64Util.FromString(cscaTrustListItemDe.rawData));
+            var cscaCertList = new List<X509Certificate> {cscaCert};
 
             var response = certificateVerification.VerifyDscSignedByCsca(dscItemList, cscaCertList);
 
@@ -156,7 +165,7 @@ namespace FHICORC.Tests.UnitTests
             Assert.False(response);
         }
 
-        private X509Certificate2 BuildSelfSignedCertificate(string certificateName)
+        private X509Certificate BuildSelfSignedCertificate(string certificateName)
         {
             SubjectAlternativeNameBuilder sanBuilder = new SubjectAlternativeNameBuilder();
             sanBuilder.AddIpAddress(IPAddress.Loopback);
@@ -183,7 +192,9 @@ namespace FHICORC.Tests.UnitTests
                 var certificate= request.CreateSelfSigned(new DateTimeOffset(DateTime.UtcNow.AddDays(-1)), new DateTimeOffset(DateTime.UtcNow.AddDays(3650)));
                 certificate.FriendlyName = certificateName;
 
-                return new X509Certificate2(certificate.Export(X509ContentType.Pfx, "WeNeedASaf3rPassword"), "WeNeedASaf3rPassword", X509KeyStorageFlags.MachineKeySet);
+                var sscCertificate = new X509Certificate2(certificate.Export(X509ContentType.Pfx, "WeNeedASaf3rPassword"), "WeNeedASaf3rPassword", X509KeyStorageFlags.MachineKeySet);
+                var parser = new X509CertificateParser();
+                return parser.ReadCertificate(sscCertificate.RawData);
             }
         }
     }

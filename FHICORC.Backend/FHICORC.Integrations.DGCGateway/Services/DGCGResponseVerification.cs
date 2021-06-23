@@ -6,18 +6,25 @@ using FHICORC.Integrations.DGCGateway.Services.Interfaces;
 using FHICORC.Integrations.DGCGateway.Util.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using FHICORC.Integrations.DGCGateway.Util;
+using Org.BouncyCastle.Crypto.Digests;
+using Org.BouncyCastle.X509;
+using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
 namespace FHICORC.Integrations.DGCGateway.Services
 {
-    public class DgcgResponseVerification :  IDgcgResponseVerification
+    public class DgcgResponseVerification<TCert> :  IDgcgResponseVerification
     {
-        private readonly ILogger<DgcgResponseVerification> _logger;
+        private readonly ILogger<DgcgResponseVerification<TCert>> _logger;
         private readonly CertificateOptions _certificateOptions;
-        private readonly ICertificateVerification _certificateVerification;
+        private readonly ICertificateVerification<TCert> _certificateVerification;
 
-        public DgcgResponseVerification (ILogger<DgcgResponseVerification> logger, CertificateOptions certificateOptions, ICertificateVerification certificateVerification)
+        public DgcgResponseVerification (ILogger<DgcgResponseVerification<TCert>> logger, CertificateOptions certificateOptions,
+            ICertificateVerification<TCert> certificateVerification)
         {
             _logger = logger;
             _certificateOptions = certificateOptions;
@@ -26,7 +33,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
         public DgcgTrustListResponseDto VerifyResponseFromGateway(DgcgTrustListResponseDto gatewayResponse)
         {
-            var trustAnchor = new X509Certificate2(_certificateOptions.DGCGTrustAnchorPath);
+            var trustAnchor = LoadCertificate(File.ReadAllBytes(_certificateOptions.DGCGTrustAnchorPath));
 
             var countries = gatewayResponse.TrustListItems.Select(x => x.country).Distinct().ToList();
             var verifiedResponse = new DgcgTrustListResponseDto();
@@ -41,7 +48,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     _logger.LogError("Failed to find upload certificate from {country} in trustlist.", country);
                 }
 
-                (List<DgcgTrustListItem> verifiedUpItems, List<X509Certificate2> uploadCertificates) = VerifyAgainstTrustAnchor(uploadTrustListItems, trustAnchor);
+                (List<DgcgTrustListItem> verifiedUpItems, List<TCert> uploadCertificates) = VerifyAgainstTrustAnchor(uploadTrustListItems, trustAnchor);
                 verifiedResponse.TrustListItems.AddRange(verifiedUpItems);
 
                 /* CSCA Verification */
@@ -51,7 +58,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     _logger.LogError("Failed to find CSCA Certificate(s) from {country} in trustlist.", country);
                 }
 
-                (List<DgcgTrustListItem> verifiedCscaItems, List<X509Certificate2> cscaCertificates) = VerifyAgainstTrustAnchor(cscaTrustListItems, trustAnchor);
+                (List<DgcgTrustListItem> verifiedCscaItems, List<TCert> cscaCertificates) = VerifyAgainstTrustAnchor(cscaTrustListItems, trustAnchor);
                 verifiedResponse.TrustListItems.AddRange(verifiedCscaItems);
 
                 /* DSC Verification */
@@ -62,15 +69,15 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
                 verifiedResponse.TrustListItems.AddRange(VerifyAndGetDscs(gatewayResponse, uploadCertificates, cscaCertificates, country));
             }
-            return verifiedResponse;
 
+            return verifiedResponse;
         }
 
-        public (List<DgcgTrustListItem> TrustListItems, List<X509Certificate2> Certificates) VerifyAgainstTrustAnchor(
-            List<DgcgTrustListItem> trustListItems, X509Certificate2 trustAnchor)
+        public (List<DgcgTrustListItem> TrustListItems, List<TCert> Certificates) VerifyAgainstTrustAnchor(
+            List<DgcgTrustListItem> trustListItems, TCert trustAnchor)
         {
             var verifiedItems = new List<DgcgTrustListItem>();
-            var verifiedCertificates = new List<X509Certificate2>();
+            var verifiedCertificates = new List<TCert>();
             foreach (var trustListItem in trustListItems)
             {
                 var validSignature = _certificateVerification.VerifyItemByAnchorSignature(trustListItem, trustAnchor, "TrustAnchor");
@@ -81,10 +88,10 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     continue;
                 }
 
-                X509Certificate2 cert;
+                TCert cert;
                 try
                 {
-                    cert = new X509Certificate2(Convert.FromBase64String(trustListItem.rawData));
+                    cert = LoadCertificate(Base64Util.FromString(trustListItem.rawData));
                 }
                 catch (Exception e)
                 {
@@ -93,10 +100,11 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     continue;
                 }
 
-                if (cert.NotAfter < DateTime.Now)
+                var expiry = GetExpiry(cert);
+                if (expiry < DateTime.Now)
                 {
                     _logger.LogInformation("{certificateType} certificate {thumbprint} for {country} expired at {expiryDate}", 
-                        trustListItem.certificateType, cert.Thumbprint, trustListItem.country, cert.NotAfter);
+                        trustListItem.certificateType, GetThumbprint(cert), trustListItem.country, expiry);
                     continue;
                 }
 
@@ -108,7 +116,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
         }
 
         public List<DgcgTrustListItem> VerifyAndGetDscs(DgcgTrustListResponseDto gatewayResponse,
-            List<X509Certificate2> uploadCertList, List<X509Certificate2> cscaCertList, string country)
+            List<TCert> uploadCertList, List<TCert> cscaCertList, string country)
         {
             var dscItemList = gatewayResponse.TrustListItems.FindAll(x => x.country == country && x.certificateType == CertificateType.DSC.ToString());
             var verifiedDscs = new List<DgcgTrustListItem>(); 
@@ -121,7 +129,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
             foreach (var dscItem in dscItemList)
             {
-                if (uploadCertList.All(up => !_certificateVerification.VerifyItemByAnchorSignature(dscItem, up, "Upload")))
+                if (!_certificateVerification.VerifyItemByAnchorSignature(dscItem, uploadCertList, "Upload"))
                 {
                     _logger.LogInformation("Failed to verify DSC is signed by upload certificate, {thumbprint}, {kid}, {country}",
                         dscItem.thumbprint, dscItem.kid, country);
@@ -137,6 +145,61 @@ namespace FHICORC.Integrations.DGCGateway.Services
             }
 
             return verifiedDscs;
+        }
+
+        private static TCert LoadCertificate(byte[] rawData)
+        {
+            if (typeof(TCert) == typeof(X509Certificate2))
+            {
+                return (TCert)(object)new X509Certificate2(rawData);
+            }
+
+            if (typeof(TCert) == typeof(X509Certificate))
+            {
+                var parser = new X509CertificateParser();
+                return (TCert)(object)parser.ReadCertificate(rawData);
+            }
+
+            throw new InvalidOperationException("Only System.Security.Cryptography.X509Certificates.X509Certificate2 and Org.BouncyCastle.X509.X509Certificate is supported");
+        }
+
+        private static string GetThumbprint(TCert cert)
+        {
+            switch (cert)
+            {
+                case X509Certificate2 sscCert:
+                    return sscCert.Thumbprint;
+                case X509Certificate bcCert:
+                    var encoded = bcCert.GetEncoded();
+                    var fingerprint = new StringBuilder();
+                    var sha1 = new Sha1Digest();
+                    var data = new byte[20];
+
+                    sha1.BlockUpdate(encoded, 0, encoded.Length);
+                    sha1.DoFinal(data, 0);
+
+                    for (int i = 0; i < data.Length; i++)
+                    {
+                        fingerprint.Append(data[i].ToString("X2"));
+                    }
+
+                    return fingerprint.ToString();
+                default:
+                    throw new InvalidOperationException("Only System.Security.Cryptography.X509Certificates.X509Certificate2 and Org.BouncyCastle.X509.X509Certificate is supported");
+            }
+        }
+
+        private static DateTime GetExpiry(TCert cert)
+        {
+            switch (cert)
+            {
+                case X509Certificate2 sscCert:
+                    return sscCert.NotAfter;
+                case X509Certificate bcCert:
+                    return bcCert.NotAfter;
+                default:
+                    throw new InvalidOperationException("Only System.Security.Cryptography.X509Certificates.X509Certificate2 and Org.BouncyCastle.X509.X509Certificate is supported");
+            }
         }
     }
 }

@@ -17,12 +17,11 @@ namespace FHICORC.Application.Services
         private readonly PublicKeyCacheOptions _publicKeyCacheOptions;
         private readonly ILogger<PublicKeyService> _logger;
         private readonly IEuCertificateRepository _euCertificateRepository;
-        private readonly SecurityOptions _securityOptions;
         private readonly IMetricLogService _metricLogService;
         private readonly IJsonPublicKeyService _jsonPublicKeyService;
 
         public PublicKeyService(ILogger<PublicKeyService> logger, ICacheManager cacheManager, PublicKeyCacheOptions publicKeyCacheOptions,
-                                IEuCertificateRepository euCertificateRepository, SecurityOptions securityOptions, IMetricLogService metricLogService,
+                                IEuCertificateRepository euCertificateRepository, IMetricLogService metricLogService,
                                 IJsonPublicKeyService jsonPublicKeyService)
 
         {
@@ -30,7 +29,6 @@ namespace FHICORC.Application.Services
             _publicKeyCacheOptions = publicKeyCacheOptions;
             _euCertificateRepository = euCertificateRepository; 
             _logger = logger;
-            _securityOptions = securityOptions;
             _metricLogService = metricLogService;
             _jsonPublicKeyService = jsonPublicKeyService;
         }

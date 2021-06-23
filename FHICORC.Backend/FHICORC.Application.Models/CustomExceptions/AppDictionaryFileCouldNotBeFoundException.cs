@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace FHICORC.Application.Models.CustomExceptions
 {
@@ -19,7 +20,8 @@ namespace FHICORC.Application.Models.CustomExceptions
         {
         }
 
-        protected AppDictionaryFileCouldNotBeFoundException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext)
+        protected AppDictionaryFileCouldNotBeFoundException(SerializationInfo serializationInfo, StreamingContext streamingContext)
+            : base(serializationInfo, streamingContext)
         {
         }
     }

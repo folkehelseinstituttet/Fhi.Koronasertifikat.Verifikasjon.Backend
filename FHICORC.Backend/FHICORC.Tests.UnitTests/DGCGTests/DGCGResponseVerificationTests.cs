@@ -7,6 +7,7 @@ using FHICORC.Application.Models;
 using FHICORC.Application.Models.Options;
 using FHICORC.Integrations.DGCGateway.Models;
 using FHICORC.Integrations.DGCGateway.Services;
+using FHICORC.Integrations.DGCGateway.Util;
 using FHICORC.Integrations.DGCGateway.Util.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -19,31 +20,31 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
     [Category("Unit")]
     public class DgcgResponseVerificationTests
     {
-        readonly ILogger<DgcgResponseVerification> _nullLogger = new NullLoggerFactory().CreateLogger<DgcgResponseVerification>();
+        readonly ILogger<DgcgResponseVerification<X509Certificate2>> _nullLogger = new NullLoggerFactory().CreateLogger<DgcgResponseVerification<X509Certificate2>>();
         private readonly Mock<CertificateOptions> _mockCertificateOptions = new Mock<CertificateOptions>();
-        private readonly Mock<ICertificateVerification> _certificateVerification = new Mock<ICertificateVerification>();
+        private readonly Mock<ICertificateVerification<X509Certificate2>> _certificateVerification = new Mock<ICertificateVerification<X509Certificate2>>();
         private DgcgTrustListResponseDto _fullTestTrustList;
-        private DgcgResponseVerification _dgcgResponseVerification;
+        private DgcgResponseVerification<X509Certificate2> _dgcgResponseVerification;
         private DgcgTrustListItem _cscaTrustListItemDe;
         private X509Certificate2 _cscaCertDe;
         private DgcgTrustListItem _uploadTrustListDe;
         private X509Certificate2 _uploadCertDe;
-        private readonly Mock<ILogger<DgcgResponseVerification>> _loggerMock = new Mock<ILogger<DgcgResponseVerification>>();
+        private readonly Mock<ILogger<DgcgResponseVerification<X509Certificate2>>> _loggerMock = new Mock<ILogger<DgcgResponseVerification<X509Certificate2>>>();
 
         [SetUp]
         public void Setup()
         {
             var parsedResponse = JsonConvert.DeserializeObject<DgcgTrustListItem[]>(File.ReadAllText("TestFiles/tst_full_trustlist_response.json"));
             _fullTestTrustList = new DgcgTrustListResponseDto { TrustListItems = parsedResponse.ToList() };
-            _dgcgResponseVerification = new DgcgResponseVerification(_nullLogger, _mockCertificateOptions.Object, _certificateVerification.Object);
+            _dgcgResponseVerification = new DgcgResponseVerification<X509Certificate2>(_nullLogger, _mockCertificateOptions.Object, _certificateVerification.Object);
 
             var cscaTrustListItemsDE = _fullTestTrustList.TrustListItems.FindAll(x => x.country == "DE" && x.certificateType == CertificateType.CSCA.ToString());
             _cscaTrustListItemDe = cscaTrustListItemsDE.OrderByDescending(x => x.timestamp).First();
-            _cscaCertDe = new X509Certificate2(Convert.FromBase64String(_cscaTrustListItemDe.rawData));
+            _cscaCertDe = new X509Certificate2(Base64Util.FromString(_cscaTrustListItemDe.rawData));
 
             var uploadTrustListsDE = _fullTestTrustList.TrustListItems.FindAll(x => x.country == "DE" && x.certificateType == CertificateType.UPLOAD.ToString());
             _uploadTrustListDe = uploadTrustListsDE.OrderByDescending(x => x.timestamp).First();
-            _uploadCertDe = new X509Certificate2(Convert.FromBase64String(_uploadTrustListDe.rawData));
+            _uploadCertDe = new X509Certificate2(Base64Util.FromString(_uploadTrustListDe.rawData));
 
 
             _mockCertificateOptions.Object.DGCGTrustAnchorPath = "Certificates/ta_tst.pem";
@@ -88,7 +89,7 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
         {
             // ARRANGE
             _certificateVerification.Setup(x => x.VerifyDscSignedByCsca(It.IsAny<DgcgTrustListItem>(), It.IsAny<List<X509Certificate2>>())).Returns(true);
-            _certificateVerification.Setup(x => x.VerifyItemByAnchorSignature(It.IsAny<DgcgTrustListItem>(), It.IsAny<X509Certificate2>(), It.IsAny<string>())).Returns(true);
+            _certificateVerification.Setup(x => x.VerifyItemByAnchorSignature(It.IsAny<DgcgTrustListItem>(), It.IsAny<List<X509Certificate2>>(), It.IsAny<string>())).Returns(true);
 
             var dscTrustListItemsDe = _fullTestTrustList.TrustListItems.FindAll(x => x.country == "DE" && x.certificateType == CertificateType.DSC.ToString());
             var dscDeCount = dscTrustListItemsDe.Count;
@@ -142,7 +143,7 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
         {
             // ARRANGE
             _certificateVerification.Setup(x => x.VerifyDscSignedByCsca(It.IsAny<DgcgTrustListItem>(), It.IsAny<List<X509Certificate2>>())).Returns(true);
-            _certificateVerification.Setup(x => x.VerifyItemByAnchorSignature(It.IsAny<DgcgTrustListItem>(), It.IsAny<X509Certificate2>(), It.IsAny<string>())).Returns(false);
+            _certificateVerification.Setup(x => x.VerifyItemByAnchorSignature(It.IsAny<DgcgTrustListItem>(), It.IsAny<List<X509Certificate2>>(), It.IsAny<string>())).Returns(false);
 
             var dscTrustListItemsDe = _fullTestTrustList.TrustListItems.FindAll(x => x.country == "DE" && x.certificateType == CertificateType.DSC.ToString());
             var dscDeCount = dscTrustListItemsDe.Count;
@@ -189,7 +190,7 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
         [Test]
         public void Country_Skipped_CSCANull()
         {
-            _dgcgResponseVerification = new DgcgResponseVerification(_loggerMock.Object, _mockCertificateOptions.Object, _certificateVerification.Object);
+            _dgcgResponseVerification = new DgcgResponseVerification<X509Certificate2>(_loggerMock.Object, _mockCertificateOptions.Object, _certificateVerification.Object);
 
             var dgcgTrustListResponseDto = new DgcgTrustListResponseDto();
             dgcgTrustListResponseDto.TrustListItems = new List<DgcgTrustListItem>();
