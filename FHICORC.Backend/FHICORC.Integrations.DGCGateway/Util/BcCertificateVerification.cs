@@ -31,6 +31,15 @@ namespace FHICORC.Integrations.DGCGateway.Util
                 var dsc = parser.ReadCertificate(Base64Util.FromString(trustListItem.rawData));
                 issuer = dsc.IssuerDN.ToString();
 
+                if (dsc.NotAfter < DateTime.Now)
+                {
+                    _logger.LogInformation(
+                        "{certificateType} certificate {kid} for {country} expired at {expiryDate}",
+                        trustListItem.certificateType, trustListItem.kid, trustListItem.country, dsc.NotAfter);
+
+                    return false;
+                }
+
                 foreach (var cscaBc in cscaCertificates)
                 {
                     if (dsc.IssuerDN.Equivalent(cscaBc.SubjectDN))
