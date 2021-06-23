@@ -4,5 +4,6 @@ namespace FHICORC.Application.Models.Options
     {
         public bool DisableTrustListVerification { get; set; }
         public bool UseEuDgcGateway { get; set; }
+        public bool UseBouncyCastleEuDgcValidation { get; set; }
     }
 }

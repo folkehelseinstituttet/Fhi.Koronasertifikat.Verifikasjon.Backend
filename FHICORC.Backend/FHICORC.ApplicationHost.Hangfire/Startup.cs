@@ -65,7 +65,8 @@ namespace FHICORC.ApplicationHost.Hangfire
             services.AddHangfire(configuration => configuration.UsePostgreSqlStorage(connectionStrings.HangfirePgsqlDatabase));
             services.AddHangfireTaskManagerAndTasks();
 
-            services.AddDgcgGatewayIntegration();
+            var featureToggles = Configuration.GetSection($"{nameof(FeatureToggles)}").Get<FeatureToggles>() ?? new();
+            services.AddDgcgGatewayIntegration(featureToggles.UseBouncyCastleEuDgcValidation);
 
             HangfireHealthOptions hangfireHealthOptions = Configuration.GetSection($"{nameof(HangfireHealthOptions)}").Get<HangfireHealthOptions>();
             services.AddHealthChecks()

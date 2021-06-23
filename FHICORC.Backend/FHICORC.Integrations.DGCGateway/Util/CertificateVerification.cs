@@ -9,7 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace FHICORC.Integrations.DGCGateway.Util
 {
-    public class CertificateVerification: ICertificateVerification
+    public class CertificateVerification: ICertificateVerification<X509Certificate2>
     {
         private readonly ILogger<CertificateVerification> _logger;
 
@@ -88,6 +88,18 @@ namespace FHICORC.Integrations.DGCGateway.Util
                         dscCert.Issuer, cscaCertificates.Select(csca => csca.Subject));
                 }
             }
+        }
+
+        public bool VerifyItemByAnchorSignature(DgcgTrustListItem trustListItem, List<X509Certificate2> anchorCertificates,
+            string anchorCertificateType)
+        {
+            foreach (var anchorCertificate in anchorCertificates)
+            {
+                if (VerifyItemByAnchorSignature(trustListItem, anchorCertificate, anchorCertificateType))
+                    return true;
+            }
+
+            return false;
         }
 
         public bool VerifyItemByAnchorSignature(DgcgTrustListItem trustListItem, X509Certificate2 anchorCertificate, string anchorCertificateType)
