@@ -7,6 +7,7 @@ using FHICORC.Application.Models;
 using FHICORC.Application.Models.Options;
 using FHICORC.Integrations.DGCGateway.Models;
 using FHICORC.Integrations.DGCGateway.Services;
+using FHICORC.Integrations.DGCGateway.Util;
 using FHICORC.Integrations.DGCGateway.Util.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -39,11 +40,11 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
 
             var cscaTrustListItemsDE = _fullTestTrustList.TrustListItems.FindAll(x => x.country == "DE" && x.certificateType == CertificateType.CSCA.ToString());
             _cscaTrustListItemDe = cscaTrustListItemsDE.OrderByDescending(x => x.timestamp).First();
-            _cscaCertDe = new X509Certificate2(Convert.FromBase64String(_cscaTrustListItemDe.rawData));
+            _cscaCertDe = new X509Certificate2(Base64Util.FromString(_cscaTrustListItemDe.rawData));
 
             var uploadTrustListsDE = _fullTestTrustList.TrustListItems.FindAll(x => x.country == "DE" && x.certificateType == CertificateType.UPLOAD.ToString());
             _uploadTrustListDe = uploadTrustListsDE.OrderByDescending(x => x.timestamp).First();
-            _uploadCertDe = new X509Certificate2(Convert.FromBase64String(_uploadTrustListDe.rawData));
+            _uploadCertDe = new X509Certificate2(Base64Util.FromString(_uploadTrustListDe.rawData));
 
 
             _mockCertificateOptions.Object.DGCGTrustAnchorPath = "Certificates/ta_tst.pem";

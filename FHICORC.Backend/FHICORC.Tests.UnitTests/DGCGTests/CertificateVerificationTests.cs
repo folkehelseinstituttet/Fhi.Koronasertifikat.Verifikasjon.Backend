@@ -103,7 +103,7 @@ namespace FHICORC.Tests.UnitTests
 
             var dscTrustListItem = _fullTestTrustList.TrustListItems.Find(x => x.country == "DE" && x.certificateType == CertificateType.DSC.ToString());
             var uploadTrustListItem = _fullTestTrustList.TrustListItems.Find(x => x.country == "DE" && x.certificateType == CertificateType.UPLOAD.ToString());
-            var uploadCert = new X509Certificate2(Convert.FromBase64String(uploadTrustListItem.rawData));
+            var uploadCert = new X509Certificate2(Base64Util.FromString(uploadTrustListItem.rawData));
 
             var response = certificateVerification.VerifyItemByAnchorSignature(dscTrustListItem, uploadCert, "Upload");
 
@@ -118,7 +118,7 @@ namespace FHICORC.Tests.UnitTests
 
             var dscTrustListItem = _fullTestTrustList.TrustListItems.Find(x => x.country == "DE" && x.certificateType == CertificateType.DSC.ToString());
             var uploadTrustListItem = _fullTestTrustList.TrustListItems.Find(x => x.country == "HR" && x.certificateType == CertificateType.UPLOAD.ToString());
-            var uploadCert = new X509Certificate2(Convert.FromBase64String(uploadTrustListItem.rawData));
+            var uploadCert = new X509Certificate2(Base64Util.FromString(uploadTrustListItem.rawData));
 
             var response = certificateVerification.VerifyItemByAnchorSignature(dscTrustListItem, uploadCert, "Upload");
 
@@ -133,7 +133,7 @@ namespace FHICORC.Tests.UnitTests
 
             var cscaTrustListItemDe = _fullTestTrustList.TrustListItems.Find(x => x.country == "IT" && x.certificateType == CertificateType.CSCA.ToString());
             var dscItemList = _fullTestTrustList.TrustListItems.Find(x => x.country == "IT" && x.certificateType == CertificateType.DSC.ToString());
-            var cscaCertList = new List<X509Certificate2> {new X509Certificate2(Convert.FromBase64String(cscaTrustListItemDe.rawData))};
+            var cscaCertList = new List<X509Certificate2> {new X509Certificate2(Base64Util.FromString(cscaTrustListItemDe.rawData))};
 
             var response = certificateVerification.VerifyDscSignedByCsca(dscItemList, cscaCertList);
 
@@ -148,7 +148,7 @@ namespace FHICORC.Tests.UnitTests
 
             var cscaTrustListItemDe = _fullTestTrustList.TrustListItems.Find(x => x.country == "SE" && x.certificateType == CertificateType.CSCA.ToString());
             var dscItemList = _fullTestTrustList.TrustListItems.Find(x => x.country == "DE" && x.certificateType == CertificateType.DSC.ToString());
-            var cscaCertList = new List<X509Certificate2> {new X509Certificate2(Convert.FromBase64String(cscaTrustListItemDe.rawData))};
+            var cscaCertList = new List<X509Certificate2> {new X509Certificate2(Base64Util.FromString(cscaTrustListItemDe.rawData))};
 
             var response = certificateVerification.VerifyDscSignedByCsca(dscItemList, cscaCertList);
 

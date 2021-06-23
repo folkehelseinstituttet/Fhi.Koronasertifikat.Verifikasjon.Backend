@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using FHICORC.Integrations.DGCGateway.Util;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.X509;
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
@@ -90,7 +91,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 TCert cert;
                 try
                 {
-                    cert = LoadCertificate(Convert.FromBase64String(trustListItem.rawData));
+                    cert = LoadCertificate(Base64Util.FromString(trustListItem.rawData));
                 }
                 catch (Exception e)
                 {

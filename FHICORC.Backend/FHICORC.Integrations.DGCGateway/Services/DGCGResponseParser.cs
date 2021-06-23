@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using FHICORC.Integrations.DGCGateway.Util;
 
 namespace FHICORC.Integrations.DGCGateway.Services
 {
@@ -54,7 +55,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
         private string ExtractPublicKey(string rawData)
         {
 
-            var cert = new X509Certificate2(Convert.FromBase64String(rawData));
+            var cert = new X509Certificate2(Base64Util.FromString(rawData));
             byte[] publicKeyAsBytes;
             try
             {
