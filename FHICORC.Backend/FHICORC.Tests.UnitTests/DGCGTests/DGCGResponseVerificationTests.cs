@@ -47,7 +47,7 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
             _uploadCertDe = new X509Certificate2(Base64Util.FromString(_uploadTrustListDe.rawData));
 
 
-            _mockCertificateOptions.Object.DGCGTrustAnchorPath = "Certificates/ta_tst.pem";
+            _mockCertificateOptions.Object.DGCGTrustAnchorPath = "Certificates/local_ta.pem";
         }
 
         [Test]
