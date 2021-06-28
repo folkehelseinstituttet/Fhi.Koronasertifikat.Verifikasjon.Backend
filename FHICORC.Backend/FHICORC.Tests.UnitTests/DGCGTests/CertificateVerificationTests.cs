@@ -38,7 +38,7 @@ namespace FHICORC.Tests.UnitTests
             var parsedResponseInvalid = JsonConvert.DeserializeObject<DgcgTrustListItem[]>(File.ReadAllText("TestFiles/tst_invalid_response.json"));
             _invalidTrustList = new DgcgTrustListResponseDto { TrustListItems = parsedResponseInvalid.ToList() };
 
-            _mockCertificateOptions.Object.DGCGTrustAnchorPath = "Certificates/ta_tst.pem";
+            _mockCertificateOptions.Object.DGCGTrustAnchorPath = "Certificates/local_ta.pem";
             _trustAnchor = new X509Certificate2(_mockCertificateOptions.Object.DGCGTrustAnchorPath);
 
             //Get one CSCA certificate

@@ -33,6 +33,9 @@
   </ItemGroup>
 	
 	<ItemGroup>
+	  <None Update="Certificates\local_ta.pem">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	  <None Update="Certificates\ta_tst.pem">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
