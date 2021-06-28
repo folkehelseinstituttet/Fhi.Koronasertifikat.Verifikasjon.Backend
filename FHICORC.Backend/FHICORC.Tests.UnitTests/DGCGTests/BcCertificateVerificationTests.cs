@@ -40,7 +40,7 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
             var parsedResponseInvalid = JsonConvert.DeserializeObject<DgcgTrustListItem[]>(File.ReadAllText("TestFiles/tst_invalid_response.json"));
             _invalidTrustList = new DgcgTrustListResponseDto { TrustListItems = parsedResponseInvalid.ToList() };
 
-            _mockCertificateOptions.Object.DGCGTrustAnchorPath = "Certificates/ta_tst.pem";
+            _mockCertificateOptions.Object.DGCGTrustAnchorPath = "Certificates/local_ta.pem";
             var parser = new X509CertificateParser();
             _trustAnchor = parser.ReadCertificate(File.ReadAllBytes(_mockCertificateOptions.Object.DGCGTrustAnchorPath));
 
