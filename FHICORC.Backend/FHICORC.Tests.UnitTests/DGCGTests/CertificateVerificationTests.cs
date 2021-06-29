@@ -15,7 +15,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
-namespace FHICORC.Tests.UnitTests
+namespace FHICORC.Tests.UnitTests.DGCGTests
 {
     [Category("Unit")]
     public class CertificateVerificationTests

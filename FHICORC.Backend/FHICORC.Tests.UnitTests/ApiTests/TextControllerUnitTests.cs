@@ -1,12 +1,12 @@
+using FHICORC.Application.Models;
+using FHICORC.Application.Services.Interfaces;
+using FHICORC.ApplicationHost.Api.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using FHICORC.Application.Models;
-using FHICORC.Application.Services.Interfaces;
-using FHICORC.ApplicationHost.Api.Controllers;
 
-namespace FHICORC.Tests.UnitTests
+namespace FHICORC.Tests.UnitTests.ApiTests
 {
     [Category("Unit")]
     public class TextControllerUnitTests
