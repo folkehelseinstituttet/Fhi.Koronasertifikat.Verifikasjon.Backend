@@ -39,6 +39,7 @@ namespace FHICORC.ApplicationHost.Api
                 .AddValidatedOptions<SecurityOptions>(Configuration)
                 .AddValidatedOptions<FeatureToggles>(Configuration)
                 .AddValidatedOptions<PublicKeyCacheOptions>(Configuration)
+                .AddValidatedOptions<RuleCacheOptions>(Configuration)
                 .AddValidatedOptions<TextCacheOptions>(Configuration)
                 .AddValidatedOptions<TextOptions>(Configuration);
 
@@ -91,6 +92,8 @@ namespace FHICORC.ApplicationHost.Api
             {
                 services.AddScoped<IEuCertificateRepository, EuCertificateRepository>();
             }
+
+            services.AddScoped<IBusinessRuleRepository, BusinessRuleRepository>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<CoronapassContext>()

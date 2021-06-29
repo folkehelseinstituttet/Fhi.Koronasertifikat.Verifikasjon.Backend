@@ -7,12 +7,10 @@ using FHICORC.Application.Models.Options;
 using FHICORC.Integrations.DGCGateway.Models;
 using FHICORC.Integrations.DGCGateway.Services;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
-using FHICORC.Integrations.DGCGateway.Util.Interfaces;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 
-namespace FHICORC.Tests.UnitTests
+namespace FHICORC.Tests.UnitTests.DGCGTests
 {
     [Category("Unit")]
     public class DgcgServiceUnitTests
