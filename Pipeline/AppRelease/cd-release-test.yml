@@ -6,7 +6,7 @@ pool:
   vmImage: 'ubuntu-20.04'
   
 variables:
-  version: 2.1.0
+  version: 2.2.0
   versionRev: $[counter(variables['version'], 1)]
   finalVersion: $(version)-rev.$(versionRev)
   
