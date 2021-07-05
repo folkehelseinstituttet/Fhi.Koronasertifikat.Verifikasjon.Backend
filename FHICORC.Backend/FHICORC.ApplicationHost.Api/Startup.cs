@@ -76,13 +76,11 @@ namespace FHICORC.ApplicationHost.Api
 
             services.AddConfiguredSwaggerGen();
 
+            var connectionStrings = Configuration.GetSection($"{nameof(ConnectionStringOptions)}").Get<ConnectionStringOptions>();
+            services.AddDbContext<CoronapassContext>(options =>
+                options.UseNpgsql(connectionStrings.PgsqlDatabase, b => b.MigrationsAssembly("FHICORC.Infrastructure.Database")));
+
             var featureToggles = Configuration.GetSection($"{nameof(FeatureToggles)}").Get<FeatureToggles>() ?? new();
-            if (featureToggles.UseEuDgcGateway)
-            {
-                var connectionStrings = Configuration.GetSection($"{nameof(ConnectionStringOptions)}").Get<ConnectionStringOptions>();
-                services.AddDbContext<CoronapassContext>(options =>
-                    options.UseNpgsql(connectionStrings.PgsqlDatabase, b => b.MigrationsAssembly("FHICORC.Infrastructure.Database")));
-            }
 
             services.AddServiceDependencies();
             services.AddApplicationServices(featureToggles.UseEuDgcGateway);
@@ -107,12 +105,7 @@ namespace FHICORC.ApplicationHost.Api
 
             if (env.IsDevelopment())
             {
-                var featureToggles = Configuration.GetSection($"{nameof(FeatureToggles)}").Get<FeatureToggles>() ?? new();
-                if (featureToggles.UseEuDgcGateway)
-                {
-                    app.ApplicationServices.InitializeDatabase<CoronapassContext>();
-                }
-
+                app.ApplicationServices.InitializeDatabase<CoronapassContext>();
                 app.UseDeveloperExceptionPage();
             }
 
