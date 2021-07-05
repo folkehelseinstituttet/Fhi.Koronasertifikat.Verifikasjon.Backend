@@ -7,18 +7,20 @@ namespace FHICORC.Application.Services
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection serviceCollection, bool useEuDgcg)
         {
+            serviceCollection
+                .AddScoped<ITextService, TextService>()
+                .AddScoped<IRuleService, RuleService>();
+
             if (useEuDgcg)
             {
                 return serviceCollection
                     .AddScoped<IPublicKeyService, PublicKeyService>()
-                    .AddScoped<IJsonPublicKeyService, JsonPublicKeyService>()
-                    .AddScoped<ITextService, TextService>();
+                    .AddScoped<IJsonPublicKeyService, JsonPublicKeyService>();
             }
             else
             {
                 return serviceCollection
-                    .AddScoped<IPublicKeyService, JsonPublicKeyService>()
-                    .AddScoped<ITextService, TextService>();
+                    .AddScoped<IPublicKeyService, JsonPublicKeyService>();
             }
         }
     }

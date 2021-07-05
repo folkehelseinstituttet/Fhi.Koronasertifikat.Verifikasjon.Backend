@@ -1,19 +1,19 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
-using FHICORC.Application.Models;
-using FHICORC.Application.Models.Options;
-using FHICORC.Application.Services;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using FHICORC.Application.Common;
 using FHICORC.Application.Common.Interfaces;
+using FHICORC.Application.Models;
+using FHICORC.Application.Models.Options;
+using FHICORC.Application.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Moq;
+using NUnit.Framework;
 
-namespace FHICORC.Tests.UnitTests
+namespace FHICORC.Tests.UnitTests.Services
 {
     [Category("Unit")]
     public class TextServiceUnitTest

@@ -1,20 +1,20 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
-using NUnit.Framework;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using FHICORC.Application.Common;
+using FHICORC.Application.Common.Interfaces;
 using FHICORC.Application.Models;
 using FHICORC.Application.Models.Options;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Application.Services;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using FHICORC.Application.Common;
-using FHICORC.Application.Common.Interfaces;
 using FHICORC.Application.Services.Interfaces;
 using FHICORC.Domain.Models;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
+using NUnit.Framework;
 
-namespace FHICORC.Tests.UnitTests
+namespace FHICORC.Tests.UnitTests.Services
 {
     [Category("Unit")]
     public class PublicKeyServiceUnitTests
