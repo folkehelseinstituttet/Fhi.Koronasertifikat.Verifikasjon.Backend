@@ -6,6 +6,6 @@ namespace FHICORC.Application.Models
     public class ValueSetRequestDto
     {
         [FromHeader]
-        public DateTime? LastFetched { get; set; }
+        public DateTimeOffset? LastFetched { get; set; }
     }
 }

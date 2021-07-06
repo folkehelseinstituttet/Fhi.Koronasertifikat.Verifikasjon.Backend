@@ -32,7 +32,8 @@ namespace FHICORC.ApplicationHost.Api.Controllers
                 }
                 else
                 {
-                    return new FileContentResult(response.ZipContents, "application/octet-stream");
+                    return new FileContentResult(response.ZipContents, "application/octet-stream")
+                        {LastModified = response.LastUpdated};
                 }
             }
             catch (Exception e)
