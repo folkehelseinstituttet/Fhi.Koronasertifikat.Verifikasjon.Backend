@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>6839e3fa-2dbb-467a-834a-755c234d6cda</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileRunArguments>-v "$(SolutionDir)..\AppDictionary:/AppDictionary:ro"</DockerfileRunArguments>
+    <DockerfileRunArguments>-v "$(SolutionDir)..\AppDictionary:/app/appdictionary:ro" -v "$(SolutionDir)..\AppValueSets:/app/appvaluesets:ro"</DockerfileRunArguments>
   </PropertyGroup>
 
   <ItemGroup>
