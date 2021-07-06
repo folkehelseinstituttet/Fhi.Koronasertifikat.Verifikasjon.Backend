@@ -1,0 +1,19 @@
+trigger: none
+
+pr: none
+
+pool:
+  vmImage: 'ubuntu-20.04'
+  
+variables:
+  version: 2.2.0
+  versionRev: $[counter(variables['version'], 1)]
+  finalVersion: $(version)-data-rev.$(versionRev)
+  
+extends:
+  template: cd-push-rules-pipeline.yml
+  parameters:
+    containerRegistry: FHI-Koronasertifikat.Verifisering-ACR-Test
+    appVersion: $(finalVersion)
+    doRelease: 'true'
+    environment: 'test'
