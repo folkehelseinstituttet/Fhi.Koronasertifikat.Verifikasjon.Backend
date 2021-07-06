@@ -41,7 +41,9 @@ namespace FHICORC.ApplicationHost.Api
                 .AddValidatedOptions<PublicKeyCacheOptions>(Configuration)
                 .AddValidatedOptions<RuleCacheOptions>(Configuration)
                 .AddValidatedOptions<TextCacheOptions>(Configuration)
-                .AddValidatedOptions<TextOptions>(Configuration);
+                .AddValidatedOptions<TextOptions>(Configuration)
+                .AddValidatedOptions<ValueSetCacheOptions>(Configuration)
+                .AddValidatedOptions<ValueSetOptions>(Configuration);
 
             services
                 .AddControllers()
@@ -50,6 +52,7 @@ namespace FHICORC.ApplicationHost.Api
 
             services.AddMemoryCache();
             services.AddSingleton<ICacheManager, CacheManager>();
+            services.AddSingleton<IZipManager, ZipManager>();
             services.AddApiVersioning(config =>
             {
                 // Specify the default API Version

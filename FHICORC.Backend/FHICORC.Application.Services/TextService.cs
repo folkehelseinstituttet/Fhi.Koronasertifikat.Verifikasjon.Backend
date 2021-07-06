@@ -5,7 +5,6 @@ using FHICORC.Application.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -22,14 +21,17 @@ namespace FHICORC.Application.Services
         private readonly DirectoryInfo _directorySelected;
         private const string LatestVersionNumberCacheKey = "LATEST_VERSION";
         private readonly IMetricLogService _metricLogService;
+        private readonly IZipManager _zipManager;
 
-        public TextService(ILogger<TextService> logger, ICacheManager cacheManager, TextCacheOptions textCacheOptions, TextOptions textOptions, IMetricLogService metricLogService)
+        public TextService(ILogger<TextService> logger, ICacheManager cacheManager, TextCacheOptions textCacheOptions, TextOptions textOptions,
+            IMetricLogService metricLogService, IZipManager zipManager)
         {
             _logger = logger;
             _cacheManager = cacheManager;
             _textCacheOptions = textCacheOptions;
             _directorySelected = new DirectoryInfo(textOptions.TextsDirectory);
             _metricLogService = metricLogService;
+            _zipManager = zipManager;
         }
 
         public async Task<TextResponseDto> GetLatestVersionAsync(TextRequestDto textRequestDto)
@@ -111,21 +113,11 @@ namespace FHICORC.Application.Services
             _metricLogService.AddMetric("TextService_Files_CacheHit", false);
             var files = _directorySelected.GetFiles();
 
-            Dictionary<string, byte[]> fileDictionary = await CreateZipFiles(files);
+            Dictionary<string, byte[]> fileDictionary = await _zipManager.CreateZipFiles(files);
             resultDto = await SetZipContents(fileDictionary);
 
             _cacheManager.Set(latestVersion, resultDto.ZipContents, _textCacheOptions);
             return resultDto;
-        }
-
-        private static async Task<Dictionary<string, byte[]>> CreateZipFiles(FileInfo[] files)
-        {
-            var resultDict = new Dictionary<string, byte[]>();
-            foreach (FileInfo file in files)
-            {
-                resultDict.Add(file.Name, await File.ReadAllBytesAsync(file.FullName));
-            }
-            return resultDict;
         }
 
         private async Task<TextResponseDto> SetZipContents(Dictionary<string, byte[]> fileDictionary)
@@ -134,7 +126,7 @@ namespace FHICORC.Application.Services
             {
                 TextResponseDto textResponseDto = new TextResponseDto(false, true)
                 {
-                    ZipContents = await ZipFiles(fileDictionary)
+                    ZipContents = await _zipManager.ZipFiles(fileDictionary)
                 };
                 _logger.LogDebug("Files successfully fetched from disk and zipped");
                 return textResponseDto;
@@ -145,30 +137,7 @@ namespace FHICORC.Application.Services
                 throw;
             }
         }
-
-        private static async Task<byte[]> ZipFiles(Dictionary<string, byte[]> fileDictionary)
-        {
-            return await Task.Run(() =>
-            {
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    using (ZipArchive archive = new ZipArchive(ms, ZipArchiveMode.Update))
-                    {
-                        foreach (var file in fileDictionary)
-                        {
-                            ZipArchiveEntry orderEntry = archive.CreateEntry(file.Key); //create a file with this name
-                            using (BinaryWriter writer = new BinaryWriter(orderEntry.Open()))
-                            {
-                                writer.Write(file.Value); //write the binary data
-                            }
-                        }
-                    }
-                    //ZipArchive must be disposed before the MemoryStream has data
-                    return ms.ToArray();
-                }
-            });
-        }
-
+        
         private static bool IsAppVersionUpToDate(string serverVersionString, string appVersionString)
         {
             Version versionApp = new Version(appVersionString);
