@@ -13,7 +13,7 @@ namespace FHICORC.Application.Models
 
         public bool IsZipFileCreated { get; set; }
 
-        public DateTime LastUpdated { get; set; }
+        public DateTimeOffset LastUpdated { get; set; }
 
         public byte[] ZipContents { get; set; }
     }

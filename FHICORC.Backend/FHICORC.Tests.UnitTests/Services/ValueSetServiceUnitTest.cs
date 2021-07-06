@@ -69,7 +69,7 @@ namespace FHICORC.Tests.UnitTests.Services
             // Arrange //
             ValueSetResponseDto cachedData;
 
-            ValueSetRequestDto vsRequest = new ValueSetRequestDto { LastFetched = DateTime.MaxValue };
+            ValueSetRequestDto vsRequest = new ValueSetRequestDto { LastFetched = DateTimeOffset.MaxValue };
 
             // Act //
             var vsResponse = await _valueSetService.GetLatestVersionAsync(vsRequest);

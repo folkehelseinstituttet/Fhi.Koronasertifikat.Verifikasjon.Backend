@@ -51,7 +51,7 @@ namespace FHICORC.Application.Services
                 _cacheManager.Set(ValueSetsCacheKey, cachedData, _valueSetCacheOptions);
             }
 
-            var upToDate = valueSetRequestDto.LastFetched != null && valueSetRequestDto.LastFetched >= cachedData.LastUpdated;
+            var upToDate = valueSetRequestDto.LastFetched != null && valueSetRequestDto.LastFetched.Value.CompareTo(cachedData.LastUpdated) >= 0;
             if (upToDate)
             {
                 return new ValueSetResponseDto(true, false);
@@ -62,12 +62,16 @@ namespace FHICORC.Application.Services
         
         private async Task<ValueSetResponseDto> SetZipContents(Dictionary<string, byte[]> fileDictionary, DateTime lastUpdated)
         {
+            // Truncate timestamp to exclude milliseconds (for comparison, as the serialized value does not contain them)
+            var lastUpdatedTruncated = new DateTime(lastUpdated.Year, lastUpdated.Month, lastUpdated.Day,
+                lastUpdated.Hour, lastUpdated.Minute, lastUpdated.Second, lastUpdated.Kind);
+
             try
             {
                 ValueSetResponseDto valueSetResponseDto = new ValueSetResponseDto(false, true)
                 {
                     ZipContents = await _zipManager.ZipFiles(fileDictionary),
-                    LastUpdated = lastUpdated
+                    LastUpdated = lastUpdatedTruncated
                 };
                 _logger.LogDebug("Files successfully fetched from disk and zipped");
                 return valueSetResponseDto;
