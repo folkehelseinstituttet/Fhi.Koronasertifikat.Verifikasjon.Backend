@@ -39,8 +39,11 @@ namespace FHICORC.ApplicationHost.Api
                 .AddValidatedOptions<SecurityOptions>(Configuration)
                 .AddValidatedOptions<FeatureToggles>(Configuration)
                 .AddValidatedOptions<PublicKeyCacheOptions>(Configuration)
+                .AddValidatedOptions<RuleCacheOptions>(Configuration)
                 .AddValidatedOptions<TextCacheOptions>(Configuration)
-                .AddValidatedOptions<TextOptions>(Configuration);
+                .AddValidatedOptions<TextOptions>(Configuration)
+                .AddValidatedOptions<ValueSetCacheOptions>(Configuration)
+                .AddValidatedOptions<ValueSetOptions>(Configuration);
 
             services
                 .AddControllers()
@@ -49,6 +52,7 @@ namespace FHICORC.ApplicationHost.Api
 
             services.AddMemoryCache();
             services.AddSingleton<ICacheManager, CacheManager>();
+            services.AddSingleton<IZipManager, ZipManager>();
             services.AddApiVersioning(config =>
             {
                 // Specify the default API Version
@@ -75,13 +79,11 @@ namespace FHICORC.ApplicationHost.Api
 
             services.AddConfiguredSwaggerGen();
 
+            var connectionStrings = Configuration.GetSection($"{nameof(ConnectionStringOptions)}").Get<ConnectionStringOptions>();
+            services.AddDbContext<CoronapassContext>(options =>
+                options.UseNpgsql(connectionStrings.PgsqlDatabase, b => b.MigrationsAssembly("FHICORC.Infrastructure.Database")));
+
             var featureToggles = Configuration.GetSection($"{nameof(FeatureToggles)}").Get<FeatureToggles>() ?? new();
-            if (featureToggles.UseEuDgcGateway)
-            {
-                var connectionStrings = Configuration.GetSection($"{nameof(ConnectionStringOptions)}").Get<ConnectionStringOptions>();
-                services.AddDbContext<CoronapassContext>(options =>
-                    options.UseNpgsql(connectionStrings.PgsqlDatabase, b => b.MigrationsAssembly("FHICORC.Infrastructure.Database")));
-            }
 
             services.AddServiceDependencies();
             services.AddApplicationServices(featureToggles.UseEuDgcGateway);
@@ -91,6 +93,8 @@ namespace FHICORC.ApplicationHost.Api
             {
                 services.AddScoped<IEuCertificateRepository, EuCertificateRepository>();
             }
+
+            services.AddScoped<IBusinessRuleRepository, BusinessRuleRepository>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<CoronapassContext>()
@@ -104,12 +108,7 @@ namespace FHICORC.ApplicationHost.Api
 
             if (env.IsDevelopment())
             {
-                var featureToggles = Configuration.GetSection($"{nameof(FeatureToggles)}").Get<FeatureToggles>() ?? new();
-                if (featureToggles.UseEuDgcGateway)
-                {
-                    app.ApplicationServices.InitializeDatabase<CoronapassContext>();
-                }
-
+                app.ApplicationServices.InitializeDatabase<CoronapassContext>();
                 app.UseDeveloperExceptionPage();
             }
 

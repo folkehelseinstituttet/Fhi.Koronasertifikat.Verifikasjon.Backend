@@ -18,6 +18,7 @@
     "FHICORC.ApplicationHost.Api": {
       "commandName": "Project",
       "launchBrowser": true,
+      "launchUrl": "https://localhost:5001/swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
@@ -36,9 +37,13 @@
     "Docker": {
       "commandName": "Docker",
       "launchBrowser": true,
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "",
+        "ASPNETCORE_URLS": "http://+:5000"
+      },
       "publishAllPorts": true,
-      "useSSL": true
+      "useSSL": false
     }
   }
 }
