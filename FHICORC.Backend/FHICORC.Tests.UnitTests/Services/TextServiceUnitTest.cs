@@ -1,19 +1,19 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
-using FHICORC.Application.Models;
-using FHICORC.Application.Models.Options;
-using FHICORC.Application.Services;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using FHICORC.Application.Common;
 using FHICORC.Application.Common.Interfaces;
+using FHICORC.Application.Models;
+using FHICORC.Application.Models.Options;
+using FHICORC.Application.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Moq;
+using NUnit.Framework;
 
-namespace FHICORC.Tests.UnitTests
+namespace FHICORC.Tests.UnitTests.Services
 {
     [Category("Unit")]
     public class TextServiceUnitTest
@@ -26,6 +26,7 @@ namespace FHICORC.Tests.UnitTests
         private readonly TextOptions textOptions = new TextOptions() { TextsDirectory = "../../../../../AppDictionary" };
         private readonly Mock<ILogger<TextService>> loggerMock = new Mock<ILogger<TextService>>();
         private readonly Mock<IMetricLogService> mockMetricLogService = new Mock<IMetricLogService>();
+        private readonly ZipManager zipManager = new ZipManager();
         private TextService textService;
         private byte[] cacheData = new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 };
         private string currentFileVersion = "";
@@ -43,7 +44,7 @@ namespace FHICORC.Tests.UnitTests
             serviceProvider = services.BuildServiceProvider();
             cacheManager = serviceProvider.GetService<ICacheManager>();
             //Text Service instance 
-            textService = new TextService(loggerMock.Object, cacheManager, mockTextCacheOptions.Object, textOptions, mockMetricLogService.Object);
+            textService = new TextService(loggerMock.Object, cacheManager, mockTextCacheOptions.Object, textOptions, mockMetricLogService.Object, zipManager);
 
             //Current file version 
             currentFileVersion = getServerVersion(dirInfo);
@@ -91,7 +92,7 @@ namespace FHICORC.Tests.UnitTests
         public async Task LastestVersionNumberCache_ContainValue_ReturnsUpToDate()
         {
             cacheManager.Set("LATEST_VERSION", "1.5", mockTextCacheOptions.Object);
-            TextService specificTextService = new TextService(loggerMock.Object, cacheManager, mockTextCacheOptions.Object, textOptions, mockMetricLogService.Object);
+            TextService specificTextService = new TextService(loggerMock.Object, cacheManager, mockTextCacheOptions.Object, textOptions, mockMetricLogService.Object, zipManager);
             TextRequestDto _txtRequest = new TextRequestDto() { CurrentVersionNo = "1.5" };
 
             // Act //
@@ -147,7 +148,7 @@ namespace FHICORC.Tests.UnitTests
             byte[] cachedData;
             cacheManager.Set("LATEST_VERSION", "2.0", mockTextCacheOptions.Object);
             cacheManager.Set("2.0", cacheData, mockTextCacheOptions.Object);
-            TextService specificTextService = new TextService(loggerMock.Object, cacheManager, mockTextCacheOptions.Object, textOptions, mockMetricLogService.Object);
+            TextService specificTextService = new TextService(loggerMock.Object, cacheManager, mockTextCacheOptions.Object, textOptions, mockMetricLogService.Object, zipManager);
 
             // Act //
             TextRequestDto _txtRequest = new TextRequestDto() { CurrentVersionNo = "0.9" };

@@ -7,11 +7,12 @@ pool:
 
 variables:
   version: 2.2.0
+  finalVersion: $(version)-data
   
 extends:
-  template: cd-build-push-image-pipeline.yml
+  template: cd-push-rules-pipeline.yml
   parameters:
     containerRegistry: FHI-Koronasertifikat.Verifisering-ACR-Prod
-    appVersion: $(version)
+    appVersion: $(finalVersion)
     doRelease: ${{ eq(variables['Build.SourceBranch'], 'refs/heads/main') }}
     environment: 'prod'

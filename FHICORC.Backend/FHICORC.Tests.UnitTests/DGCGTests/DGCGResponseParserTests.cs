@@ -1,19 +1,18 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
-using Newtonsoft.Json;
-using NUnit.Framework;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using FHICORC.Application.Models;
 using FHICORC.Application.Models.Options;
 using FHICORC.Domain.Models;
 using FHICORC.Integrations.DGCGateway.Models;
 using FHICORC.Integrations.DGCGateway.Services;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
+using Newtonsoft.Json;
+using NUnit.Framework;
 
-namespace FHICORC.Tests.UnitTests
+namespace FHICORC.Tests.UnitTests.DGCGTests
 {
     [Category("Unit")]
     public class DgcgResponseParserTests

@@ -1,0 +1,45 @@
+parameters:
+  - name: azureConnection
+    type: string
+    default: ''
+  - name: storageAccount
+    default: ''
+  - name: storageContainer
+    default: 'valuesets'
+  - name: appVersion
+    type: string
+    default: ''
+  - name: doRelease
+    type: string
+    default: 'false'
+  - name: environment
+    type: string
+    default: ''
+
+jobs:
+  - job: deploy_valuesets
+    displayName: Deploy value sets
+    condition: eq('${{ parameters.doRelease }}', 'true')
+    steps:
+      - checkout: self
+        persistCredentials: true
+      - script: |
+          echo '##[error] azureConnection must have a value'
+          exit 1
+        condition: eq('${{ parameters.azureConnection }}', '')
+        displayName: Check if azureConnection is defined
+      - script: |
+          echo '##[error] appVersion must have a value'
+          exit 1
+        condition: eq('${{ parameters.appVersion }}', '')
+        displayName: Check if appVersion is defined
+      - task: AzurePowerShell@5
+        displayName: Copy value sets
+        inputs:
+          azureSubscription: ${{ parameters.azureConnection }}
+          scriptType: 'inlineScript'
+          azurePowerShellVersion: 'latestVersion'
+          inline: |
+            $stCtx = New-AzStorageContext ${{ parameters.storageAccount }} -UseConnectedAccount
+            Get-ChildItem AppValueSets | ForEach-Object { Set-AzStorageBlobContent -Context $stCtx -Container ${{ parameters.storageContainer }} -File $_ -Blob $_.Name -Force }
+            Get-AzStorageBlob -Container ${{ parameters.storageContainer }} -Context $stCtx | ForEach-Object { if (-not (Test-Path -Path "AppValueSets/$($_.Name)" -PathType Leaf)) { Remove-AzStorageBlob -Context $stCtx -Container ${{ parameters.storageContainer }} -Blob $_.Name } }

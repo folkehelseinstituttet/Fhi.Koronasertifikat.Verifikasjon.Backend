@@ -8,10 +8,10 @@ pool:
 variables:
   version: 2.2.0
   versionRev: $[counter(variables['version'], 1)]
-  finalVersion: $(version)-rc.$(versionRev)
+  finalVersion: $(version)-data-rc.$(versionRev)
 
 extends:
-  template: cd-build-push-image-pipeline.yml
+  template: cd-push-rules-pipeline.yml
   parameters:
     containerRegistry: FHI-Koronasertifikat.Verifisering-ACR-QA
     appVersion: $(finalVersion)
