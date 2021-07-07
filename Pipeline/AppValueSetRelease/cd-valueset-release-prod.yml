@@ -15,6 +15,8 @@ variables:
 extends:
   template: cd-deploy-valuesets-pipeline.yml
   parameters:
+    azureConnection: ${{ variables.azureConnection }}
+    storageAccount: ${{ variables.storageAccount }}
     appVersion: $(version)
     doRelease: ${{ eq(variables['Build.SourceBranch'], 'refs/heads/main') }}
     environment: 'prod'
