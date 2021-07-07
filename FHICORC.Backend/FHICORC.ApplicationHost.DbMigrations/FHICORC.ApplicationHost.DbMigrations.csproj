@@ -16,4 +16,10 @@
     <ProjectReference Include="..\FHICORC.Infrastructure.Database\FHICORC.Infrastructure.Database.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="DataScript.sql" Condition="Exists('DataScript.sql')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
