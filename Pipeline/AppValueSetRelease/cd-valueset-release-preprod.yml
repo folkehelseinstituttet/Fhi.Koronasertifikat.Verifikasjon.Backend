@@ -1,0 +1,24 @@
+trigger: none
+
+pr: none
+
+pool:
+  vmImage: 'ubuntu-20.04'
+  
+variables:
+- template: ../version-number.yml
+- name: versionRev
+  value: $[counter(variables['version'], 1)]
+- name: finalVersion
+  value: $(version)-rc.$(versionRev)
+- name: azureConnection
+  value: FHI-Koronasertifikat.Verifisering-ARM-QA
+- name: storageAccount
+  value: stvksvaluesetsqa
+
+extends:
+  template: cd-deploy-valuesets-pipeline.yml
+  parameters:
+    appVersion: $(finalVersion)
+    doRelease: ${{ startsWith(variables['Build.SourceBranch'], 'refs/heads/release/') }}
+    environment: 'preprod'
