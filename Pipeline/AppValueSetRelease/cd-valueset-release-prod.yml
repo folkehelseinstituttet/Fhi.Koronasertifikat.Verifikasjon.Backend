@@ -1,0 +1,20 @@
+trigger: none
+
+pr: none
+
+pool:
+  vmImage: 'ubuntu-20.04'
+
+variables:
+- template: ../version-number.yml
+- name: azureConnection
+  value: FHI-Koronasertifikat.Verifisering-ARM-Prod
+- name: storageAccount
+  value: stvksvaluesetsprod
+  
+extends:
+  template: cd-deploy-valuesets-pipeline.yml
+  parameters:
+    appVersion: $(version)
+    doRelease: ${{ eq(variables['Build.SourceBranch'], 'refs/heads/main') }}
+    environment: 'prod'
