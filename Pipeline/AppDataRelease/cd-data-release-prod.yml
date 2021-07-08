@@ -5,9 +5,10 @@ pr: none
 pool:
   vmImage: 'ubuntu-20.04'
 
-variables:
-  version: 2.2.0
-  finalVersion: $(version)-data
+variables: 
+- template: ../version-number.yml
+- name: finalVersion
+  value: $(version)-data
   
 extends:
   template: cd-push-rules-pipeline.yml
