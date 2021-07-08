@@ -6,9 +6,11 @@ pool:
   vmImage: 'ubuntu-20.04'
   
 variables:
-  version: 2.2.0
-  versionRev: $[counter(variables['version'], 1)]
-  finalVersion: $(version)-data-rc.$(versionRev)
+- template: ../version-number.yml
+- name: versionRev
+  value: $[counter(variables['version'], 1)]
+- name: finalVersion
+  value: $(version)-data-rc.$(versionRev)
 
 extends:
   template: cd-push-rules-pipeline.yml
