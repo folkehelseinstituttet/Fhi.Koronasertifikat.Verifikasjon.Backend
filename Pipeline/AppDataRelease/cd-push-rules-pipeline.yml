@@ -41,10 +41,10 @@ jobs:
           pwsh: true
           script: |
             $rulesJson = Get-Content './AppRules/Norwegian Rules.json' | ConvertFrom-Json
-            $rulesSql = ($rulesJson | ForEach-Object { "INSERT INTO public.`"BusinessRules`" (`"RuleIdentifier`", `"RuleJson`")`n    VALUES ('$(($_.id) -replace `"'`", `"''`")', '$((ConvertTo-Json $_ -Depth 100) -replace `"'`", `"''`")')`nON CONFLICT (`"RuleIdentifier`")`nDO UPDATE SET `"RuleJson`" = EXCLUDED.`"RuleJson`", `"Created`" = now() at time zone 'utc';`n"}) -join "`n"
-            $ids = ($rulesJson | ForEach-Object {"'$(($_.id) -replace "'", "''")'"}) -join ', '
+            $rulesSql = ($rulesJson | ForEach-Object { "INSERT INTO public.`"BusinessRules`" (`"RuleIdentifier`", `"RuleJson`")`n    VALUES ('$(($_.Identifier) -replace `"'`", `"''`")', '$((ConvertTo-Json $_ -Depth 100) -replace `"'`", `"''`")')`nON CONFLICT (`"RuleIdentifier`")`nDO UPDATE SET `"RuleJson`" = EXCLUDED.`"RuleJson`", `"Created`" = now() at time zone 'utc';`n"}) -join "`n"
+            $ids = ($rulesJson | ForEach-Object {"'$(($_.Identifier) -replace "'", "''")'"}) -join ', '
             $rulesSql = "$($rulesSql)`nDELETE FROM public.`"BusinessRules`"`nWHERE `"RuleIdentifier`" NOT IN ($($ids));`n"
-            Set-Content -Path './FHICORC.Backend/FHICORC.ApplicationHost.DbMigrations/DataScript.sql' -Value $rulesSql
+            Set-Content -Path './FHICORC.Backend/FHICORC.ApplicationHost.DbMigrations/DataScript.sql' -Value $rulesSql -Encoding utf8
       - task: Docker@2
         displayName: Build DbMigrations image
         inputs:
