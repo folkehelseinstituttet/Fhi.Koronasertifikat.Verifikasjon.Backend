@@ -39,7 +39,7 @@ namespace FHICORC.Tests.UnitTests.Repositories
                 {
                     BusinessRuleId = 1,
                     RuleIdentifier = "10",
-                    RuleJson = "{ \"rule\": \"exampleRule\", \"id\": 10 }",
+                    RuleJson = "{ \"rule\": \"exampleRule\", \"Identifier\": 10 }",
                     Created = DateTime.MinValue.Add(TimeSpan.FromHours(2))
                 }
             }.AsQueryable();
@@ -62,7 +62,7 @@ namespace FHICORC.Tests.UnitTests.Repositories
                 {
                     BusinessRuleId = 1,
                     RuleIdentifier = "RuleId",
-                    RuleJson = "{ \"rule\": \"exampleRule\", \"id\": \"NoMatch\" }",
+                    RuleJson = "{ \"rule\": \"exampleRule\", \"Identifier\": \"NoMatch\" }",
                     Created = DateTime.MinValue.Add(TimeSpan.FromHours(2))
                 }
             }.AsQueryable();
@@ -102,7 +102,7 @@ namespace FHICORC.Tests.UnitTests.Repositories
         [Test]
         public async Task GetAllBusinessRules_with_Id_in_RuleJson_matching_RuleIdentifier_will_return_rule()
         {
-            const string jsonRule = "{ \"rule\": \"exampleRule\", \"id\": \"RuleIdMatch\" }";
+            const string jsonRule = "{ \"rule\": \"exampleRule\", \"Identifier\": \"RuleIdMatch\" }";
             var data = new List<BusinessRule>
             {
                 new()
@@ -126,9 +126,9 @@ namespace FHICORC.Tests.UnitTests.Repositories
         [Test]
         public async Task GetAllBusinessRules_will_return_list_of_validated_rules()
         {
-            const string matchingRule1 = "{ \"rule\": \"exampleRule\", \"id\": \"MatchingRule1\" }";
-            const string matchingRule2 = "{ \"rule\": \"testRule\", \"id\": \"MatchingRule2\" }";
-            const string matchingRule3 = "{ \"rule\": \"anotherRule\", \"id\": \"MatchingRule3\" }";
+            const string matchingRule1 = "{ \"rule\": \"exampleRule\", \"Identifier\": \"MatchingRule1\" }";
+            const string matchingRule2 = "{ \"rule\": \"testRule\", \"Identifier\": \"MatchingRule2\" }";
+            const string matchingRule3 = "{ \"rule\": \"anotherRule\", \"Identifier\": \"MatchingRule3\" }";
             var data = new List<BusinessRule>
             {
                 new()
@@ -142,7 +142,7 @@ namespace FHICORC.Tests.UnitTests.Repositories
                 {
                     BusinessRuleId = 2,
                     RuleIdentifier = "10",
-                    RuleJson = "{ \"rule\": \"exampleRule\", \"id\": 10 }",
+                    RuleJson = "{ \"rule\": \"exampleRule\", \"Identifier\": 10 }",
                     Created = DateTime.MinValue.Add(TimeSpan.FromHours(2))
                 },
                 new()
@@ -163,7 +163,7 @@ namespace FHICORC.Tests.UnitTests.Repositories
                 {
                     BusinessRuleId = 5,
                     RuleIdentifier = "noMatchId", 
-                    RuleJson = "{ \"rule\": \"exampleRule\", \"id\": \"993883\" }",
+                    RuleJson = "{ \"rule\": \"exampleRule\", \"Identifier\": \"993883\" }",
                     Created = DateTime.MinValue.Add(TimeSpan.FromHours(10))
                 }
             }.AsQueryable();
