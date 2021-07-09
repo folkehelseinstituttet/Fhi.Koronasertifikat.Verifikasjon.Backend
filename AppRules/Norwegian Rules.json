@@ -176,7 +176,7 @@
     "Description": [
       {
         "lang": "en",
-        "desc": "Test based Corona passports are not admitted"
+        "desc": "Test based COVID-19 certificates are not admitted"
       },
       {
         "lang": "nb",
@@ -293,11 +293,11 @@
       },
       {
         "lang": "nb",
-        "desc": "Minst 21 dager (7 ved gjennomgått covid-19) må ha gått etter vaksinedose 1 av 1, eller minst 21 og maksimalt 98 dager må ha gått etter vaksinedose 1 på 2, eller minst 7 dager må ha passert etter vaksinedose 2 av 2"
+        "desc": "Minst 21 dager (7 ved gjennomgått covid-19) må ha gått etter vaksinedose 1 av 1, eller minst 21 og maksimalt 98 dager må ha gått etter vaksinedose 1 av 2, eller minst 7 dager må ha passert etter vaksinedose 2 av 2"
       },
       {
         "lang": "nn",
-        "desc": "Minst 21 dagar (7 ved gjennomgått covid-19) må ha gått etter vaksinedose 1 av 1, eller minst 21 og maksimalt 98 dagar må ha gått etter vaksinedose 1 på 2, eller minst 7 dagar må ha passert etter vaksinedose 2 av 2"
+        "desc": "Minst 21 dagar (7 ved gjennomgått covid-19) må ha gått etter vaksinedose 1 av 1, eller minst 21 og maksimalt 98 dagar må ha gått etter vaksinedose 1 av 2, eller minst 7 dagar må ha passert etter vaksinedose 2 av 2"
       }
     ],
     "ValidFrom": "2021-07-01T00:00:00Z",
@@ -510,7 +510,7 @@
     "Description": [
       {
         "lang": "en",
-        "desc": "At most 24 hours must have passed after a negative test result"
+        "desc": "At most 24 hours must have passed after negative test result"
       },
       {
         "lang": "nb",
@@ -555,7 +555,7 @@
     "Description": [
       {
         "lang": "en",
-        "desc": "At least 10 days and at most 180 days must have passed after a positive test result"
+        "desc": "At least 10 days and at most 180 days must have passed after positive test result"
       },
       {
         "lang": "nb",
