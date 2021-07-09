@@ -11,11 +11,14 @@ variables:
   value: $[counter(variables['version'], 1)]
 - name: finalVersion
   value: $(version)-data-rev.$(versionRev)
+- name: azureConnection
+  value: FHI-Koronasertifikat.Verifisering-ARM-Test
   
 extends:
   template: cd-push-rules-pipeline.yml
   parameters:
     containerRegistry: FHI-Koronasertifikat.Verifisering-ACR-Test
+    azureConnection: ${{ variables.azureConnection }}
     appVersion: $(finalVersion)
     doRelease: 'true'
     environment: 'test'
