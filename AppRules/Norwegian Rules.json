@@ -1,4 +1,4 @@
-[
+ï»¿[
   {
     "Identifier": "VR-NO-0001",
     "Type": "Acceptance",
@@ -15,11 +15,11 @@
       },
       {
         "lang": "nb",
-        "desc": "Vaksineleverandør må være godkjent"
+        "desc": "VaksineleverandÃ¸r mÃ¥ vÃ¦re godkjent"
       },
       {
         "lang": "nn",
-        "desc": "Vaksineleverandør må vera godkjend"
+        "desc": "VaksineleverandÃ¸r mÃ¥ vera godkjend"
       }
     ],
     "ValidFrom": "2021-07-01T00:00:00Z",
@@ -48,11 +48,11 @@
       },
       {
         "lang": "nb",
-        "desc": "Minst 21 dager (7 ved gjennomgått covid-19) må ha gått etter vaksinedose 1 av 1, eller minst 7 dager må ha gått etter vaksinedose 2 av 2"
+        "desc": "Minst 21 dager (7 ved gjennomgÃ¥tt covid-19) mÃ¥ ha gÃ¥tt etter vaksinedose 1 av 1, eller minst 7 dager mÃ¥ ha gÃ¥tt etter vaksinedose 2 av 2"
       },
       {
         "lang": "nn",
-        "desc": "Minst 21 dagar (7 ved gjennomgått covid-19) må ha gått etter vaksinedose 1 av 1, eller minst 7 dagar må ha gått etter vaksinedose 2 av 2"
+        "desc": "Minst 21 dagar (7 ved gjennomgÃ¥tt covid-19) mÃ¥ ha gÃ¥tt etter vaksinedose 1 av 1, eller minst 7 dagar mÃ¥ ha gÃ¥tt etter vaksinedose 2 av 2"
       }
     ],
     "ValidFrom": "2021-07-01T00:00:00Z",
@@ -208,11 +208,11 @@
       },
       {
         "lang": "nb",
-        "desc": "Minst 10 dager og maksimalt 180 dager må ha gått etter positivt testresultat"
+        "desc": "Minst 10 dager og maksimalt 180 dager mÃ¥ ha gÃ¥tt etter positivt testresultat"
       },
       {
         "lang": "nn",
-        "desc": "Minst 10 dagar og maksimalt 180 dagar må ha gått etter positivt testresultat"
+        "desc": "Minst 10 dagar og maksimalt 180 dagar mÃ¥ ha gÃ¥tt etter positivt testresultat"
       }
     ],
     "ValidFrom": "2021-07-01T00:00:00Z",
@@ -260,11 +260,11 @@
       },
       {
         "lang": "nb",
-        "desc": "Vaksineleverandør må være godkjent"
+        "desc": "VaksineleverandÃ¸r mÃ¥ vÃ¦re godkjent"
       },
       {
         "lang": "nn",
-        "desc": "Vaksineleverandør må vera godkjend"
+        "desc": "VaksineleverandÃ¸r mÃ¥ vera godkjend"
       }
     ],
     "ValidFrom": "2021-07-01T00:00:00Z",
@@ -293,11 +293,11 @@
       },
       {
         "lang": "nb",
-        "desc": "Minst 21 dager (7 ved gjennomgått covid-19) må ha gått etter vaksinedose 1 av 1, eller minst 21 og maksimalt 98 dager må ha gått etter vaksinedose 1 av 2, eller minst 7 dager må ha passert etter vaksinedose 2 av 2"
+        "desc": "Minst 21 dager (7 ved gjennomgÃ¥tt covid-19) mÃ¥ ha gÃ¥tt etter vaksinedose 1 av 1, eller minst 21 og maksimalt 98 dager mÃ¥ ha gÃ¥tt etter vaksinedose 1 av 2, eller minst 7 dager mÃ¥ ha passert etter vaksinedose 2 av 2"
       },
       {
         "lang": "nn",
-        "desc": "Minst 21 dagar (7 ved gjennomgått covid-19) må ha gått etter vaksinedose 1 av 1, eller minst 21 og maksimalt 98 dagar må ha gått etter vaksinedose 1 av 2, eller minst 7 dagar må ha passert etter vaksinedose 2 av 2"
+        "desc": "Minst 21 dagar (7 ved gjennomgÃ¥tt covid-19) mÃ¥ ha gÃ¥tt etter vaksinedose 1 av 1, eller minst 21 og maksimalt 98 dagar mÃ¥ ha gÃ¥tt etter vaksinedose 1 av 2, eller minst 7 dagar mÃ¥ ha passert etter vaksinedose 2 av 2"
       }
     ],
     "ValidFrom": "2021-07-01T00:00:00Z",
@@ -470,11 +470,11 @@
       },
       {
         "lang": "nb",
-        "desc": "Testleverandør må være godkjent"
+        "desc": "TestleverandÃ¸r mÃ¥ vÃ¦re godkjent"
       },
       {
         "lang": "nn",
-        "desc": "Testleverandør må vera godkjend"
+        "desc": "TestleverandÃ¸r mÃ¥ vera godkjend"
       }
     ],
     "ValidFrom": "2021-07-01T00:00:00Z",
@@ -514,11 +514,11 @@
       },
       {
         "lang": "nb",
-        "desc": "Maksimum 24 timer må ha gått etter negativt testresultat"
+        "desc": "Maksimum 24 timer mÃ¥ ha gÃ¥tt etter negativt testresultat"
       },
       {
         "lang": "nn",
-        "desc": "Maksimum 24 timar må ha gått etter negativt testresultat"
+        "desc": "Maksimum 24 timar mÃ¥ ha gÃ¥tt etter negativt testresultat"
       }
     ],
     "ValidFrom": "2021-07-01T00:00:00Z",
@@ -559,11 +559,11 @@
       },
       {
         "lang": "nb",
-        "desc": "Minst 10 dager og maksimalt 180 dager må ha gått etter positivt testresultat"
+        "desc": "Minst 10 dager og maksimalt 180 dager mÃ¥ ha gÃ¥tt etter positivt testresultat"
       },
       {
         "lang": "nn",
-        "desc": "Minst 10 dagar og maksimalt 180 dagar må ha gått etter positivt testresultat"
+        "desc": "Minst 10 dagar og maksimalt 180 dagar mÃ¥ ha gÃ¥tt etter positivt testresultat"
       }
     ],
     "ValidFrom": "2021-07-01T00:00:00Z",

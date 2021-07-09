@@ -36,7 +36,7 @@ namespace FHICORC.Application.Repositories
                 {
                     
                     var rule = JToken.Parse(businessRule.RuleJson);
-                    if (rule["id"]?.Type != JTokenType.String || (string)rule["id"] != businessRule.RuleIdentifier)
+                    if (rule["Identifier"]?.Type != JTokenType.String || (string)rule["Identifier"] != businessRule.RuleIdentifier)
                     {
                         _logger.LogError("Failed to match id of business rule {ruleId}", businessRule.RuleIdentifier);
                         continue;
