@@ -6,7 +6,7 @@ pool:
   vmImage: 'ubuntu-20.04'
 
 variables:
-  version: 2.2.0
+- template: ../version-number.yml
   
 extends:
   template: cd-build-push-image-pipeline.yml
