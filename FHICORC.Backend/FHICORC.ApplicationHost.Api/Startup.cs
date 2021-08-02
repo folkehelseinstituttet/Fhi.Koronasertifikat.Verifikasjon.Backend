@@ -99,7 +99,8 @@ namespace FHICORC.ApplicationHost.Api
             services.AddHealthChecks()
                 .AddDbContextCheck<CoronapassContext>()
                 .AddCheck<PublicKeyServiceHealthCheck>("publickey", tags: new[] { "publickey" })
-                .AddCheck<TextServiceHealthCheck>("text", tags: new[] { "text" });
+                .AddCheck<TextServiceHealthCheck>("text", tags: new[] { "text" })
+                .AddCheck<RuleHealthCheck>("rule", tags: new[] { "rule" });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -158,6 +159,11 @@ namespace FHICORC.ApplicationHost.Api
                 endpoints.MapHealthChecks("/texthealth", new HealthCheckOptions
                 {
                     Predicate = (check) => check.Tags.Contains("text"),
+                    ResponseWriter = HealthChecksOutput.WriteResponse
+                });
+                endpoints.MapHealthChecks("/rulehealth", new HealthCheckOptions
+                {
+                    Predicate = (check) => check.Tags.Contains("rule"),
                     ResponseWriter = HealthChecksOutput.WriteResponse
                 });
             });
