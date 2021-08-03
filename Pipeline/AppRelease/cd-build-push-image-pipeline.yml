@@ -11,6 +11,9 @@ parameters:
   - name: environment
     type: string
     default: ''
+  - name: azureConnection
+    type: string
+    default: ''
   - name: buildContext
     default: 'FHICORC.Backend'
     type: string
@@ -23,6 +26,12 @@ parameters:
   - name: dbMigrationsImageName
     type: string
     default: 'fhicorc-verification-dbmigrations'
+  - name: dbMigrationsContainerGroupName
+    type: string
+    default: 'vks-dbmigration-test'
+  - name: dbMigrationsContainerResourceGroup
+    type: string
+    default: 'rg-vks-app-test'
 
 jobs:
   - job: build_and_push_images_job
@@ -139,3 +148,12 @@ jobs:
           tagEmail: noreply@netcompany.com
           tag: ${{ parameters.appVersion }}
           tagMessage: Release ${{ parameters.appVersion }}
+      - task: AzureCLI@2
+        condition: and(succeeded(), ne('${{ parameters.azureConnection }}', ''))
+        displayName: Execute DbMigrations
+        inputs:
+          azureSubscription: ${{ parameters.azureConnection }}
+          scriptType: 'bash'
+          scriptLocation: inlineScript
+          inlineScript: |
+            az container start -n ${{ parameters.dbMigrationsContainerGroupName }} -g ${{ parameters.dbMigrationsContainerResourceGroup }}
