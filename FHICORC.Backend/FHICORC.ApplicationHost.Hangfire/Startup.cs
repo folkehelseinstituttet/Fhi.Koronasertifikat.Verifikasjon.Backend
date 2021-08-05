@@ -21,6 +21,7 @@ using FHICORC.ApplicationHost.Hangfire.Interfaces;
 using FHICORC.Integrations.DGCGateway;
 using FHICORC.Application.Common.Interfaces;
 using FHICORC.Application.Common.Logging.Metrics;
+using FHICORC.Integrations.UkGateway;
 using Hangfire.Dashboard;
 
 namespace FHICORC.ApplicationHost.Hangfire
@@ -67,6 +68,7 @@ namespace FHICORC.ApplicationHost.Hangfire
 
             var featureToggles = Configuration.GetSection($"{nameof(FeatureToggles)}").Get<FeatureToggles>() ?? new();
             services.AddDgcgGatewayIntegration(featureToggles.UseBouncyCastleEuDgcValidation);
+            services.AddUkGatewayIntegration();
 
             HangfireHealthOptions hangfireHealthOptions = Configuration.GetSection($"{nameof(HangfireHealthOptions)}").Get<HangfireHealthOptions>();
             services.AddHealthChecks()

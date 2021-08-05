@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <AssemblyName>FHICORC.Integrations.UkGateway</AssemblyName>
+    <RootNamespace>FHICORC.Integrations.UkGateway</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FHICORC.Application.Models\FHICORC.Application.Models.csproj" />
+    <ProjectReference Include="..\FHICORC.Domain.Models\FHICORC.Domain.Models.csproj" />
+  </ItemGroup>
+
+</Project>
