@@ -1,14 +1,12 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Hangfire;
 using Microsoft.Extensions.Logging;
 using FHICORC.Application.Common.Interfaces;
 using FHICORC.Application.Models.Options;
+using FHICORC.Application.Repositories;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.ApplicationHost.Hangfire.Interfaces;
-using FHICORC.Domain.Models;
 using FHICORC.Integrations.DGCGateway;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
 using FHICORC.Integrations.UkGateway.Services.Interfaces;
@@ -56,22 +54,29 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         [DisableConcurrentExecution(DisableConcurrentTimeout)]
         public async Task UpdateEuCertificateRepository()
         {
-            List<EuDocSignerCertificate> euDocSignerCertificates = new List<EuDocSignerCertificate>();
+            var failure = false;
 
             try
             {
                 var trustlistResponse = await _dgcgService.GetTrustListAsync();
-                euDocSignerCertificates.AddRange(_dgcgResponseParser.ParseToEuDocSignerCertificate(trustlistResponse));
+                var euDocSignerCertificates = _dgcgResponseParser.ParseToEuDocSignerCertificate(trustlistResponse);
+
+                var cleanupOptions = _featureToggles.UseUkGateway
+                    ? CleanupWhichCertificates.AllButUkCertificates
+                    : CleanupWhichCertificates.All;
+                await _euCertificateRepository.CleanupAndPersistEuDocSignerCertificates(euDocSignerCertificates, cleanupOptions);
 
                 _metricLogService.AddMetric("RetrieveEuCertificates_Success", true);
             }
             catch (GeneralDgcgFaultException e)
             {
+                failure = true;
                 _logger.LogError(e, "FaultException caught"); 
                 _metricLogService.AddMetric("RetrieveEuCertificates_Success", false);
             }
             catch (Exception e)
             {
+                failure = true;
                 _logger.LogError(e, "UpdateEuCertificateRepository fails");
                 _metricLogService.AddMetric("RetrieveEuCertificates_Success", false);
             }
@@ -81,12 +86,14 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
                 try
                 {
                     var ukCertificates = await _ukGatewayService.GetTrustListAsync();
-                    euDocSignerCertificates.AddRange(ukCertificates);
+
+                    await _euCertificateRepository.CleanupAndPersistEuDocSignerCertificates(ukCertificates, CleanupWhichCertificates.UkCertificates);
 
                     _metricLogService.AddMetric("RetrieveUkCertificates_Success", true);
                 }
                 catch (Exception e)
                 {
+                    failure = true;
                     _logger.LogError(e, "UpdateEuCertificateRepository fails");
                     _metricLogService.AddMetric("RetrieveUkCertificates_Success", false);
                 }
@@ -94,12 +101,10 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
 
             try
             {
-                if (!euDocSignerCertificates.Any())
+                if (failure)
                 {
-                    throw new InvalidOperationException("No certificates retrieved. Exiting UpdateEuCertificateRepository.");
+                    throw new InvalidOperationException("Either EU or UK integration failed. Debug via additional logs");
                 }
-
-                await _euCertificateRepository.CleanupAndPersistEuDocSignerCertificates(euDocSignerCertificates);
 
                 _metricLogService.AddMetric("UpdateEuCertificateRepository_Success", true);
             }
