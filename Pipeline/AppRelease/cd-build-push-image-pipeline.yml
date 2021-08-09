@@ -157,3 +157,4 @@ jobs:
           scriptLocation: inlineScript
           inlineScript: |
             az container start -n ${{ parameters.dbMigrationsContainerGroupName }} -g ${{ parameters.dbMigrationsContainerResourceGroup }}
+            az container logs -n ${{ parameters.dbMigrationsContainerGroupName }} -g ${{ parameters.dbMigrationsContainerResourceGroup }}
