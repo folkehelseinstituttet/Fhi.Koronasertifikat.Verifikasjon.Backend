@@ -42,22 +42,39 @@ namespace FHICORC.Application.Repositories
             
         }
 
-        public async Task<bool> CleanupAndPersistEuDocSignerCertificates(List<EuDocSignerCertificate> euDocSignerCertificates)
+        public async Task<bool> CleanupAndPersistEuDocSignerCertificates(List<EuDocSignerCertificate> euDocSignerCertificates, CleanupWhichCertificates cleanupOptions)
         {
             await using (var transaction = await _coronapassContext.Database.BeginTransactionAsync())
             {
                 try
                 {
-                    var euCertTableName = _coronapassContext.Model.FindEntityType(typeof(EuDocSignerCertificate)).GetTableName();
-                    var rowsAffected = _coronapassContext.Database.ExecuteSqlRaw($"delete from \"{euCertTableName}\"");
+                    string whereClause;
+                    switch (cleanupOptions)
+                    {
+                        case CleanupWhichCertificates.All:
+                            whereClause = "";
+                            break;
+                        case CleanupWhichCertificates.UkCertificates:
+                            whereClause = " where \"Country\" = 'UK'";
+                            break;
+                        case CleanupWhichCertificates.AllButUkCertificates:
+                            whereClause = " where \"Country\" <> 'UK'";
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(cleanupOptions), "Unrecognized cleanupOptions");
+                    }
+                    var metricPrefix = cleanupOptions == CleanupWhichCertificates.UkCertificates ? "UK" : "EU";
 
-                    _metricLogService.AddMetric("EUCertificate_DeletedEUDocs", rowsAffected);
+                    var euCertTableName = _coronapassContext.Model.FindEntityType(typeof(EuDocSignerCertificate)).GetTableName();
+                    var rowsAffected = _coronapassContext.Database.ExecuteSqlRaw($"delete from \"{euCertTableName}\"" + whereClause);
+
+                    _metricLogService.AddMetric(metricPrefix + "Certificate_DeletedEUDocs", rowsAffected);
                     _logger.LogDebug("Deleted EuDocSignerCertificates {DeletedRows}", rowsAffected);
 
                     await _bulkUploader.InsertAsync<EuDocSignerCertificate>(euDocSignerCertificates, InsertConflictAction.DoNothing());
 
                     _logger.LogDebug("Inserted EuDocSignerCertificates {InsertedRows}", euDocSignerCertificates.Count);
-                    _metricLogService.AddMetric("EUCertificate_InsertedEUDocs", euDocSignerCertificates.Count);
+                    _metricLogService.AddMetric(metricPrefix + "Certificate_InsertedEUDocs", euDocSignerCertificates.Count);
 
                     await transaction.CommitAsync();
                     return true;

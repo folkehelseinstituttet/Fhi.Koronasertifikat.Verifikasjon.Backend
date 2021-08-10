@@ -4,10 +4,12 @@ using Hangfire;
 using Microsoft.Extensions.Logging;
 using FHICORC.Application.Common.Interfaces;
 using FHICORC.Application.Models.Options;
+using FHICORC.Application.Repositories;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.ApplicationHost.Hangfire.Interfaces;
 using FHICORC.Integrations.DGCGateway;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
+using FHICORC.Integrations.UkGateway.Services.Interfaces;
 
 namespace FHICORC.ApplicationHost.Hangfire.Tasks
 {
@@ -18,19 +20,23 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
 
         private readonly ILogger<UpdateEuCertificateRepositoryTask> _logger;
         private readonly CronOptions _cronOptions;
+        private readonly FeatureToggles _featureToggles;
         private readonly IDgcgService _dgcgService;
         private readonly IDgcgResponseParser _dgcgResponseParser;
+        private readonly IUkGatewayService _ukGatewayService;
         private readonly IEuCertificateRepository _euCertificateRepository;
         private readonly IMetricLogService _metricLogService;
 
         public UpdateEuCertificateRepositoryTask(ILogger<UpdateEuCertificateRepositoryTask> logger, CronOptions cronOptions,
-            IDgcgService dgcgService, IDgcgResponseParser dgcgResponseParser,
-            IEuCertificateRepository euCertificateRepository, IMetricLogService metricLogService)
+            FeatureToggles featureToggles, IDgcgService dgcgService, IDgcgResponseParser dgcgResponseParser,
+            IUkGatewayService ukGatewayService, IEuCertificateRepository euCertificateRepository, IMetricLogService metricLogService)
         {
             _logger = logger;
             _cronOptions = cronOptions;
+            _featureToggles = featureToggles;
             _dgcgService = dgcgService;
             _dgcgResponseParser = dgcgResponseParser;
+            _ukGatewayService = ukGatewayService;
             _euCertificateRepository = euCertificateRepository;
             _metricLogService = metricLogService;
         }
@@ -48,19 +54,59 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         [DisableConcurrentExecution(DisableConcurrentTimeout)]
         public async Task UpdateEuCertificateRepository()
         {
+            var failure = false;
+
             try
             {
                 var trustlistResponse = await _dgcgService.GetTrustListAsync();
                 var euDocSignerCertificates = _dgcgResponseParser.ParseToEuDocSignerCertificate(trustlistResponse);
-                await _euCertificateRepository.CleanupAndPersistEuDocSignerCertificates(euDocSignerCertificates);
 
-                _metricLogService.AddMetric("UpdateEuCertificateRepository_Success", true);
+                var cleanupOptions = _featureToggles.UseUkGateway
+                    ? CleanupWhichCertificates.AllButUkCertificates
+                    : CleanupWhichCertificates.All;
+                await _euCertificateRepository.CleanupAndPersistEuDocSignerCertificates(euDocSignerCertificates, cleanupOptions);
+
+                _metricLogService.AddMetric("RetrieveEuCertificates_Success", true);
             }
             catch (GeneralDgcgFaultException e)
             {
+                failure = true;
                 _logger.LogError(e, "FaultException caught"); 
-                _metricLogService.AddMetric("UpdateEuCertificateRepository_Success", false);
-                throw;
+                _metricLogService.AddMetric("RetrieveEuCertificates_Success", false);
+            }
+            catch (Exception e)
+            {
+                failure = true;
+                _logger.LogError(e, "UpdateEuCertificateRepository fails");
+                _metricLogService.AddMetric("RetrieveEuCertificates_Success", false);
+            }
+
+            if (_featureToggles.UseUkGateway)
+            {
+                try
+                {
+                    var ukCertificates = await _ukGatewayService.GetTrustListAsync();
+
+                    await _euCertificateRepository.CleanupAndPersistEuDocSignerCertificates(ukCertificates, CleanupWhichCertificates.UkCertificates);
+
+                    _metricLogService.AddMetric("RetrieveUkCertificates_Success", true);
+                }
+                catch (Exception e)
+                {
+                    failure = true;
+                    _logger.LogError(e, "UpdateEuCertificateRepository fails");
+                    _metricLogService.AddMetric("RetrieveUkCertificates_Success", false);
+                }
+            }
+
+            try
+            {
+                if (failure)
+                {
+                    throw new InvalidOperationException("Either EU or UK integration failed. Debug via additional logs");
+                }
+
+                _metricLogService.AddMetric("UpdateEuCertificateRepository_Success", true);
             }
             catch (Exception e)
             {
