@@ -4,7 +4,7 @@ using Hangfire;
 using Microsoft.Extensions.Logging;
 using FHICORC.Application.Common.Interfaces;
 using FHICORC.Application.Models.Options;
-using FHICORC.Application.Repositories;
+using FHICORC.Application.Repositories.Enums;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.ApplicationHost.Hangfire.Interfaces;
 using FHICORC.Integrations.DGCGateway;
@@ -13,12 +13,12 @@ using FHICORC.Integrations.UkGateway.Services.Interfaces;
 
 namespace FHICORC.ApplicationHost.Hangfire.Tasks
 {
-    public class UpdateEuCertificateRepositoryTask : IUpdateEuCertificateRepositoryTask
+    public class UpdateCertificateRepositoryTask : IUpdateCertificateRepositoryTask
     {
         // This cannot be moved to AppSettings as it is used in attribute and therefore must be constant.
         public const int DisableConcurrentTimeout = 10;
 
-        private readonly ILogger<UpdateEuCertificateRepositoryTask> _logger;
+        private readonly ILogger<UpdateCertificateRepositoryTask> _logger;
         private readonly CronOptions _cronOptions;
         private readonly FeatureToggles _featureToggles;
         private readonly IDgcgService _dgcgService;
@@ -27,7 +27,7 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         private readonly IEuCertificateRepository _euCertificateRepository;
         private readonly IMetricLogService _metricLogService;
 
-        public UpdateEuCertificateRepositoryTask(ILogger<UpdateEuCertificateRepositoryTask> logger, CronOptions cronOptions,
+        public UpdateCertificateRepositoryTask(ILogger<UpdateCertificateRepositoryTask> logger, CronOptions cronOptions,
             FeatureToggles featureToggles, IDgcgService dgcgService, IDgcgResponseParser dgcgResponseParser,
             IUkGatewayService ukGatewayService, IEuCertificateRepository euCertificateRepository, IMetricLogService metricLogService)
         {
@@ -61,9 +61,16 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
                 var trustlistResponse = await _dgcgService.GetTrustListAsync();
                 var euDocSignerCertificates = _dgcgResponseParser.ParseToEuDocSignerCertificate(trustlistResponse);
 
-                var cleanupOptions = _featureToggles.UseUkGateway
-                    ? CleanupWhichCertificates.AllButUkCertificates
-                    : CleanupWhichCertificates.All;
+                var cleanupOptions = CleanupWhichCertificates.AllButUkCertificates;
+                if (!_featureToggles.UseUkGateway)
+                {
+                    cleanupOptions |= CleanupWhichCertificates.UkCertificates;
+                }
+                if (!_featureToggles.UseNiGateway)
+                {
+                    cleanupOptions |= CleanupWhichCertificates.UkNiCertificates;
+                }
+
                 await _euCertificateRepository.CleanupAndPersistEuDocSignerCertificates(euDocSignerCertificates, cleanupOptions);
 
                 _metricLogService.AddMetric("RetrieveEuCertificates_Success", true);
@@ -85,7 +92,7 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
             {
                 try
                 {
-                    var ukCertificates = await _ukGatewayService.GetTrustListAsync();
+                    var ukCertificates = await _ukGatewayService.GetTrustListAsync(SpecialCountryCodes.UK);
 
                     await _euCertificateRepository.CleanupAndPersistEuDocSignerCertificates(ukCertificates, CleanupWhichCertificates.UkCertificates);
 
@@ -99,11 +106,29 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
                 }
             }
 
+            if (_featureToggles.UseNiGateway)
+            {
+                try
+                {
+                    var niCertificates = await _ukGatewayService.GetTrustListAsync(SpecialCountryCodes.UK_NI);
+
+                    await _euCertificateRepository.CleanupAndPersistEuDocSignerCertificates(niCertificates, CleanupWhichCertificates.UkNiCertificates);
+
+                    _metricLogService.AddMetric("RetrieveNiCertificates_Success", true);
+                }
+                catch (Exception e)
+                {
+                    failure = true;
+                    _logger.LogError(e, "UpdateEuCertificateRepository fails");
+                    _metricLogService.AddMetric("RetrieveNiCertificates_Success", false);
+                }
+            }
+
             try
             {
                 if (failure)
                 {
-                    throw new InvalidOperationException("Either EU or UK integration failed. Debug via additional logs");
+                    throw new InvalidOperationException("Either EU, UK or NI integration failed. Debug via additional logs");
                 }
 
                 _metricLogService.AddMetric("UpdateEuCertificateRepository_Success", true);

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using FHICORC.Application.Common.Interfaces;
+using FHICORC.Application.Repositories.Enums;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Domain.Models;
 using FHICORC.Infrastructure.Database.Context;
@@ -49,21 +50,39 @@ namespace FHICORC.Application.Repositories
                 try
                 {
                     string whereClause;
-                    switch (cleanupOptions)
+                    string metricPrefix = "";
+
+                    if (cleanupOptions == CleanupWhichCertificates.All)
                     {
-                        case CleanupWhichCertificates.All:
-                            whereClause = "";
-                            break;
-                        case CleanupWhichCertificates.UkCertificates:
-                            whereClause = " where \"Country\" = 'UK'";
-                            break;
-                        case CleanupWhichCertificates.AllButUkCertificates:
-                            whereClause = " where \"Country\" <> 'UK'";
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException(nameof(cleanupOptions), "Unrecognized cleanupOptions");
+                        whereClause = "";
+                        metricPrefix = "EU";
                     }
-                    var metricPrefix = cleanupOptions == CleanupWhichCertificates.UkCertificates ? "UK" : "EU";
+                    else
+                    {
+                        var whereClauses = new List<string>();
+                        if ((cleanupOptions & CleanupWhichCertificates.UkNiCertificates) != 0)
+                        {
+                            metricPrefix = "NI";
+                            whereClauses.Add($"\"Country\" = '{nameof(SpecialCountryCodes.UK_NI)}'");
+                        }
+                        if ((cleanupOptions & CleanupWhichCertificates.UkCertificates) != 0)
+                        {
+                            metricPrefix = "UK";
+                            whereClauses.Add($"\"Country\" = '{nameof(SpecialCountryCodes.UK)}'");
+                        }
+                        if ((cleanupOptions & CleanupWhichCertificates.AllButUkCertificates) != 0)
+                        {
+                            metricPrefix = "EU";
+                            whereClauses.Add($"(not \"Country\" like '{nameof(SpecialCountryCodes.UK)}%')");
+                        }
+
+                        if (whereClauses.Count == 0)
+                        {
+                            throw new ArgumentOutOfRangeException(nameof(cleanupOptions), "Unrecognized cleanupOptions");
+                        }
+
+                        whereClause = " where " + string.Join(" or ", whereClauses);
+                    }
 
                     var euCertTableName = _coronapassContext.Model.FindEntityType(typeof(EuDocSignerCertificate)).GetTableName();
                     var rowsAffected = _coronapassContext.Database.ExecuteSqlRaw($"delete from \"{euCertTableName}\"" + whereClause);
