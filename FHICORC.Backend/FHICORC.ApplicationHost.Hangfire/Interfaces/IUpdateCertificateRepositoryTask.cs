@@ -1,6 +1,6 @@
 namespace FHICORC.ApplicationHost.Hangfire.Interfaces
 {
-    public interface IUpdateEuCertificateRepositoryTask
+    public interface IUpdateCertificateRepositoryTask
     {
         void SetupTask();
     }
