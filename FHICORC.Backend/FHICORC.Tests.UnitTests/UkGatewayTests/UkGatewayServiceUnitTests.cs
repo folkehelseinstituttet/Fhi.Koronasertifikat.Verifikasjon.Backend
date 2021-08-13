@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using FHICORC.Application.Models.Options;
+using FHICORC.Application.Repositories.Enums;
 using FHICORC.Integrations.UkGateway.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -33,7 +34,7 @@ namespace FHICORC.Tests.UnitTests.UkGatewayTests
             var service = new UkGatewayService(httpClientFactory, serviceEndpoints, _nullLogger);
 
             // ACT
-            var list = await service.GetTrustListAsync();
+            var list = await service.GetTrustListAsync(SpecialCountryCodes.UK);
 
             // ASSERT
             Assert.Multiple(() =>
@@ -57,7 +58,7 @@ namespace FHICORC.Tests.UnitTests.UkGatewayTests
         public void ThrowsOnCommunicationErrorTest()
         {
             // ARRANGE
-            var serviceEndpoints = new ServiceEndpoints { UKTrustListEndpoint = DummyEndpoint };
+            var serviceEndpoints = new ServiceEndpoints { NITrustListEndpoint = DummyEndpoint };
             var httpClientFactory = MockHttpClient(new HttpResponseMessage()
             {
                 StatusCode = HttpStatusCode.InternalServerError
@@ -67,7 +68,7 @@ namespace FHICORC.Tests.UnitTests.UkGatewayTests
             // ACT/ASSERT
             Assert.ThrowsAsync<HttpRequestException>(async () =>
             {
-                await service.GetTrustListAsync();
+                await service.GetTrustListAsync(SpecialCountryCodes.UK_NI);
             });
         }
 

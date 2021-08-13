@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FHICORC.Application.Models\FHICORC.Application.Models.csproj" />
+    <ProjectReference Include="..\FHICORC.Application.Repositories\FHICORC.Application.Repositories.csproj" />
     <ProjectReference Include="..\FHICORC.Domain.Models\FHICORC.Domain.Models.csproj" />
   </ItemGroup>
 

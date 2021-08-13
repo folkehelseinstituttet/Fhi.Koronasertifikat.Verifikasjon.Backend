@@ -6,11 +6,11 @@ namespace FHICORC.ApplicationHost.Hangfire
 {
     public class HangfireTaskManager : IHangfireTaskManager
     {
-        private readonly IUpdateEuCertificateRepositoryTask _updateEuCertificateRepositoryTask;
+        private readonly IUpdateCertificateRepositoryTask _updateCertificateRepositoryTask;
 
-        public HangfireTaskManager(IUpdateEuCertificateRepositoryTask updateEuCertificateRepositoryTask)
+        public HangfireTaskManager(IUpdateCertificateRepositoryTask updateCertificateRepositoryTask)
         {
-            _updateEuCertificateRepositoryTask = updateEuCertificateRepositoryTask;
+            _updateCertificateRepositoryTask = updateCertificateRepositoryTask;
         }
 
         public void SetupHangfireTasks()
@@ -18,7 +18,7 @@ namespace FHICORC.ApplicationHost.Hangfire
             using var connection = JobStorage.Current.GetConnection();
             connection.GetRecurringJobs().ForEach(j => RecurringJob.RemoveIfExists(j.Id));
 
-            _updateEuCertificateRepositoryTask.SetupTask();
+            _updateCertificateRepositoryTask.SetupTask();
         }
     }
 }
