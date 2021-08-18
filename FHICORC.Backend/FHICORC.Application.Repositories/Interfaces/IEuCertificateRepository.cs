@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using FHICORC.Application.Repositories.Enums;
 using FHICORC.Domain.Models;
 
 namespace FHICORC.Application.Repositories.Interfaces
