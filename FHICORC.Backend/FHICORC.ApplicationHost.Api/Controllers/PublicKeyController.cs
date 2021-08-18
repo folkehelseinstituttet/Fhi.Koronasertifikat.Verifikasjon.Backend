@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FHICORC.Application.Services.Interfaces;
 using System.Threading.Tasks;
+using System.Linq;
+using FHICORC.Application.Models;
 
 namespace FHICORC.ApplicationHost.Api.Controllers
 {
@@ -23,7 +25,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         {
             var publicKeyResponseDto = await _publicKeyService.GetPublicKeysAsync();
 
-            return Ok(publicKeyResponseDto.pkList);
+            return Ok(publicKeyResponseDto.pkList.Concat(new [] { new CertificatePublicKey { kid="UHVibGljS2V5MQ==", publicKey="MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEqErhaHuVTpPQN3jU6ZO5zv/8sIXYIOh3hw87tTYlwVH8Tcov/vizbk2MZU8+gzmJmRcy9BXiTlH7UKesnMtvDg==" } }));
         }
 
         [HttpGet]
@@ -32,7 +34,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         {
             var publicKeyResponseDto = await _publicKeyService.GetPublicKeysAsync();
 
-            return Ok(publicKeyResponseDto.pkList);
+            return Ok(publicKeyResponseDto.pkList.Concat(new [] { new CertificatePublicKey { kid="UHVibGljS2V5MQ==", publicKey="MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEqErhaHuVTpPQN3jU6ZO5zv/8sIXYIOh3hw87tTYlwVH8Tcov/vizbk2MZU8+gzmJmRcy9BXiTlH7UKesnMtvDg==" } }));
         }
     }
 }
