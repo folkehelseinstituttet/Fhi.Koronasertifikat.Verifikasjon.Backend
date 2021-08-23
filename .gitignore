@@ -372,3 +372,8 @@ FodyWeavers.xsd
 # End of https://www.toptal.com/developers/gitignore/api/visualstudio
 coverage*.json
 coverage*.info
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
