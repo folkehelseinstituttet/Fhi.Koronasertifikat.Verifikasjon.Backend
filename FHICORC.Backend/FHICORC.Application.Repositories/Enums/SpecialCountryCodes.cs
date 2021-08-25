@@ -8,6 +8,7 @@
     public enum SpecialCountryCodes
     {
         UK,
-        UK_NI
+        UK_NI,
+        UK_SC
     }
 }

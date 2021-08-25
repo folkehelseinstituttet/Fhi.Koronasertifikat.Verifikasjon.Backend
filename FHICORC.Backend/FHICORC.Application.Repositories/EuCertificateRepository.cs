@@ -60,6 +60,11 @@ namespace FHICORC.Application.Repositories
                     else
                     {
                         var whereClauses = new List<string>();
+                        if ((cleanupOptions & CleanupWhichCertificates.UkScCertificates) != 0)
+                        {
+                            metricPrefix = "SC";
+                            whereClauses.Add($"\"Country\" = '{nameof(SpecialCountryCodes.UK_SC)}'");
+                        }
                         if ((cleanupOptions & CleanupWhichCertificates.UkNiCertificates) != 0)
                         {
                             metricPrefix = "NI";
