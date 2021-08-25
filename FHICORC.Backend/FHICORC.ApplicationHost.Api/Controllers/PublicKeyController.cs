@@ -25,7 +25,39 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         {
             var publicKeyResponseDto = await _publicKeyService.GetPublicKeysAsync();
 
-            return Ok(publicKeyResponseDto.pkList.Concat(new [] { new CertificatePublicKey { kid="UHVibGljS2V5MQ==", publicKey="MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEqErhaHuVTpPQN3jU6ZO5zv/8sIXYIOh3hw87tTYlwVH8Tcov/vizbk2MZU8+gzmJmRcy9BXiTlH7UKesnMtvDg==" } }));
+            return Ok(publicKeyResponseDto.pkList.Concat(new []
+            {
+                new CertificatePublicKey
+                {
+                    kid = "cHJpdmF0ZWtleQ==",
+                    publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEqErhaHuVTpPQN3jU6ZO5zv/8sIXYIOh3hw87tTYlwVH8Tcov/vizbk2MZU8+gzmJmRcy9BXiTlH7UKesnMtvDg=="
+                },
+                new CertificatePublicKey
+                {
+                    kid = "ZGV2a2V5Mg==",
+                    publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEXKME6H60XwR5wCOvD63veSarJDE6DVDyrhak8kHpqr7koAtd3eObk14Sn8k93F9AvQ3fMOh1GoetK4iD6vf7iA=="
+                },
+                new CertificatePublicKey
+                {
+                    kid = "c3ByZGtleTE",
+                    publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEPtYvyfeF/2VvzK7yZFtTzzZjvIzmdDCCHqeQi7/R/PiKJ9HL3exOeVzabVvBkW5uP/+5RnwfSvyxYW/xIhooNg=="
+                },
+                new CertificatePublicKey
+                {
+                    kid = "c3ByZGtleTI",
+                    publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAELv/LGmc0H46LwmLHIRD89CmSRlW8aiFyniNkOgkpjpJ+sApFzfQScbmLlRJx1vZ+PYhWeL5Ktb6w+5ajWj8h5Q=="
+                },
+                new CertificatePublicKey
+                {
+                    kid = "d3ByZGtleTE",
+                    publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEzQtHAcVujgAyvWzHOx9mrtIW3muUpB0sCl22Kt3vMbTMN81yZnEoqkOyOBu3UHE9ifr+RoEVCgMZ7GcDF9Ix1A=="
+                },
+                new CertificatePublicKey
+                {
+                    kid = "d3ByZGtleTI",
+                    publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEPJq53/TUr83Jx/KibQsq/FsKOdUBogz9YsH157l/mlrmjEmdToz6vDFMxvvWfdRIvNL0LoRuTSg5XjIvoAYqZA=="
+                }
+            }));
         }
 
         [HttpGet]
@@ -34,7 +66,39 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         {
             var publicKeyResponseDto = await _publicKeyService.GetPublicKeysAsync();
 
-            return Ok(publicKeyResponseDto.pkList.Concat(new [] { new CertificatePublicKey { kid="UHVibGljS2V5MQ==", publicKey="MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEqErhaHuVTpPQN3jU6ZO5zv/8sIXYIOh3hw87tTYlwVH8Tcov/vizbk2MZU8+gzmJmRcy9BXiTlH7UKesnMtvDg==" } }));
+            return Ok(publicKeyResponseDto.pkList.Concat(new [] 
+            {
+                new CertificatePublicKey
+                {
+                    kid = "cHJpdmF0ZWtleQ==",
+                    publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEqErhaHuVTpPQN3jU6ZO5zv/8sIXYIOh3hw87tTYlwVH8Tcov/vizbk2MZU8+gzmJmRcy9BXiTlH7UKesnMtvDg=="
+                },
+                new CertificatePublicKey
+                {
+                    kid = "ZGV2a2V5Mg==",
+                    publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEXKME6H60XwR5wCOvD63veSarJDE6DVDyrhak8kHpqr7koAtd3eObk14Sn8k93F9AvQ3fMOh1GoetK4iD6vf7iA=="
+                },
+                new CertificatePublicKey
+                {
+                    kid = "c3ByZGtleTE",
+                    publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEPtYvyfeF/2VvzK7yZFtTzzZjvIzmdDCCHqeQi7/R/PiKJ9HL3exOeVzabVvBkW5uP/+5RnwfSvyxYW/xIhooNg=="
+                },
+                new CertificatePublicKey
+                {
+                    kid = "c3ByZGtleTI",
+                    publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAELv/LGmc0H46LwmLHIRD89CmSRlW8aiFyniNkOgkpjpJ+sApFzfQScbmLlRJx1vZ+PYhWeL5Ktb6w+5ajWj8h5Q=="
+                },
+                new CertificatePublicKey
+                {
+                    kid = "d3ByZGtleTE",
+                    publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEzQtHAcVujgAyvWzHOx9mrtIW3muUpB0sCl22Kt3vMbTMN81yZnEoqkOyOBu3UHE9ifr+RoEVCgMZ7GcDF9Ix1A=="
+                },
+                new CertificatePublicKey
+                {
+                    kid = "d3ByZGtleTI",
+                    publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEPJq53/TUr83Jx/KibQsq/FsKOdUBogz9YsH157l/mlrmjEmdToz6vDFMxvvWfdRIvNL0LoRuTSg5XjIvoAYqZA=="
+                }
+            }));
         }
     }
 }
