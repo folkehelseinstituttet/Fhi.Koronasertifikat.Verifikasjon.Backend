@@ -107,6 +107,16 @@ namespace FHICORC.ApplicationHost.Api.Controllers
                 {
                     kid = "d3ByZGtleTI",
                     publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEPJq53/TUr83Jx/KibQsq/FsKOdUBogz9YsH157l/mlrmjEmdToz6vDFMxvvWfdRIvNL0LoRuTSg5XjIvoAYqZA=="
+                },
+                new CertificatePublicKey
+                {
+                    kid = "dHN0a2V5MQ==",
+                    publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE0y/p+EB6nMSZEa1GsEfCDrKmZlB5BSMuyFLMDojHYcFTVbA06BTJgjFKQbjcfxTeVVT+csTM8HIlC0dtJZQ8Aw=="
+                },
+                new CertificatePublicKey
+                {
+                    kid = "dHN0a2V5Mw==",
+                    publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEorsMdkjyinWvBk4yXGfo1f+GAN1ZfyjPgUOmBL9IyRLcGQS37EYWCJTPPwQXJM3z7b6imf3qNcemOzp71Teb2w=="
                 }
             }));
         }
