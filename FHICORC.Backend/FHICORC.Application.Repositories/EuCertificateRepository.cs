@@ -60,22 +60,22 @@ namespace FHICORC.Application.Repositories
                     else
                     {
                         var whereClauses = new List<string>();
-                        if ((cleanupOptions & CleanupWhichCertificates.UkScCertificates) != 0)
+                        if (cleanupOptions.HasFlag(CleanupWhichCertificates.UkScCertificates))
                         {
                             metricPrefix = "SC";
                             whereClauses.Add($"\"Country\" = '{nameof(SpecialCountryCodes.UK_SC)}'");
                         }
-                        if ((cleanupOptions & CleanupWhichCertificates.UkNiCertificates) != 0)
+                        if (cleanupOptions.HasFlag(CleanupWhichCertificates.UkNiCertificates))
                         {
                             metricPrefix = "NI";
                             whereClauses.Add($"\"Country\" = '{nameof(SpecialCountryCodes.UK_NI)}'");
                         }
-                        if ((cleanupOptions & CleanupWhichCertificates.UkCertificates) != 0)
+                        if (cleanupOptions.HasFlag(CleanupWhichCertificates.UkCertificates))
                         {
                             metricPrefix = "UK";
                             whereClauses.Add($"\"Country\" = '{nameof(SpecialCountryCodes.UK)}'");
                         }
-                        if ((cleanupOptions & CleanupWhichCertificates.AllButUkCertificates) != 0)
+                        if (cleanupOptions.HasFlag(CleanupWhichCertificates.AllButUkCertificates))
                         {
                             metricPrefix = "EU";
                             whereClauses.Add($"(not \"Country\" like '{nameof(SpecialCountryCodes.UK)}%')");
