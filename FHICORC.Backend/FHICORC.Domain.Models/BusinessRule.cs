@@ -11,7 +11,7 @@ namespace FHICORC.Domain.Models
         public int BusinessRuleId { get; set; }
         [Column(TypeName = "varchar(20)")]
         public string RuleIdentifier { get; set; }
-        [Column(TypeName = "varchar(10000)")]
+        [Column(TypeName = "varchar(20000)")]
         public string RuleJson { get; set; }
         public DateTime Created { get; set; }
     }
