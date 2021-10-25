@@ -45,6 +45,19 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.ToTable("BusinessRules");
                 });
 
+            modelBuilder.Entity("FHICORC.Domain.Models.CountriesReportModel", b =>
+                {
+                    b.Property<string>("CountriesReport")
+                        .HasColumnType("varchar(5000)");
+
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.ToTable("CountriesReportModels");
+                });
+
             modelBuilder.Entity("FHICORC.Domain.Models.EuDocSignerCertificate", b =>
                 {
                     b.Property<int>("EuDocSignerCertificateId")

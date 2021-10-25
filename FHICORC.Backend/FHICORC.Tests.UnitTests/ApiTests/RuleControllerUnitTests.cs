@@ -11,7 +11,7 @@ namespace FHICORC.Tests.UnitTests.ApiTests
     [Category("Unit")]
     public class RuleControllerUnitTests
     {
-        private readonly Mock<IRuleService> _ruleServiceMock = new();
+        private readonly Mock<IRuleService> _ruleServiceMock = new Mock<IRuleService>();
         private RuleController _ruleController;
 
         [SetUp]
