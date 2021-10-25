@@ -19,8 +19,8 @@ namespace FHICORC.Tests.UnitTests.Repositories
     public class BusinessRuleRepositoryTests
     {
         private readonly ILogger<BusinessRuleRepository> _nullLogger = new NullLoggerFactory().CreateLogger<BusinessRuleRepository>();
-        private readonly Mock<CoronapassContext> _coronapassContextMock = new(new DbContextOptions<CoronapassContext>());
-        private readonly Mock<DbSet<BusinessRule>> _dbSetMock = new();
+        private readonly Mock<CoronapassContext> _coronapassContextMock = new Mock<CoronapassContext>(new DbContextOptions<CoronapassContext>());
+        private readonly Mock<DbSet<BusinessRule>> _dbSetMock = new Mock<DbSet<BusinessRule>>();
         
         private BusinessRuleRepository _businessRuleRepository;
 
@@ -35,7 +35,7 @@ namespace FHICORC.Tests.UnitTests.Repositories
         {
             var data = new List<BusinessRule>
             {
-                new()
+                new BusinessRule()
                 {
                     BusinessRuleId = 1,
                     RuleIdentifier = "10",

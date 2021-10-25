@@ -88,6 +88,7 @@ namespace FHICORC.ApplicationHost.Api
             services.AddServiceDependencies();
             services.AddApplicationServices(featureToggles.UseEuDgcGateway);
             services.AddScoped<ICertificatePublicKeyRepository, CertificatePublicKeyRepository>();
+            services.AddScoped<ICountriesReportRepository, CountriesReportRepository>();
 
             if (featureToggles.UseEuDgcGateway)
             {
