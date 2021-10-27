@@ -66,7 +66,7 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         {
             var client = new SendGridClient(_mailOptions.APIKey);
             var from = new EmailAddress(_mailOptions.From, _mailOptions.FromUser);
-            var subject = String.Format(_mailOptions.Subject + DateTime.Now.ToShortDateString());
+            var subject = String.Format(_mailOptions.Subject + " " + DateTime.Now.ToShortDateString());
             var to = new EmailAddress(_mailOptions.To, _mailOptions.ToUser);
 
             string plainTextContent, htmlContent;
