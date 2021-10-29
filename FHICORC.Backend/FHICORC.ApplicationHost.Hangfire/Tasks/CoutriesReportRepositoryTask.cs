@@ -73,11 +73,13 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
 
             if (list.Count == 3)
             {
-                plainTextContent = $"All countries:\n{list[0]}\n" + 
+                plainTextContent = "The report contains a list of countries with valid public keys. The report is generated daily and also contains information about countries added to the list or removed from the list.\n\n" +
+                                   $"All countries:\n{list[0]}\n" +
                                    $"Added:\n{list[1]}\n" + 
                                    $"Removed:\n{list[2]}";
                 
-                htmlContent = $"All countries:<br>{list[0]}<br>" + 
+                htmlContent = "The report contains a list of countries with valid public keys. The report is generated daily and also contains information about countries added to the list or removed from the list. <br><br>" +
+                              $"All countries:<br>{list[0]}<br>" +
                               $"Added:<br>{list[1]}<br>" +
                               $"Removed:<br>{list[2]}";
             }
