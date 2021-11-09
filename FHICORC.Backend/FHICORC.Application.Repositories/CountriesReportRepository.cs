@@ -116,7 +116,7 @@ namespace FHICORC.Application.Repositories
                     {
                         return string.Join(",", _allCountriesList);
                     }
-                    return "";
+                    return "None.";
                 }
             }
             public string AddCountriesList
@@ -127,7 +127,7 @@ namespace FHICORC.Application.Repositories
                     {
                         return string.Join(",", _addedCountriesList);
                     }
-                    return "";
+                    return "None.";
                 }
             }
             public string RemovedCountriesList
@@ -138,7 +138,7 @@ namespace FHICORC.Application.Repositories
                     {
                         return string.Join(",", _removedCountriesList);
                     }
-                    return "";
+                    return "None.";
                 }
             }
 

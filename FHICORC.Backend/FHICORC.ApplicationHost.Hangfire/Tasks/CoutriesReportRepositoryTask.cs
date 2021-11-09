@@ -67,18 +67,34 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
             var client = new SendGridClient(_mailOptions.APIKey);
             var from = new EmailAddress(_mailOptions.From, _mailOptions.FromUser);
             var subject = String.Format(_mailOptions.Subject + " " + DateTime.Now.ToShortDateString());
-            var to = new EmailAddress(_mailOptions.To, _mailOptions.ToUser);
+
+            var toList = _mailOptions.To.Split(';');
+            var toUserList = _mailOptions.ToUser.Split(';');
+            var to = new List<EmailAddress>();
+            if (toList.Length == toUserList.Length && toList.Length > 0)
+            {
+                for(int i = 0; i < toList.Length; i++)
+                {
+                     to.Add(new EmailAddress(toList[i],toUserList[i]));   
+                }
+            }
+            else
+            {
+                _logger.LogError("Recipient list empty or recipient list not corespondent to recipient names.");
+                return false;
+            }
+            
 
             string plainTextContent, htmlContent;
 
             if (list.Count == 3)
             {
-                plainTextContent = "The report contains a list of countries with valid public keys. The report is generated daily and also contains information about countries added to the list or removed from the list.\n\n" +
+                plainTextContent = "The report contains a list of countries with valid public keys. The report is generated daily and also contains information about countries added to the list or removed from the list the past 24 hours\n\n" +
                                    $"All countries:\n{list[0]}\n" +
-                                   $"Added:\n{list[1]}\n" + 
+                                   $"Added:\n{list[1]}\n" +
                                    $"Removed:\n{list[2]}";
-                
-                htmlContent = "The report contains a list of countries with valid public keys. The report is generated daily and also contains information about countries added to the list or removed from the list. <br><br>" +
+
+                htmlContent = "The report contains a list of countries with valid public keys. The report is generated daily and also contains information about countries added to the list or removed from the list the past 24 hours <br><br>" +
                               $"All countries:<br>{list[0]}<br>" +
                               $"Added:<br>{list[1]}<br>" +
                               $"Removed:<br>{list[2]}";
@@ -89,7 +105,7 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
                 return false;
             }
 
-            var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+            var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, to, subject, plainTextContent, htmlContent);
             var res =  await client.SendEmailAsync(msg);
             return true;
         }
