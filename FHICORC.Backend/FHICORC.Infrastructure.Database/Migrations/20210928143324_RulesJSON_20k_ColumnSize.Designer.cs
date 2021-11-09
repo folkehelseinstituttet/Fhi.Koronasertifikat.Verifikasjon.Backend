@@ -3,20 +3,22 @@ using System;
 using FHICORC.Infrastructure.Database.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace FHICORC.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(CoronapassContext))]
-    partial class CoronapassContextModelSnapshot : ModelSnapshot
+    [Migration("20210928143324_RulesJSON_20k_ColumnSize")]
+    partial class RulesJSON_20k_ColumnSize
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.6")
+                .HasAnnotation("ProductVersion", "5.0.10")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
             modelBuilder.Entity("FHICORC.Domain.Models.BusinessRule", b =>
@@ -43,19 +45,6 @@ namespace FHICORC.Infrastructure.Database.Migrations
                         .IsUnique();
 
                     b.ToTable("BusinessRules");
-                });
-
-            modelBuilder.Entity("FHICORC.Domain.Models.CountriesReportModel", b =>
-                {
-                    b.Property<string>("CountriesReport")
-                        .HasColumnType("varchar(5000)");
-
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.ToTable("CountriesReportModels");
                 });
 
             modelBuilder.Entity("FHICORC.Domain.Models.EuDocSignerCertificate", b =>
