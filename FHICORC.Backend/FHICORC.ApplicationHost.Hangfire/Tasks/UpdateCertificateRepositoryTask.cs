@@ -70,6 +70,10 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
                 {
                     cleanupOptions |= CleanupWhichCertificates.UkNiCertificates;
                 }
+                if (!_featureToggles.UseScGateway)
+                {
+                    cleanupOptions |= CleanupWhichCertificates.UkScCertificates;
+                }
 
                 await _euCertificateRepository.CleanupAndPersistEuDocSignerCertificates(euDocSignerCertificates, cleanupOptions);
 
@@ -124,11 +128,29 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
                 }
             }
 
+            if (_featureToggles.UseScGateway)
+            {
+                try
+                {
+                    var scCertificates = await _ukGatewayService.GetTrustListAsync(SpecialCountryCodes.UK_SC);
+
+                    await _euCertificateRepository.CleanupAndPersistEuDocSignerCertificates(scCertificates, CleanupWhichCertificates.UkScCertificates);
+
+                    _metricLogService.AddMetric("RetrieveScCertificates_Success", true);
+                }
+                catch (Exception e)
+                {
+                    failure = true;
+                    _logger.LogError(e, "UpdateEuCertificateRepository fails");
+                    _metricLogService.AddMetric("RetrieveScCertificates_Success", false);
+                }
+            }
+
             try
             {
                 if (failure)
                 {
-                    throw new InvalidOperationException("Either EU, UK or NI integration failed. Debug via additional logs");
+                    throw new InvalidOperationException("Either EU, UK, NI or SC integration failed. Debug via additional logs");
                 }
 
                 _metricLogService.AddMetric("UpdateEuCertificateRepository_Success", true);
