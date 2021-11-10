@@ -36,8 +36,11 @@ namespace FHICORC.Integrations.UkGateway.Services
                 case SpecialCountryCodes.UK_NI:
                     endpoint = _serviceEndpoints.NITrustListEndpoint;
                     break;
+                case SpecialCountryCodes.UK_SC:
+                    endpoint = _serviceEndpoints.SCTrustListEndpoint;
+                    break;
                 default:
-                    throw new ArgumentException("countryCode must be either 'UK' or 'UK_NI'", nameof(countryCode));
+                    throw new ArgumentException("countryCode must be either 'UK', 'UK_NI' or 'UK_SC'", nameof(countryCode));
             }
 
             return GetTrustListInternalAsync(countryCode, endpoint);
