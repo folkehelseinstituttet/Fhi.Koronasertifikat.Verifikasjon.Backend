@@ -40,6 +40,7 @@ namespace FHICORC.ApplicationHost.Api
                 .AddValidatedOptions<FeatureToggles>(Configuration)
                 .AddValidatedOptions<PublicKeyCacheOptions>(Configuration)
                 .AddValidatedOptions<RuleCacheOptions>(Configuration)
+                .AddValidatedOptions<ShcCacheOptions>(Configuration)
                 .AddValidatedOptions<TextCacheOptions>(Configuration)
                 .AddValidatedOptions<TextOptions>(Configuration)
                 .AddValidatedOptions<ValueSetCacheOptions>(Configuration)

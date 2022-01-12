@@ -15,6 +15,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="TestExamples\vci.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="TestExamples\vci.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentValidation.AspNetCore" Version="9.5.3" />
     <PackageReference Include="JWT" Version="8.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
@@ -42,6 +50,12 @@
     <ProjectReference Include="..\FHICORC.Application.Validation\FHICORC.Application.Validation.csproj" />
     <ProjectReference Include="..\FHICORC.Infrastructure.Database\FHICORC.Infrastructure.Database.csproj" />
     <ProjectReference Include="..\FHICORC.Integrations.DGCGateway\FHICORC.Integrations.DGCGateway.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Certificates\PublicKeyAPI\PublicKeys.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
