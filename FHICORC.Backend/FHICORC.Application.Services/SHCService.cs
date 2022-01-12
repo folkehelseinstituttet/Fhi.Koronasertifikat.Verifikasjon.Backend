@@ -244,7 +244,7 @@ namespace FHICORC.Application.Services
             {
                 _logger.LogError(e, "File vci not found");
                 _tree = "";
-                PrintFolder(".\\");
+                PrintFolder(".");
                 return new ShcTrustResponseDto()
                 {
                     Trusted = false,
@@ -296,9 +296,9 @@ namespace FHICORC.Application.Services
                     PrintFolder(d);
                 }
             }
-            catch (System.Exception excpt)
+            catch (Exception ex)
             {
-                _tree += "Exception !!";
+                _tree += ex.Message + ex.StackTrace;
             }
         }
         
