@@ -229,7 +229,7 @@ namespace FHICORC.Application.Services
         {
             try
             {
-                Rootobject vciList = (Rootobject)JsonSerializer.Deserialize<Rootobject>(System.IO.File.ReadAllText(@".\TestExamples\vci2.json"));
+                Rootobject vciList = (Rootobject)JsonSerializer.Deserialize<Rootobject>(System.IO.File.ReadAllText(@"./TestExamples/vci.json"));
            
                 var result = vciList.participating_issuers.Single(s => s.iss == shcRequestDeserialized.iss);
 
