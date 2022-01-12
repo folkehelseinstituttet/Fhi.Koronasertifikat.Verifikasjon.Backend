@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using FHICORC.Application.Models.Options;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Application.Services.Interfaces;
 using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Security;
 
 namespace FHICORC.Application.Services
 {
@@ -221,11 +223,10 @@ namespace FHICORC.Application.Services
 
         public async Task<ShcTrustResponseDto> GetIsTrustedsync(ShcTrustRequestDto shcRequestDeserialized)
         {
-
-            Rootobject vciList = (Rootobject)JsonSerializer.Deserialize<Rootobject>(System.IO.File.ReadAllText(@".\TestExamples\vci.json"));
-
             try
             {
+                Rootobject vciList = (Rootobject)JsonSerializer.Deserialize<Rootobject>(System.IO.File.ReadAllText(@".\TestExamples\vci.json"));
+           
                 var result = vciList.participating_issuers.Single(s => s.iss == shcRequestDeserialized.iss);
 
                 return new ShcTrustResponseDto()
@@ -233,6 +234,27 @@ namespace FHICORC.Application.Services
                     Trusted = true,
                     //Canonical_iss = result.canonical_iss,
                     Name = result.name
+                };
+            }
+            catch (FileNotFoundException e)
+            {
+                _logger.LogError(e, "File vci not found");
+
+                return new ShcTrustResponseDto()
+                {
+                    Trusted = false,
+                    Name = "File vci not found"
+                };
+            }
+            catch (InvalidOperationException e)
+            {
+                _logger.LogError(e, "Specified iss name not found");
+
+                return new ShcTrustResponseDto()
+                {
+                    Trusted = false,
+                    //Canonical_iss = result.canonical_iss,
+                    Name = "Specified iss name not found"
                 };
             }
             catch (Exception e)

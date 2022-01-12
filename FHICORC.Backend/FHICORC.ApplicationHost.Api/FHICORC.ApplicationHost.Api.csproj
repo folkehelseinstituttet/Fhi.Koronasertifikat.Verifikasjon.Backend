@@ -19,7 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="TestExamples\vci.json" />
+    <None Include="TestExamples\vci.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
