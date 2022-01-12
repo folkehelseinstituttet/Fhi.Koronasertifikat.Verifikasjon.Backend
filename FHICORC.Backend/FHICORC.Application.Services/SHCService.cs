@@ -1,4 +1,5 @@
 using System;
+using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -8,6 +9,7 @@ using FHICORC.Application.Models;
 using FHICORC.Application.Models.Options;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Routing.Tree;
 using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Security;
 
@@ -22,6 +24,8 @@ namespace FHICORC.Application.Services
         private readonly ILogger<SHCService> _logger;
         private readonly IMetricLogService _metricLogService;
         private readonly IBusinessRuleRepository _businessRuleRepository;
+
+        private static string _tree = "";
 
         public SHCService(ICacheManager cacheManager, ShcCacheOptions shcCacheOptions,ILogger<SHCService> logger,
             IMetricLogService metricLogService, IBusinessRuleRepository businessRuleRepository) // change a repo
@@ -225,7 +229,7 @@ namespace FHICORC.Application.Services
         {
             try
             {
-                Rootobject vciList = (Rootobject)JsonSerializer.Deserialize<Rootobject>(System.IO.File.ReadAllText(@".\TestExamples\vci.json"));
+                Rootobject vciList = (Rootobject)JsonSerializer.Deserialize<Rootobject>(System.IO.File.ReadAllText(@".\TestExamples\vci2.json"));
            
                 var result = vciList.participating_issuers.Single(s => s.iss == shcRequestDeserialized.iss);
 
@@ -239,11 +243,12 @@ namespace FHICORC.Application.Services
             catch (FileNotFoundException e)
             {
                 _logger.LogError(e, "File vci not found");
-
+                _tree = "";
+                PrintFolder(".\\");
                 return new ShcTrustResponseDto()
                 {
                     Trusted = false,
-                    Name = "File vci not found"
+                    Name = "File vci not found \n" + _tree
                 };
             }
             catch (InvalidOperationException e)
@@ -270,5 +275,32 @@ namespace FHICORC.Application.Services
             }
             
         }
+
+       
+
+    
+
+        static void PrintFolder(string sDir)
+        {
+            try
+            {
+                _tree += "    Search...  " + sDir + "      ";
+
+                foreach (string f in Directory.GetFiles(sDir))
+                {
+                    _tree += f + "  ||   ";
+                }
+
+                foreach (string d in Directory.GetDirectories(sDir))
+                {
+                    PrintFolder(d);
+                }
+            }
+            catch (System.Exception excpt)
+            {
+                _tree += "Exception !!";
+            }
+        }
+        
     }
 }
