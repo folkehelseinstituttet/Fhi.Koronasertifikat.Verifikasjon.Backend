@@ -29,6 +29,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         public ShCController(ISHCService shcService, ILogger<ShCController> logger)
         {
             _shcService = shcService;
+            _logger = logger;
         }
 
         [HttpPost]
