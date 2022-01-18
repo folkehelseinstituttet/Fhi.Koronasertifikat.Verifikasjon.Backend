@@ -1,5 +1,4 @@
 using System;
-using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -9,9 +8,7 @@ using FHICORC.Application.Models;
 using FHICORC.Application.Models.Options;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Application.Services.Interfaces;
-using Microsoft.AspNetCore.Routing.Tree;
 using Microsoft.Extensions.Logging;
-using Org.BouncyCastle.Security;
 
 namespace FHICORC.Application.Services
 {
@@ -37,13 +34,13 @@ namespace FHICORC.Application.Services
             _businessRuleRepository = businessRuleRepository;
         }
 
-        public async Task<ShcVaccineResponseDto> GetVaccinationInfosync(ShcRequestDto shcRequestList)   // TO DO
+        public async Task<ShcVaccineResponseDto> GetVaccinationInfosync(ShcCodeRequestDto shcRequestList)   // TO DO
         {
             foreach (var shcRequest in shcRequestList.Codes)
             {
                 if (shcRequest.System == CodingSystem.Cvx)
                 {
-                    if (shcRequest.Code == "207" )
+                    if (shcRequest.Code == "207")
                         return new ShcVaccineResponseDto()
                         {
                             //EUCode = "EU/1/20/1507",
@@ -51,8 +48,8 @@ namespace FHICORC.Application.Services
                             Manufacturer = "Moderna US, Inc.",
                             Type = "SARS CoV-2 mRNA Vaccine",
                             Target = "Sars-CoV-2"
-                };
-                    if (shcRequest.Code == "212" )
+                        };
+                    if (shcRequest.Code == "212")
                         return new ShcVaccineResponseDto()
                         {
                             //EUCode = "EU/1/20/1525",
@@ -61,7 +58,7 @@ namespace FHICORC.Application.Services
                             Type = "SARS CoV-2 Vector Vaccine",
                             Target = "Sars-CoV-2"
                         };
-                    if (shcRequest.Code == "208" || shcRequest.Code == "217" || shcRequest.Code == "218" || shcRequest.Code == "219" )
+                    if (shcRequest.Code == "208" || shcRequest.Code == "217" || shcRequest.Code == "218" || shcRequest.Code == "219")
                         return new ShcVaccineResponseDto()
                         {
                             //EUCode = "EU/1/21/1528",
@@ -230,13 +227,12 @@ namespace FHICORC.Application.Services
             try
             {
                 Rootobject vciList = (Rootobject)JsonSerializer.Deserialize<Rootobject>(System.IO.File.ReadAllText(@"./TestExamples/vci.json"));
-           
-                var result = vciList.participating_issuers.Single(s => s.iss == shcRequestDeserialized.iss);
+
+                var result = vciList.participating_issuers.Single(s => s.iss == shcRequestDeserialized.Iss);
 
                 return new ShcTrustResponseDto()
                 {
                     Trusted = true,
-                    //Canonical_iss = result.canonical_iss,
                     Name = result.name
                 };
             }
@@ -265,7 +261,7 @@ namespace FHICORC.Application.Services
             catch (Exception e)
             {
                 _logger.LogError(e, "Specified iss name not found");
-                
+
                 return new ShcTrustResponseDto()
                 {
                     Trusted = false,
@@ -273,12 +269,8 @@ namespace FHICORC.Application.Services
                     Name = "Specified iss name not found"
                 };
             }
-            
+
         }
-
-       
-
-    
 
         static void PrintFolder(string sDir)
         {
