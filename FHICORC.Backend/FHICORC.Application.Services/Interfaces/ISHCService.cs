@@ -5,8 +5,7 @@ namespace FHICORC.Application.Services.Interfaces
 {
     public interface ISHCService
     {
-        //public Task<RuleResponseDto> GetRulesAsync();
-        public Task<ShcVaccineResponseDto> GetVaccinationInfosync(ShcRequestDto shcRequest);
+        public Task<ShcVaccineResponseDto> GetVaccinationInfosync(ShcCodeRequestDto shcRequest);
         public Task<ShcTrustResponseDto> GetIsTrustedsync(ShcTrustRequestDto shcRequestDeserialized);
     }
 }

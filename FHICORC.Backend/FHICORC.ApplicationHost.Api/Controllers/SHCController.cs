@@ -1,14 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FHICORC.Application.Models;
 using FHICORC.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using JsonException = System.Text.Json.JsonException;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -23,10 +20,16 @@ namespace FHICORC.ApplicationHost.Api.Controllers
     {
         private readonly ISHCService _shcService;
         private readonly ILogger<ShCController> _logger;
+        private readonly JsonSerializerOptions jsonSerializerOptions = new()
+        {
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            IgnoreNullValues = false
+        };
 
         public ShCController(ISHCService shcService, ILogger<ShCController> logger)
         {
             _shcService = shcService;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -36,7 +39,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         public async Task<IActionResult> GetIsTrusted()
         {
             var requestBody = string.Empty;
-            var shcRequestDeserialized = new ShcTrustRequestDto();
+            ShcTrustRequestDto shcRequestDeserialized;
             try
             {
                 using (var reader = new StreamReader(HttpContext.Request.Body))
@@ -46,7 +49,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
 
                 shcRequestDeserialized = JsonSerializer.Deserialize<ShcTrustRequestDto>(
                     requestBody,
-                    new JsonSerializerOptions { IgnoreNullValues = false });
+                    jsonSerializerOptions);
 
                 if (shcRequestDeserialized == null)
                 {
@@ -65,10 +68,8 @@ namespace FHICORC.ApplicationHost.Api.Controllers
                 return StatusCode(500);
             }
 
-
             var trustResponseDto = await _shcService.GetIsTrustedsync(shcRequestDeserialized);
             return Ok(trustResponseDto);
-            //return Content(trustResponseDto.Trusted.ToString(), "application/json", Encoding.UTF8);
         }
 
         [HttpPost]
@@ -78,7 +79,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         public async Task<IActionResult> GetVaccineInfo()
         {
             var requestBody = string.Empty;
-            var shcRequestDeserialized = new ShcRequestDto();
+            ShcCodeRequestDto shcRequestDeserialized;
             try
             {
                 using (var reader = new StreamReader(HttpContext.Request.Body))
@@ -86,9 +87,9 @@ namespace FHICORC.ApplicationHost.Api.Controllers
                     requestBody = await reader.ReadToEndAsync();
                 }
 
-                shcRequestDeserialized = JsonSerializer.Deserialize<ShcRequestDto>(
+                shcRequestDeserialized = JsonSerializer.Deserialize<ShcCodeRequestDto>(
                     requestBody,
-                    new JsonSerializerOptions { IgnoreNullValues = false });
+                    jsonSerializerOptions);
 
                 if (shcRequestDeserialized == null)
                 {
@@ -109,7 +110,6 @@ namespace FHICORC.ApplicationHost.Api.Controllers
 
             var vaccineResponseDto = await _shcService.GetVaccinationInfosync(shcRequestDeserialized);
             return Ok(vaccineResponseDto);
-            //return Content("TEST SHC", "application/json", Encoding.UTF8);
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using FHICORC.Application.Common;
 using FHICORC.Application.Common.Interfaces;
@@ -26,9 +27,15 @@ namespace FHICORC.Tests.UnitTests.Services
         private RuleService _ruleService;
         
         private const string JsonString = "[{ \"rule\": \"exampleRule\" }]";
-        private const string JTokenToString = "[\r\n  {\r\n    \"rule\": \"exampleRule\"\r\n  }\r\n]";
-        private readonly RuleResponseDto _ruleResponseDto = new() { RuleListJson = JTokenToString };
+        private string JTokenToString = "[" + Environment.NewLine + "  {" + Environment.NewLine +
+            "    \"rule\": \"exampleRule\"" + Environment.NewLine + "  }" + Environment.NewLine + "]";
+        private readonly RuleResponseDto _ruleResponseDto;
         private readonly JToken _businessRules = JToken.Parse(JsonString);
+
+        public RuleServiceUnitTests()
+        {
+            _ruleResponseDto = new() { RuleListJson = JTokenToString };
+        }
 
         [SetUp]
         public void SetUp()

@@ -1,5 +1,4 @@
 using System;
-using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -9,9 +8,7 @@ using FHICORC.Application.Models;
 using FHICORC.Application.Models.Options;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Application.Services.Interfaces;
-using Microsoft.AspNetCore.Routing.Tree;
 using Microsoft.Extensions.Logging;
-using Org.BouncyCastle.Security;
 
 namespace FHICORC.Application.Services
 {
@@ -27,8 +24,12 @@ namespace FHICORC.Application.Services
 
         private static string _tree = "";
 
-        public SHCService(ICacheManager cacheManager, ShcCacheOptions shcCacheOptions,ILogger<SHCService> logger,
-            IMetricLogService metricLogService, IBusinessRuleRepository businessRuleRepository) // change a repo
+        public SHCService(
+            ICacheManager cacheManager,
+            ShcCacheOptions shcCacheOptions,
+            ILogger<SHCService> logger,
+            IMetricLogService metricLogService,
+            IBusinessRuleRepository businessRuleRepository) // change a repo
         {
             _cacheManager = cacheManager;
             _shcCacheOptions = shcCacheOptions;
@@ -37,174 +38,174 @@ namespace FHICORC.Application.Services
             _businessRuleRepository = businessRuleRepository;
         }
 
-        public async Task<ShcVaccineResponseDto> GetVaccinationInfosync(ShcRequestDto shcRequestList)   // TO DO
+        public async Task<ShcVaccineResponseDto> GetVaccinationInfosync(ShcCodeRequestDto shcRequestList)   // TODO
         {
             foreach (var shcRequest in shcRequestList.Codes)
             {
-                if (shcRequest.System == CodingSystem.Cvx)
+                switch (shcRequest.System)
                 {
-                    if (shcRequest.Code == "207" )
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "EU/1/20/1507",
-                            Name = "Moderna",
-                            Manufacturer = "Moderna US, Inc.",
-                            Type = "SARS CoV-2 mRNA Vaccine",
-                            Target = "Sars-CoV-2"
-                };
-                    if (shcRequest.Code == "212" )
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "EU/1/20/1525",
-                            Name = "Jannsen",
-                            Manufacturer = "Janssen Products, LP",
-                            Type = "SARS CoV-2 Vector Vaccine",
-                            Target = "Sars-CoV-2"
-                        };
-                    if (shcRequest.Code == "208" || shcRequest.Code == "217" || shcRequest.Code == "218" || shcRequest.Code == "219" )
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "EU/1/21/1528",
-                            Name = "Pfizer",
-                            Manufacturer = "Pfizer-BioNTech",
-                            Type = "SARS CoV-2 mRNA Vaccine",
-                            Target = "Sars-CoV-2"
-                        };
-                    if (shcRequest.Code == "210")
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "EU/1/21/1529",
-                            Name = "Astra Zeneca",
-                            Manufacturer = "AstraZeneca Pharmaceuticals LP",
-                            Type = "SARS CoV-2 Vector Vaccine",
-                            Target = "Sars-CoV-2"
-                        };
-                    if (shcRequest.Code == "211")
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "NVX-CoV2373",
-                            Name = "Novavax",
-                            Manufacturer = "Novavax, Inc.",
-                            Type = "SARS CoV-2 Protein subunit vaccine",
-                            Target = "Sars-CoV-2"
-                        };
-                    if (shcRequest.Code == "510")
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "BBIBP-CorV",
-                            Name = "BIBP-Sinopharm",
-                            Manufacturer = "Sinopharm-Biotech",
-                            Type = "SARS CoV-2 mRNA Vaccine",
-                            Target = "Sars-CoV-2"
-                        };
-                    if (shcRequest.Code == "511")
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "CoronaVac",
-                            Name = "CoronaVac",
-                            Manufacturer = "Sinovac",
-                            Type = "SARS CoV-2 mRNA Vaccine",
-                            Target = "Sars-CoV-2"
-                        };
-                    if (shcRequest.Code == "502")
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "Covaxin",
-                            Name = "Covaxin",
-                            Manufacturer = "Bharat Biotech International Limited",
-                            Type = "SARS CoV-2 mRNA Vaccine",
-                            Target = "Sars-CoV-2"
-                        };
-                    if (shcRequest.Code == "503")
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "CoviVac",
-                            Name = "Covivac",
-                            Manufacturer = "Covivac",
-                            Type = "SARS CoV-2 mRNA Vaccine",
-                            Target = "Sars-CoV-2"
-                        };
-                }
-                if (shcRequest.System == CodingSystem.Atc)
-                {
-                    if (shcRequest.Code == "207")
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "EU/1/20/1507",
-                            Name = "Moderna",
-                            Manufacturer = "Moderna US, Inc.",
-                            Type = "SARS CoV-2 mRNA Vaccine"
-                        };
-                    if (shcRequest.Code == "212")
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "EU/1/20/1525",
-                            Name = "Jannsen",
-                            Manufacturer = "Janssen Products, LP",
-                            Type = "SARS CoV-2 mRNA Vaccine"
-                        };
-                    if (shcRequest.Code == "208" || shcRequest.Code == "217" || shcRequest.Code == "218" || shcRequest.Code == "219")
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "EU/1/21/1528",
-                            Name = "Pfizer",
-                            Manufacturer = "Pfizer-BioNTech",
-                            Type = "SARS CoV-2 mRNA Vaccine"
-                        };
-                    if (shcRequest.Code == "210")
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "EU/1/21/1529",
-                            Name = "Astra Zeneca",
-                            Manufacturer = "AstraZeneca Pharmaceuticals LP",
-                            Type = "SARS CoV-2 mRNA Vaccine"
-                        };
-                    if (shcRequest.Code == "211")
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "NVX-CoV2373",
-                            Name = "Novavax",
-                            Manufacturer = "Novavax, Inc.",
-                            Type = "SARS CoV-2 mRNA Vaccine"
-                        };
-                    if (shcRequest.Code == "510")
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "BBIBP-CorV",
-                            Name = "BIBP-Sinopharm",
-                            Manufacturer = "Sinopharm-Biotech",
-                            Type = "SARS CoV-2 mRNA Vaccine"
-                        };
-                    if (shcRequest.Code == "511")
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "CoronaVac",
-                            Name = "CoronaVac",
-                            Manufacturer = "Sinovac",
-                            Type = "SARS CoV-2 mRNA Vaccine"
-                        };
-                    if (shcRequest.Code == "502")
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "Covaxin",
-                            Name = "Covaxin",
-                            Manufacturer = "Bharat Biotech International Limited",
-                            Type = "SARS CoV-2 mRNA Vaccine"
-                        };
-                    if (shcRequest.Code == "503")
-                        return new ShcVaccineResponseDto()
-                        {
-                            //EUCode = "CoviVac",
-                            Name = "Covivac",
-                            Manufacturer = "Covivac",
-                            Type = "SARS CoV-2 mRNA Vaccine"
-                        };
+                    case CodingSystem.Cvx:
+                        if (shcRequest.Code == "207")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "EU/1/20/1507",
+                                Name = "Moderna",
+                                Manufacturer = "Moderna US, Inc.",
+                                Type = "SARS CoV-2 mRNA Vaccine",
+                                Target = "Sars-CoV-2"
+                            };
+                        if (shcRequest.Code == "212")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "EU/1/20/1525",
+                                Name = "Jannsen",
+                                Manufacturer = "Janssen Products, LP",
+                                Type = "SARS CoV-2 Vector Vaccine",
+                                Target = "Sars-CoV-2"
+                            };
+                        if (shcRequest.Code == "208" || shcRequest.Code == "217" || shcRequest.Code == "218" || shcRequest.Code == "219")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "EU/1/21/1528",
+                                Name = "Pfizer",
+                                Manufacturer = "Pfizer-BioNTech",
+                                Type = "SARS CoV-2 mRNA Vaccine",
+                                Target = "Sars-CoV-2"
+                            };
+                        if (shcRequest.Code == "210")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "EU/1/21/1529",
+                                Name = "Astra Zeneca",
+                                Manufacturer = "AstraZeneca Pharmaceuticals LP",
+                                Type = "SARS CoV-2 Vector Vaccine",
+                                Target = "Sars-CoV-2"
+                            };
+                        if (shcRequest.Code == "211")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "NVX-CoV2373",
+                                Name = "Novavax",
+                                Manufacturer = "Novavax, Inc.",
+                                Type = "SARS CoV-2 Protein subunit vaccine",
+                                Target = "Sars-CoV-2"
+                            };
+                        if (shcRequest.Code == "510")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "BBIBP-CorV",
+                                Name = "BIBP-Sinopharm",
+                                Manufacturer = "Sinopharm-Biotech",
+                                Type = "SARS CoV-2 mRNA Vaccine",
+                                Target = "Sars-CoV-2"
+                            };
+                        if (shcRequest.Code == "511")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "CoronaVac",
+                                Name = "CoronaVac",
+                                Manufacturer = "Sinovac",
+                                Type = "SARS CoV-2 mRNA Vaccine",
+                                Target = "Sars-CoV-2"
+                            };
+                        if (shcRequest.Code == "502")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "Covaxin",
+                                Name = "Covaxin",
+                                Manufacturer = "Bharat Biotech International Limited",
+                                Type = "SARS CoV-2 mRNA Vaccine",
+                                Target = "Sars-CoV-2"
+                            };
+                        if (shcRequest.Code == "503")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "CoviVac",
+                                Name = "Covivac",
+                                Manufacturer = "Covivac",
+                                Type = "SARS CoV-2 mRNA Vaccine",
+                                Target = "Sars-CoV-2"
+                            };
+                        break;
+                    case CodingSystem.Atc:
+                        if (shcRequest.Code == "207")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "EU/1/20/1507",
+                                Name = "Moderna",
+                                Manufacturer = "Moderna US, Inc.",
+                                Type = "SARS CoV-2 mRNA Vaccine"
+                            };
+                        if (shcRequest.Code == "212")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "EU/1/20/1525",
+                                Name = "Jannsen",
+                                Manufacturer = "Janssen Products, LP",
+                                Type = "SARS CoV-2 mRNA Vaccine"
+                            };
+                        if (shcRequest.Code == "208" || shcRequest.Code == "217" || shcRequest.Code == "218" || shcRequest.Code == "219")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "EU/1/21/1528",
+                                Name = "Pfizer",
+                                Manufacturer = "Pfizer-BioNTech",
+                                Type = "SARS CoV-2 mRNA Vaccine"
+                            };
+                        if (shcRequest.Code == "210")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "EU/1/21/1529",
+                                Name = "Astra Zeneca",
+                                Manufacturer = "AstraZeneca Pharmaceuticals LP",
+                                Type = "SARS CoV-2 mRNA Vaccine"
+                            };
+                        if (shcRequest.Code == "211")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "NVX-CoV2373",
+                                Name = "Novavax",
+                                Manufacturer = "Novavax, Inc.",
+                                Type = "SARS CoV-2 mRNA Vaccine"
+                            };
+                        if (shcRequest.Code == "510")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "BBIBP-CorV",
+                                Name = "BIBP-Sinopharm",
+                                Manufacturer = "Sinopharm-Biotech",
+                                Type = "SARS CoV-2 mRNA Vaccine"
+                            };
+                        if (shcRequest.Code == "511")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "CoronaVac",
+                                Name = "CoronaVac",
+                                Manufacturer = "Sinovac",
+                                Type = "SARS CoV-2 mRNA Vaccine"
+                            };
+                        if (shcRequest.Code == "502")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "Covaxin",
+                                Name = "Covaxin",
+                                Manufacturer = "Bharat Biotech International Limited",
+                                Type = "SARS CoV-2 mRNA Vaccine"
+                            };
+                        if (shcRequest.Code == "503")
+                            return new ShcVaccineResponseDto()
+                            {
+                                //EUCode = "CoviVac",
+                                Name = "Covivac",
+                                Manufacturer = "Covivac",
+                                Type = "SARS CoV-2 mRNA Vaccine"
+                            };
+                        break;
                 }
             }
 
             return new ShcVaccineResponseDto()
             {
-                //EUCode = "",
                 Name = "Unknown"
             };
 
@@ -229,14 +230,13 @@ namespace FHICORC.Application.Services
         {
             try
             {
-                Rootobject vciList = (Rootobject)JsonSerializer.Deserialize<Rootobject>(System.IO.File.ReadAllText(@"./TestExamples/vci.json"));
-           
-                var result = vciList.participating_issuers.Single(s => s.iss == shcRequestDeserialized.iss);
+                Rootobject vciList = JsonSerializer.Deserialize<Rootobject>(File.ReadAllText(@"./TestExamples/vci.json"));
+
+                var result = vciList.participating_issuers.Single(s => s.iss == shcRequestDeserialized.Iss);
 
                 return new ShcTrustResponseDto()
                 {
                     Trusted = true,
-                    //Canonical_iss = result.canonical_iss,
                     Name = result.name
                 };
             }
@@ -265,7 +265,7 @@ namespace FHICORC.Application.Services
             catch (Exception e)
             {
                 _logger.LogError(e, "Specified iss name not found");
-                
+
                 return new ShcTrustResponseDto()
                 {
                     Trusted = false,
@@ -273,12 +273,8 @@ namespace FHICORC.Application.Services
                     Name = "Specified iss name not found"
                 };
             }
-            
+
         }
-
-       
-
-    
 
         static void PrintFolder(string sDir)
         {

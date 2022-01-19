@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using FHICORC.Application.Models;
@@ -190,7 +191,10 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
                 request.CertificateExtensions.Add(sanBuilder.Build());
 
                 var certificate= request.CreateSelfSigned(new DateTimeOffset(DateTime.UtcNow.AddDays(-1)), new DateTimeOffset(DateTime.UtcNow.AddDays(3650)));
-                certificate.FriendlyName = certificateName;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    certificate.FriendlyName = certificateName;
+                }
 
                 var sscCertificate = new X509Certificate2(certificate.Export(X509ContentType.Pfx, "WeNeedASaf3rPassword"), "WeNeedASaf3rPassword", X509KeyStorageFlags.MachineKeySet);
                 var parser = new X509CertificateParser();
