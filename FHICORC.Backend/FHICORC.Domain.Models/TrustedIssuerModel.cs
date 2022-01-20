@@ -12,7 +12,7 @@ namespace FHICORC.Domain.Models
         [Column(TypeName = "varchar(5000)")]
         public string Name { get; set; }
 
+        [Column(TypeName = "boolean")]
         public bool IsAddManually { get; set; }
-
     }
 }

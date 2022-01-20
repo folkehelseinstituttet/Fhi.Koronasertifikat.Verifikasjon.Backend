@@ -6,10 +6,11 @@ namespace FHICORC.Application.Repositories.Interfaces
 {
     public interface ITrustedIssuerRepository
     {
-        Task<TrustedIssuerModel> GetIssuer(string iss);
-        Task<bool> UpdateIssuerList(List<TrustedIssuerModel> trustedIssuerList);
-        Task<bool> CleanTable();
+        TrustedIssuerModel GetIssuer(string iss);
+        Task AddIssuer(TrustedIssuerModel trustedIssuerModel);
+        Task AddIssuers(IEnumerable<TrustedIssuerModel> trustedIssuerList);
+        Task ReplaceAutomaticallyAddedIssuers(IEnumerable<TrustedIssuerModel> trustedIssuerList);
+        Task<bool> CleanTable(bool keepIsAddManually);
         Task<bool> RemoveIssuer(string iss);
-        Task<string> AddIssuer(TrustedIssuerModel trustedIssuerModel);
     }
 }

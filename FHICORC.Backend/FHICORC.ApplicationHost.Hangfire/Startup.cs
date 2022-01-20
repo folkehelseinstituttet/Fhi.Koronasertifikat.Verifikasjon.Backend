@@ -23,6 +23,8 @@ using FHICORC.Application.Common.Interfaces;
 using FHICORC.Application.Common.Logging.Metrics;
 using FHICORC.Integrations.UkGateway;
 using Hangfire.Dashboard;
+using FHICORC.Application.Services.Interfaces;
+using FHICORC.Application.Services;
 
 namespace FHICORC.ApplicationHost.Hangfire
 {
@@ -63,6 +65,8 @@ namespace FHICORC.ApplicationHost.Hangfire
                     b => b.MigrationsAssembly("FHICORC.Infrastructure.Database")));
             services.AddScoped<IEuCertificateRepository, EuCertificateRepository>();
             services.AddScoped<IMetricLogService, MetricLogService>();
+            services.AddScoped<ITrustedIssuerRepository, TrustedIssuerRepository>();
+            services.AddScoped<ITrustedIssuerService, TrustedIssuerService>();
 
             services.AddHangfire(configuration => configuration.UsePostgreSqlStorage(connectionStrings.HangfirePgsqlDatabase));
             services.AddHangfireTaskManagerAndTasks();
