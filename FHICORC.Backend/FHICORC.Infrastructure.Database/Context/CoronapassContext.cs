@@ -14,6 +14,7 @@ namespace FHICORC.Infrastructure.Database.Context
         public DbSet<BusinessRule> BusinessRules { get; set; }
         public DbSet<CountriesReportModel> CountriesReportModels { get; set; }
         public DbSet<TrustedIssuerModel> TrustedIssuerModels { get; set; }
+        public DbSet<VaccineCodesModel> VaccineCodesModels { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,6 +31,14 @@ namespace FHICORC.Infrastructure.Database.Context
             modelBuilder.Entity<BusinessRule>()
                 .HasIndex(r => r.RuleIdentifier)
                 .IsUnique();
+
+            modelBuilder
+                .Entity<VaccineCodesModel>()
+                .HasKey(k => new {k.VaccineCode, k.CodingSystem});
+            
+            modelBuilder
+                .Entity<VaccineCodesModel>()
+                .Property(k => k.IsAddManually).HasDefaultValue(true);
 
             base.OnModelCreating(modelBuilder);
         }

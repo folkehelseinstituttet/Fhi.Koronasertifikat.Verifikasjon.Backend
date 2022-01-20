@@ -91,6 +91,7 @@ namespace FHICORC.ApplicationHost.Api
             services.AddScoped<ICertificatePublicKeyRepository, CertificatePublicKeyRepository>();
             services.AddScoped<ICountriesReportRepository, CountriesReportRepository>();
             services.AddScoped<ITrustedIssuerRepository, TrustedIssuerRepository>();
+            services.AddScoped<IVaccineCodesRepository, VaccineCodesRepository>();
 
             if (featureToggles.UseEuDgcGateway)
             {

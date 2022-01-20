@@ -15,7 +15,7 @@ namespace FHICORC.Tests.UnitTests.ApiTests
     [Category("Unit")]
     public class SHCControllerUnitTests
     {
-        private readonly Mock<ISHCService> shcService = new Mock<ISHCService>();
+        private readonly Mock<ITrustedIssuerService> shcService = new Mock<ITrustedIssuerService>();
         private readonly Mock<ILogger<ShCController>> logger = new Mock<ILogger<ShCController>>();
 
         private ShCController controller;
@@ -88,7 +88,7 @@ namespace FHICORC.Tests.UnitTests.ApiTests
 
         private void CreateControllerWithRequest(string json)
         {
-            MemoryStream stream = new(Encoding.UTF8.GetBytes(json));
+            MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
             HttpContext httpContext = new DefaultHttpContext()
             {
                 Request = { Body = stream, ContentLength = stream.Length }

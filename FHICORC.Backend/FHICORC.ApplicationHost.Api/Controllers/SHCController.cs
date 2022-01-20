@@ -24,12 +24,12 @@ namespace FHICORC.ApplicationHost.Api.Controllers
     public class ShCController : ControllerBase
     {
 
-        private readonly ISHCService _shcService;
+        private readonly ITrustedIssuerService _shcService;
         private readonly ILogger<ShCController> _logger;
 
-        public ShCController(ISHCService shcService, ILogger<ShCController> logger)
+        public ShCController(ITrustedIssuerService trustedIssuerService, ILogger<ShCController> logger)
         {
-            _shcService = shcService;
+            _shcService = trustedIssuerService;
             _logger = logger;
         }
 
@@ -170,7 +170,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         [Route("diag/printDir")]
         public async Task<IActionResult> DiagnosticPrintDir()
         {
-            return Ok(SHCService.PrintFolder("."));
+            return Ok(TrustedIssuerService.PrintFolder("."));
         }
 
         [HttpGet]

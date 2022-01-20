@@ -14,16 +14,16 @@ namespace FHICORC.Tests.UnitTests.Services
     {
         private readonly Mock<ICacheManager> cacheManager = new Mock<ICacheManager>();
         private readonly Mock<ShcCacheOptions> cacheOptions = new Mock<ShcCacheOptions>();
-        private readonly Mock<ILogger<SHCService>> logger = new Mock<ILogger<SHCService>>();
+        private readonly Mock<ILogger<TrustedIssuerService>> logger = new Mock<ILogger<TrustedIssuerService>>();
         private readonly Mock<IMetricLogService> metricLogService = new Mock<IMetricLogService>();
         private readonly Mock<ITrustedIssuerRepository> trustedIssuerRepository = new Mock<ITrustedIssuerRepository>();
 
-        private SHCService service;
+        private TrustedIssuerService service;
 
         [SetUp]
         public void Setup()
         {
-            service = new SHCService(
+            service = new TrustedIssuerService(
                 cacheManager.Object,
                 cacheOptions.Object,
                 logger.Object,

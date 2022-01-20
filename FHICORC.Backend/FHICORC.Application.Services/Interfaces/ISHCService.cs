@@ -4,7 +4,7 @@ using FHICORC.Domain.Models;
 
 namespace FHICORC.Application.Services.Interfaces
 {
-    public interface ISHCService
+    public interface ITrustedIssuerService
     {
         public Task<ShcVaccineResponseDto> GetVaccinationInfosync(ShcCodeRequestDto shcRequest);
         public Task<ShcTrustResponseDto> GetIsTrustedsync(ShcTrustRequestDto shcRequestDeserialized);

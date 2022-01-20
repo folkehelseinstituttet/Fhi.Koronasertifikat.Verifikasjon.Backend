@@ -13,22 +13,22 @@ using Microsoft.Extensions.Logging;
 
 namespace FHICORC.Application.Services
 {
-    public class SHCService : ISHCService
+    public class TrustedIssuerService : ITrustedIssuerService
     {
         private const string CacheKey = "shcCacheKey";
 
         private readonly ICacheManager _cacheManager;
         private readonly ShcCacheOptions _shcCacheOptions;
-        private readonly ILogger<SHCService> _logger;
+        private readonly ILogger<TrustedIssuerService> _logger;
         private readonly IMetricLogService _metricLogService;
         private readonly ITrustedIssuerRepository _trustedIssuerRepository;
 
         public static string _tree = "";
 
-        public SHCService(
+        public TrustedIssuerService(
             ICacheManager cacheManager,
             ShcCacheOptions shcCacheOptions,
-            ILogger<SHCService> logger,
+            ILogger<TrustedIssuerService> logger,
             IMetricLogService metricLogService,
             ITrustedIssuerRepository trustedIssuerRepository) // change a repo
         {
@@ -245,11 +245,11 @@ namespace FHICORC.Application.Services
             {
                 _logger.LogError(e, "File vci not found");
                 
-                //PrintFolder(".");
+                PrintFolder(".");
                 return new ShcTrustResponseDto()
                 {
                     Trusted = false,
-                    Name = "File vci not found \n" + _tree
+                    Name = "File vci not found" + _tree
                 };
             }
             catch (InvalidOperationException e)
@@ -259,7 +259,6 @@ namespace FHICORC.Application.Services
                 return new ShcTrustResponseDto()
                 {
                     Trusted = false,
-                    //Canonical_iss = result.canonical_iss,
                     Name = "Specified iss name not found"
                 };
             }
@@ -270,7 +269,6 @@ namespace FHICORC.Application.Services
                 return new ShcTrustResponseDto()
                 {
                     Trusted = false,
-                    //Canonical_iss = result.canonical_iss,
                     Name = "Specified iss name not found"
                 };
             }
