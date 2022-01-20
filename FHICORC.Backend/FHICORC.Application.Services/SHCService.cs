@@ -295,7 +295,7 @@ namespace FHICORC.Application.Services
                 return ex.Message;
             }
         }
-        public async Task<bool> CleanTable()
+        public async Task<bool> CleanTable(bool cleanOnlyAuto = true)
         {
             try
             {
