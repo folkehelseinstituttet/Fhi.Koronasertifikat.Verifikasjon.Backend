@@ -1,9 +1,10 @@
 ﻿using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using FHICORC.Application.Models;
+using FHICORC.Application.Models.SmartHealthCard;
 using FHICORC.Application.Services.Interfaces;
 using FHICORC.ApplicationHost.Api.Controllers;
+using FHICORC.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -21,12 +22,13 @@ namespace FHICORC.Tests.UnitTests.ApiTests
         private ShCController controller;
 
         [Test]
-        public async Task GetIsTrusted_WithValidRequest_ReturnsOK()
+        public async Task GetIsTrusted_WithKnownIss_ReturnsTrusted()
         {
-            const string jsonString = "{\"iss\": \"https://ekeys.ny.gov/epass/doh/dvc/2021\"}";
-            ShcTrustResponseDto expected = new ShcTrustResponseDto() { Name = "name", Trusted = true };
-            shcService.Setup(x => x.GetIsTrustedsync(It.IsAny<ShcTrustRequestDto>()))
-                .ReturnsAsync(expected);
+            const string iss = "https://ekeys.ny.gov/epass/doh/dvc/2021";
+            const string jsonString = "{\"iss\": \"" + iss + "\"}";
+            TrustedIssuerModel expected = new TrustedIssuerModel() { Name = "name", Iss = "iss" };
+            shcService.Setup(x => x.GetIssuer(iss))
+                .Returns(expected);
             CreateControllerWithRequest(jsonString);
 
             IActionResult response = await controller.GetIsTrusted();
@@ -39,7 +41,30 @@ namespace FHICORC.Tests.UnitTests.ApiTests
             Assert.AreEqual(200, okResponse.StatusCode);
             Assert.NotNull(responseBody);
             Assert.AreEqual(expected.Name, responseBody.Name);
-            Assert.AreEqual(expected.Trusted, responseBody.Trusted);
+            Assert.True(responseBody.Trusted);
+        }
+
+        [Test]
+        public async Task GetIsTrusted_WithUnknownIss_ReturnsNotTrusted()
+        {
+            const string iss = "https://ekeys.ny.gov/epass/doh/dvc/2021";
+            const string jsonString = "{\"iss\": \"bad iss\"}";
+            TrustedIssuerModel responseModel = new TrustedIssuerModel() { Name = "name", Iss = "iss" };
+            shcService.Setup(x => x.GetIssuer(iss))
+                .Returns(responseModel);
+            CreateControllerWithRequest(jsonString);
+
+            IActionResult response = await controller.GetIsTrusted();
+
+            Assert.IsInstanceOf<OkObjectResult>(response);
+            OkObjectResult okResponse = response as OkObjectResult;
+            Assert.IsInstanceOf<ShcTrustResponseDto>(okResponse.Value);
+            ShcTrustResponseDto responseBody = okResponse.Value as ShcTrustResponseDto;
+
+            Assert.AreEqual(200, okResponse.StatusCode);
+            Assert.NotNull(responseBody);
+            Assert.Null(responseBody.Name);
+            Assert.False(responseBody.Trusted);
         }
 
         [Test]

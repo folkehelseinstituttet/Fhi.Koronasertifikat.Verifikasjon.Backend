@@ -12,5 +12,9 @@ namespace FHICORC.Application.Models.Options
         public string CountriesReportRepositoryCron { get; set; }
         [Required]
         public int CountriesReportRepositoryOnStartupAfterSeconds { get; set; }
+        [Required]
+        public string SmartHealthCardIssuersCron { get; set; }
+        [Required]
+        public int SmartHealthCardIssuersOnStartupAfterSeconds { get; set; }
     }
 }

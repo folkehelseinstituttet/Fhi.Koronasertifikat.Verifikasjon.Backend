@@ -21,6 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Tasks\" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="TestFiles\tst_full_trustlist_response.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -29,4 +32,7 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Tasks\" />
+  </ItemGroup>
 </Project>

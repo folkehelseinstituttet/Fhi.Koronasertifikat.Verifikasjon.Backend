@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Domain.Models;
 using FHICORC.Infrastructure.Database.Context;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace FHICORC.Application.Repositories
@@ -21,58 +20,61 @@ namespace FHICORC.Application.Repositories
             _logger = logger;
         }
 
-       
-        public async Task<TrustedIssuerModel> GetIssuer(string iss)
+        public TrustedIssuerModel GetIssuer(string iss)
         {
-            await using var transaction = await _coronapassContext.Database.BeginTransactionAsync();
             try
             {
-                var res = _coronapassContext.TrustedIssuerModels.SingleOrDefault(p => p.Iss == iss);
-                return res;
+                return _coronapassContext.TrustedIssuerModels.SingleOrDefault(p => p.Iss == iss);
             }
             catch (Exception e)
             {
-                await transaction.RollbackAsync();
                 _logger.LogError(e, "Failed Get issuer" + e.Message);
                 return null;
             }
         }
 
-        public async Task<bool> UpdateIssuerList(List<TrustedIssuerModel> trustedIssuerList)
+        public async Task AddIssuer(TrustedIssuerModel trustedIssuerModel)
         {
-            await CleanTable();
+            _coronapassContext.TrustedIssuerModels.Add(trustedIssuerModel);
+            await _coronapassContext.SaveChangesAsync();
+        }
 
+        public async Task AddIssuers(IEnumerable<TrustedIssuerModel> trustedIssuerList)
+        {
+            _coronapassContext.TrustedIssuerModels.AddRange(trustedIssuerList);
+            await _coronapassContext.SaveChangesAsync();
+        }
+
+        public async Task ReplaceAutomaticallyAddedIssuers(IEnumerable<TrustedIssuerModel> trustedIssuerList)
+        {
             await using var transaction = await _coronapassContext.Database.BeginTransactionAsync();
             try
             {
-                _coronapassContext.TrustedIssuerModels.AddRange(trustedIssuerList);
+                await CleanTable(true);
+                await AddIssuers(trustedIssuerList);
 
                 await transaction.CommitAsync();
-                return true;
             }
             catch (Exception e)
             {
                 await transaction.RollbackAsync();
-                _logger.LogError(e, "Failed Update Trusted Issuer List");
-                return false;
+                _logger.LogError(e, "Failed to clean TRusted issuer Table");
+                throw;
             }
         }
 
-        public async Task<bool> CleanTable()
+        public async Task<bool> CleanTable(bool keepIsAddManually)
         {
-            await using var transaction = await _coronapassContext.Database.BeginTransactionAsync();
             try
             {
-                var all = from c in _coronapassContext.TrustedIssuerModels select c;
-                _coronapassContext.TrustedIssuerModels.RemoveRange(all);
-                _coronapassContext.SaveChanges();
+                var range = keepIsAddManually ? _coronapassContext.TrustedIssuerModels.Where(x => !x.IsAddManually) : _coronapassContext.TrustedIssuerModels;
+                _coronapassContext.TrustedIssuerModels.RemoveRange(range);
+                await _coronapassContext.SaveChangesAsync();
 
-                await transaction.CommitAsync();
                 return true;
             }
             catch (Exception e)
             {
-                await transaction.RollbackAsync();
                 _logger.LogError(e, "Failed to clean TRusted issuer Table");
                 return false;
             }
@@ -80,42 +82,18 @@ namespace FHICORC.Application.Repositories
 
         public async Task<bool> RemoveIssuer(string iss)
         {
-            await using var transaction = await _coronapassContext.Database.BeginTransactionAsync();
             try
             {
                 var res = _coronapassContext.TrustedIssuerModels.SingleOrDefault(p => p.Iss == iss);
                 _coronapassContext.TrustedIssuerModels.Remove(res);
-                _coronapassContext.SaveChanges();
+                await _coronapassContext.SaveChangesAsync();
 
-                await transaction.CommitAsync();
                 return true;
             }
             catch (Exception e)
             {
-                await transaction.RollbackAsync();
                 _logger.LogError(e, "Failed Get issuer" + e.Message);
                 return false;
-            }
-        }
-
-        public async Task<string> AddIssuer(TrustedIssuerModel trustedIssuerModel)
-        {
-            await using var transaction = await _coronapassContext.Database.BeginTransactionAsync();
-            try
-            {
-                var trustedIssuerTableName = _coronapassContext.Model.FindEntityType(typeof(TrustedIssuerModel)).GetTableName();
-                var rowsAffected = _coronapassContext.Database.ExecuteSqlRaw($"insert into \"{trustedIssuerTableName}\" values ('{trustedIssuerModel.Iss}' , '{trustedIssuerModel.Name}','{true}')");
-
-                //_coronapassContext.TrustedIssuerModels.Add(trustedIssuerModel);
-
-                await transaction.CommitAsync();
-                return "Issuer added";
-            }
-            catch (Exception e)
-            {
-                await transaction.RollbackAsync();
-                _logger.LogError(e, "Failed insert statement trusted issuer. " + e.Message );
-                return e.Message;
             }
         }
     }

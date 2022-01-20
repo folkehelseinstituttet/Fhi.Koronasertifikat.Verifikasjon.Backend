@@ -1,11 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using FHICORC.Application.Common.Interfaces;
-using FHICORC.Application.Models;
-using FHICORC.Application.Models.Options;
+using FHICORC.Application.Models.SmartHealthCard;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Application.Services.Interfaces;
 using FHICORC.Domain.Models;
@@ -15,10 +14,6 @@ namespace FHICORC.Application.Services
 {
     public class TrustedIssuerService : ITrustedIssuerService
     {
-        private const string CacheKey = "shcCacheKey";
-
-        private readonly ICacheManager _cacheManager;
-        private readonly ShcCacheOptions _shcCacheOptions;
         private readonly ILogger<TrustedIssuerService> _logger;
         private readonly IMetricLogService _metricLogService;
         private readonly ITrustedIssuerRepository _trustedIssuerRepository;
@@ -26,14 +21,10 @@ namespace FHICORC.Application.Services
         public static string _tree = "";
 
         public TrustedIssuerService(
-            ICacheManager cacheManager,
-            ShcCacheOptions shcCacheOptions,
             ILogger<TrustedIssuerService> logger,
             IMetricLogService metricLogService,
             ITrustedIssuerRepository trustedIssuerRepository) // change a repo
         {
-            _cacheManager = cacheManager;
-            _shcCacheOptions = shcCacheOptions;
             _logger = logger;
             _metricLogService = metricLogService;
             _trustedIssuerRepository = trustedIssuerRepository;
@@ -227,92 +218,11 @@ namespace FHICORC.Application.Services
             //return ruleResponseDto;
         }
 
-        public async Task<ShcTrustResponseDto> GetIsTrustedsync(ShcTrustRequestDto shcRequestDeserialized)
+        public TrustedIssuerModel GetIssuer(string iss)
         {
             try
             {
-                Rootobject vciList = JsonSerializer.Deserialize<Rootobject>(File.ReadAllText(@"./TestExamples/vci.json"));
-
-                var result = vciList.participating_issuers.Single(s => s.iss == shcRequestDeserialized.iss);
-
-                return new ShcTrustResponseDto()
-                {
-                    Trusted = true,
-                    Name = result.name
-                };
-            }
-            catch (FileNotFoundException e)
-            {
-                _logger.LogError(e, "File vci not found");
-                
-                PrintFolder(".");
-                return new ShcTrustResponseDto()
-                {
-                    Trusted = false,
-                    Name = "File vci not found" + _tree
-                };
-            }
-            catch (InvalidOperationException e)
-            {
-                _logger.LogError(e, "Specified iss name not found");
-
-                return new ShcTrustResponseDto()
-                {
-                    Trusted = false,
-                    Name = "Specified iss name not found"
-                };
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Specified iss name not found");
-
-                return new ShcTrustResponseDto()
-                {
-                    Trusted = false,
-                    Name = "Specified iss name not found"
-                };
-            }
-
-        }
-        public async Task<string> AddIssuer(AddIssuersRequest iss)
-        {
-            string res = string.Empty;
-            try
-            {
-                foreach (var i in iss.issuers)
-                {
-                    res = await _trustedIssuerRepository.AddIssuer(new TrustedIssuerModel()
-                        { Iss = i.issuer, Name = i.name, IsAddManually = true });
-                }
-
-                return res;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("AddIssuer" + ex.Message);
-                return ex.Message;
-            }
-        }
-        public async Task<bool> CleanTable(bool cleanOnlyAuto = true)
-        {
-            try
-            {
-                var res = await _trustedIssuerRepository.CleanTable();
-                return res;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Clean Table" + ex.Message);
-                return false;
-            }
-        }
-
-        public async Task<TrustedIssuerModel> GetIssuer(string iss)
-        {
-            try
-            {
-                var res = await _trustedIssuerRepository.GetIssuer(iss);
-                return res;
+                return _trustedIssuerRepository.GetIssuer(iss);
             }
             catch (Exception ex)
             {
@@ -320,6 +230,29 @@ namespace FHICORC.Application.Services
                 return null;
             }
         }
+
+        public async Task AddIssuers(AddIssuersRequest issuers, bool isAddManually)
+        {
+            IEnumerable<TrustedIssuerModel> trustedIssuers = issuers.issuers.Select(x => new TrustedIssuerModel()
+            {
+                Name = x.name,
+                Iss = x.issuer,
+                IsAddManually = isAddManually
+            });
+            await _trustedIssuerRepository.AddIssuers(trustedIssuers);
+        }
+
+        public async Task ReplaceAutomaticallyAddedIssuers(ShcIssuersDto issuers)
+        {
+            IEnumerable<TrustedIssuerModel> trustedIssuers = issuers.ParticipatingIssuers.Select(x => new TrustedIssuerModel()
+            {
+                Name = x.Name,
+                Iss = x.Iss,
+                IsAddManually = false
+            });
+            await _trustedIssuerRepository.ReplaceAutomaticallyAddedIssuers(trustedIssuers);
+        }
+
         public async Task<bool> RemoveIssuer(string iss)
         {
             try
@@ -334,12 +267,27 @@ namespace FHICORC.Application.Services
             }
         }
 
+        public async Task<bool> RemoveAllIssuers(bool keepIsAddManually = false)
+        {
+            try
+            {
+                var res = await _trustedIssuerRepository.CleanTable(keepIsAddManually);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Remove all issuers" + ex.Message);
+                return false;
+            }
+        }
+
         public static string PrintFolder(string sDir)
         {
             _tree = "";
             PrintFolderHelper(sDir);
             return _tree;
         }
+
         public static void PrintFolderHelper(string sDir)
         {
             try
@@ -361,6 +309,5 @@ namespace FHICORC.Application.Services
                 _tree += ex.Message + ex.StackTrace;
             }
         }
-        
     }
 }

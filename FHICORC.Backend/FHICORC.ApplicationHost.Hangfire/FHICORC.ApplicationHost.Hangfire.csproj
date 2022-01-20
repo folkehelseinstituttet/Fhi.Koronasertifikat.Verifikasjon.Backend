@@ -28,6 +28,9 @@
     <ProjectReference Include="..\FHICORC.Infrastructure.Database\FHICORC.Infrastructure.Database.csproj" />
 		<ProjectReference Include="..\FHICORC.Integrations.DGCGateway\FHICORC.Integrations.DGCGateway.csproj" />
 		<ProjectReference Include="..\FHICORC.Integrations.UKGateway\FHICORC.Integrations.UkGateway.csproj" />
+		<ProjectReference Include="..\FHICORC.Application.Services\FHICORC.Application.Services.csproj">
+		  <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+		</ProjectReference>
     </ItemGroup>
 	
   <ItemGroup>
