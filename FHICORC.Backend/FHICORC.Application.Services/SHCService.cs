@@ -9,6 +9,7 @@ using FHICORC.Application.Models;
 using FHICORC.Application.Models.Options;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Application.Services.Interfaces;
+using FHICORC.Domain.Models;
 using Microsoft.AspNetCore.Routing.Tree;
 using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Security;
@@ -23,18 +24,18 @@ namespace FHICORC.Application.Services
         private readonly ShcCacheOptions _shcCacheOptions;
         private readonly ILogger<SHCService> _logger;
         private readonly IMetricLogService _metricLogService;
-        private readonly IBusinessRuleRepository _businessRuleRepository;
+        private readonly ITrustedIssuerRepository _trustedIssuerRepository;
 
-        private static string _tree = "";
+        public static string _tree = "";
 
         public SHCService(ICacheManager cacheManager, ShcCacheOptions shcCacheOptions,ILogger<SHCService> logger,
-            IMetricLogService metricLogService, IBusinessRuleRepository businessRuleRepository) // change a repo
+            IMetricLogService metricLogService, ITrustedIssuerRepository trustedIssuerRepository ) // change a repo
         {
             _cacheManager = cacheManager;
             _shcCacheOptions = shcCacheOptions;
             _logger = logger;
             _metricLogService = metricLogService;
-            _businessRuleRepository = businessRuleRepository;
+            _trustedIssuerRepository = trustedIssuerRepository;
         }
 
         public async Task<ShcVaccineResponseDto> GetVaccinationInfosync(ShcRequestDto shcRequestList)   // TO DO
@@ -243,8 +244,8 @@ namespace FHICORC.Application.Services
             catch (FileNotFoundException e)
             {
                 _logger.LogError(e, "File vci not found");
-                _tree = "";
-                PrintFolder(".");
+                
+                //PrintFolder(".");
                 return new ShcTrustResponseDto()
                 {
                     Trusted = false,
@@ -275,25 +276,86 @@ namespace FHICORC.Application.Services
             }
             
         }
+        public async Task<string> AddIssuer(AddIssuersRequest iss)
+        {
+            string res = string.Empty;
+            try
+            {
+                foreach (var i in iss.issuers)
+                {
+                    res = await _trustedIssuerRepository.AddIssuer(new TrustedIssuerModel()
+                        { Iss = i.issuer, Name = i.name, IsAddManually = true });
+                }
 
-       
-
-    
-
-        static void PrintFolder(string sDir)
+                return res;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("AddIssuer" + ex.Message);
+                return ex.Message;
+            }
+        }
+        public async Task<bool> CleanTable()
         {
             try
             {
-                _tree += "    Search...  " + sDir + "      ";
+                var res = await _trustedIssuerRepository.CleanTable();
+                return res;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Clean Table" + ex.Message);
+                return false;
+            }
+        }
+
+        public async Task<TrustedIssuerModel> GetIssuer(string iss)
+        {
+            try
+            {
+                var res = await _trustedIssuerRepository.GetIssuer(iss);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Get Issuer" + ex.Message);
+                return null;
+            }
+        }
+        public async Task<bool> RemoveIssuer(string iss)
+        {
+            try
+            {
+                var res = await _trustedIssuerRepository.RemoveIssuer(iss);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Remove Issuer" + ex.Message);
+                return false;
+            }
+        }
+
+        public static string PrintFolder(string sDir)
+        {
+            _tree = "";
+            PrintFolderHelper(sDir);
+            return _tree;
+        }
+        public static void PrintFolderHelper(string sDir)
+        {
+            try
+            {
+                _tree += sDir + Environment.NewLine;
 
                 foreach (string f in Directory.GetFiles(sDir))
                 {
-                    _tree += f + "  ||   ";
+                    _tree += f + Environment.NewLine;
                 }
 
                 foreach (string d in Directory.GetDirectories(sDir))
                 {
-                    PrintFolder(d);
+                    PrintFolderHelper(d);
                 }
             }
             catch (Exception ex)

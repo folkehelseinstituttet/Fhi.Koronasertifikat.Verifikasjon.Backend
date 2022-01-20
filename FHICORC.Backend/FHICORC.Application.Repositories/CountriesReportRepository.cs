@@ -31,7 +31,7 @@ namespace FHICORC.Application.Repositories
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to insert EuDocSignerCertificate into the database");
+                _logger.LogError(e, "Failed to insert Coutries Report into the database");
                 return false;
             }
 
