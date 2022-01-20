@@ -1,20 +1,21 @@
-
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace FHICORC.Application.Models
 {
-    public class ShcRequestDto
+    public class ShcCodeRequestDto
     {
-        public Entries[] Codes { get; set; }
+        [JsonPropertyName("codes")]
+        public ShcCodeEntries[] Codes { get; set; }
     }
 
-    public class Entries
+    public class ShcCodeEntries
     {
+        [JsonPropertyName("code")]
         public string Code { get; set; }
+        [JsonPropertyName("system")]
         public string System { get; set; }
     }
+
     public static class CodingSystem
     {
         public const string Cvx = "http://hl7.org/fhir/sid/cvx";

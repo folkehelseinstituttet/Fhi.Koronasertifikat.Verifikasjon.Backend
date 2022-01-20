@@ -30,6 +30,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         public ShCController(ISHCService shcService, ILogger<ShCController> logger)
         {
             _shcService = shcService;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -129,7 +130,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         public async Task<IActionResult> GetVaccineInfo()
         {
             var requestBody = string.Empty;
-            var shcRequestDeserialized = new ShcRequestDto();
+            var shcRequestDeserialized = new ShcCodeRequestDto();
             try
             {
                 using (var reader = new StreamReader(HttpContext.Request.Body))
@@ -137,7 +138,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
                     requestBody = await reader.ReadToEndAsync();
                 }
 
-                shcRequestDeserialized = JsonSerializer.Deserialize<ShcRequestDto>(
+                shcRequestDeserialized = JsonSerializer.Deserialize<ShcCodeRequestDto>(
                     requestBody,
                     new JsonSerializerOptions { IgnoreNullValues = false });
 
