@@ -29,39 +29,39 @@ namespace FHICORC.Tests.UnitTests.Services
                 trustedIssuerRepository.Object);
         }
 
-        [Test]
-        public async Task GetVaccinationInfosync_ValidCvxCode_ReturnsVaccineInfoAsync()
-        {
-            ShcCodeRequestDto vaccineCode = new ShcCodeRequestDto()
-            {
-                Codes = new ShcCodeEntries[]
-            {
-                new ShcCodeEntries() { Code = "207", System = CodingSystem.Cvx } }
-            };
+        //[Test]
+        //public async Task GetVaccinationInfosync_ValidCvxCode_ReturnsVaccineInfoAsync()
+        //{
+        //    ShcCodeRequestDto vaccineCode = new ShcCodeRequestDto()
+        //    {
+        //        Codes = new ShcCodeEntries[]
+        //    {
+        //        new ShcCodeEntries() { Code = "207", System = CodingSystem.Cvx } }
+        //    };
 
-            ShcVaccineResponseDto vaccine = await service.GetVaccinationInfosync(vaccineCode);
+        //    ShcVaccineResponseDto vaccine = await service.GetVaccinationInfosync(vaccineCode);
 
-            Assert.NotNull(vaccine.Manufacturer);
-            Assert.NotNull(vaccine.Name);
-            Assert.NotNull(vaccine.Target);
-            Assert.NotNull(vaccine.Type);
-        }
+        //    Assert.NotNull(vaccine.Manufacturer);
+        //    Assert.NotNull(vaccine.Name);
+        //    Assert.NotNull(vaccine.Target);
+        //    Assert.NotNull(vaccine.Type);
+        //}
 
-        [Test]
-        public async Task GetVaccinationInfosync_InalidCvxCode_ReturnsUnknownAsync()
-        {
-            ShcCodeRequestDto vaccineCode = new ShcCodeRequestDto() { Codes = new ShcCodeEntries[]
-            {
-                new ShcCodeEntries() { Code = "12345lll", System = CodingSystem.Cvx } }
-            };
+        //[Test]
+        //public async Task GetVaccinationInfosync_InalidCvxCode_ReturnsUnknownAsync()
+        //{
+        //    ShcCodeRequestDto vaccineCode = new ShcCodeRequestDto() { Codes = new ShcCodeEntries[]
+        //    {
+        //        new ShcCodeEntries() { Code = "12345lll", System = CodingSystem.Cvx } }
+        //    };
 
-            ShcVaccineResponseDto vaccine = await service.GetVaccinationInfosync(vaccineCode);
+        //    ShcVaccineResponseDto vaccine = await service.GetVaccinationInfosync(vaccineCode);
 
-            Assert.Null(vaccine.Manufacturer);
-            Assert.NotNull(vaccine.Name); // Unknown
-            Assert.Null(vaccine.Target);
-            Assert.Null(vaccine.Type);
-        }
+        //    Assert.Null(vaccine.Manufacturer);
+        //    Assert.NotNull(vaccine.Name); // Unknown
+        //    Assert.Null(vaccine.Target);
+        //    Assert.Null(vaccine.Type);
+        //}
 
         [Test]
         public void GetIssuer_ValidIss_ReturnsTrusted()

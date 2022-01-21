@@ -10,9 +10,9 @@ namespace FHICORC.Infrastructure.Database.Migrations
                 name: "VaccineCodesModels",
                 columns: table => new
                 {
-                    VaccineCode = table.Column<string>(type: "varchar(5000)", nullable: false),
-                    CodingSystem = table.Column<string>(type: "varchar(5000)", nullable: false),
-                    Name = table.Column<string>(type: "varchar(100)", nullable: true),
+                    VaccineCode = table.Column<string>(type: "varchar(200)", nullable: false),
+                    CodingSystem = table.Column<string>(type: "varchar(2000)", nullable: false),
+                    Name = table.Column<string>(type: "varchar(500)", nullable: true),
                     Manufacturer = table.Column<string>(type: "varchar(1000)", nullable: true),
                     Type = table.Column<string>(type: "varchar(1000)", nullable: true),
                     Target = table.Column<string>(type: "varchar(1000)", nullable: true),

@@ -5,14 +5,14 @@ namespace FHICORC.Domain.Models
 {
     public class VaccineCodesModel
     {
-        [Column(TypeName = "varchar(5000)")]
+        [Column(TypeName = "varchar(200)")]
         public string VaccineCode { get; set; }
 
         [Key]
-        [Column(TypeName = "varchar(5000)")]
+        [Column(TypeName = "varchar(2000)")]
         public string CodingSystem { get; set; }
         
-        [Column(TypeName = "varchar(100)")]
+        [Column(TypeName = "varchar(500)")]
         public string Name { get; set; }
 
         [Column(TypeName = "varchar(1000)")]

@@ -15,6 +15,7 @@ using FHICORC.Application.Models.Options;
 using FHICORC.Application.Repositories;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Application.Services;
+using FHICORC.Application.Services.Interfaces;
 using FHICORC.Application.Validation;
 using FHICORC.ApplicationHost.Api.Middleware;
 using FHICORC.Infrastructure.Database;
@@ -92,6 +93,8 @@ namespace FHICORC.ApplicationHost.Api
             services.AddScoped<ICountriesReportRepository, CountriesReportRepository>();
             services.AddScoped<ITrustedIssuerRepository, TrustedIssuerRepository>();
             services.AddScoped<IVaccineCodesRepository, VaccineCodesRepository>();
+            services.AddScoped<IVaccineCodesRepository, VaccineCodesRepository>();
+            services.AddScoped<IVaccineCodesService, VaccineCodesService>();
 
             if (featureToggles.UseEuDgcGateway)
             {

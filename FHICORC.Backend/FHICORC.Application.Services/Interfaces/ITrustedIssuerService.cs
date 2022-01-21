@@ -6,7 +6,6 @@ namespace FHICORC.Application.Services.Interfaces
 {
     public interface ITrustedIssuerService
     {
-        public Task<ShcVaccineResponseDto> GetVaccinationInfosync(ShcCodeRequestDto shcRequestList);
         public TrustedIssuerModel GetIssuer(string iss);
         public Task AddIssuers(AddIssuersRequest issuers, bool isAddManually);
         public Task ReplaceAutomaticallyAddedIssuers(ShcIssuersDto issuers);

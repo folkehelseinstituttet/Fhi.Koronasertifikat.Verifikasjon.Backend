@@ -6,7 +6,6 @@ using FHICORC.Application.Models;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Domain.Models;
 using FHICORC.Infrastructure.Database.Context;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace FHICORC.Application.Repositories
@@ -39,7 +38,7 @@ namespace FHICORC.Application.Repositories
             }
         }
 
-        public async Task<bool> UpdateIssuerList(List<VaccineCodesModel> vaccineCodesList)
+        public async Task<bool> UpdatevaccineCodesList(List<VaccineCodesModel> vaccineCodesList)
         {
             await CleanTable(false);
 
@@ -60,30 +59,23 @@ namespace FHICORC.Application.Repositories
 
         public async Task<bool> CleanTable(bool onlyAuto = true)
         {
-            await using var transaction = await _coronapassContext.Database.BeginTransactionAsync();
             try
             {
                 IQueryable<VaccineCodesModel> all;
-                if (onlyAuto)
-                    all = from c in _coronapassContext.VaccineCodesModels where c.IsAddManually == false select c;
-                else
-                    all = from c in _coronapassContext.VaccineCodesModels select c;
+                all = onlyAuto ? _coronapassContext.VaccineCodesModels.Where(c => c.IsAddManually == false) : _coronapassContext.VaccineCodesModels;
 
                 _coronapassContext.VaccineCodesModels.RemoveRange(all);
-                _coronapassContext.SaveChanges();
-
-                await transaction.CommitAsync();
+                await _coronapassContext.SaveChangesAsync();
                 return true;
             }
             catch (Exception e)
             {
-                await transaction.RollbackAsync();
                 _logger.LogError(e, "Failed to clean vaccine codes Table");
                 return false;
             }
         }
 
-        public async Task<bool> RemoveIssuer(VaccineCodeKey vck)
+        public async Task<bool> RemoveVaccineCode(VaccineCodeKey vck)
         {
             await using var transaction = await _coronapassContext.Database.BeginTransactionAsync();
             try
@@ -103,23 +95,12 @@ namespace FHICORC.Application.Repositories
             }
         }
 
-        public async Task<string> AddIssuer(VaccineCodesModel vaccineCodesModel)
-        {
-            await using var transaction = await _coronapassContext.Database.BeginTransactionAsync();
-            try
-            {
-                var vaccineCodesTableName = _coronapassContext.Model.FindEntityType(typeof(VaccineCodesModel)).GetTableName();
-                var rowsAffected = _coronapassContext.Database.ExecuteSqlRaw($"insert into \"{vaccineCodesTableName}\" values ('{vaccineCodesModel.VaccineCode}' , '{vaccineCodesModel.CodingSystem}','{vaccineCodesModel.Name}','{vaccineCodesModel.Manufacturer}','{vaccineCodesModel.Type}','{vaccineCodesModel.Target}','{true}')");
+       
 
-                await transaction.CommitAsync();
-                return "Vaccine code added";
-            }
-            catch (Exception e)
-            {
-                await transaction.RollbackAsync();
-                _logger.LogError(e, "Failed insert statement vaccine code. " + e.Message );
-                return e.Message;
-            }
+        public async Task AddVaccineCode(IEnumerable<VaccineCodesModel> vaccineCodesModel)
+        {
+            _coronapassContext.VaccineCodesModels.AddRange(vaccineCodesModel);
+            await _coronapassContext.SaveChangesAsync();
         }
     }
 }

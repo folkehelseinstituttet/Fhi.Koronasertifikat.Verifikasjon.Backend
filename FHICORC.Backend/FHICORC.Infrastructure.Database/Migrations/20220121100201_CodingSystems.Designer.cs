@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FHICORC.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(CoronapassContext))]
-    [Migration("20220120113424_CodingSystems")]
+    [Migration("20220121100201_CodingSystems")]
     partial class CodingSystems
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -122,10 +122,10 @@ namespace FHICORC.Infrastructure.Database.Migrations
             modelBuilder.Entity("FHICORC.Domain.Models.VaccineCodesModel", b =>
                 {
                     b.Property<string>("VaccineCode")
-                        .HasColumnType("varchar(5000)");
+                        .HasColumnType("varchar(200)");
 
                     b.Property<string>("CodingSystem")
-                        .HasColumnType("varchar(5000)");
+                        .HasColumnType("varchar(2000)");
 
                     b.Property<bool>("IsAddManually")
                         .ValueGeneratedOnAdd()

@@ -79,7 +79,7 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         private async Task<ShcIssuersDto> GetIssuers()
         {
             HttpClient httpClient = _httpClientFactory.CreateClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, _serviceEndpoints.SHCIssuerListEndpoint);
+            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, _serviceEndpoints.SHCIssuerListEndpoint);
 
             HttpResponseMessage response = await httpClient.SendAsync(httpRequestMessage);
             response.EnsureSuccessStatusCode();

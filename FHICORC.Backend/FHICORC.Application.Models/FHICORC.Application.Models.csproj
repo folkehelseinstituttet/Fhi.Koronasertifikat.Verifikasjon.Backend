@@ -13,7 +13,4 @@
     <ItemGroup>
       <None Remove="SmartHealthCard\" />
     </ItemGroup>
-    <ItemGroup>
-      <Folder Include="SmartHealthCard\" />
-    </ItemGroup>
 </Project>
