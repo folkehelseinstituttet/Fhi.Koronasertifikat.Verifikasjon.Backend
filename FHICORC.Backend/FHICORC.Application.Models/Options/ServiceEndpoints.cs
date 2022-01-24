@@ -8,5 +8,6 @@ namespace FHICORC.Application.Models.Options
         public string NITrustListEndpoint { get; set; }
         public string SCTrustListEndpoint { get; set; }
         public string SHCIssuerListEndpoint { get; set; }
+        public string SHCVaccineCvxListEndpoint { get; set; }
     }
 }

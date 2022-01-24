@@ -9,15 +9,18 @@ namespace FHICORC.ApplicationHost.Hangfire
         private readonly IUpdateCertificateRepositoryTask _updateCertificateRepositoryTask;
         private readonly ICountriesReportRepositoryTask _coutriesReportRepositoryTask;
         private readonly ISmartHealthCardIssuersTask _smartHealthCardIssuersTask;
+        private readonly ISmartHealthCardVaccinesTask _smartHealthCardVaccinesTask;
 
         public HangfireTaskManager(
             IUpdateCertificateRepositoryTask updateCertificateRepositoryTask,
             ICountriesReportRepositoryTask coutriesReportRepositoryTask,
-            ISmartHealthCardIssuersTask smartHealthCardIssuersTask)
+            ISmartHealthCardIssuersTask smartHealthCardIssuersTask,
+            ISmartHealthCardVaccinesTask smartHealthCardVaccinesTask)
         {
             _updateCertificateRepositoryTask = updateCertificateRepositoryTask;
             _coutriesReportRepositoryTask = coutriesReportRepositoryTask;
             _smartHealthCardIssuersTask = smartHealthCardIssuersTask;
+            _smartHealthCardVaccinesTask = smartHealthCardVaccinesTask;
         }
 
         public void SetupHangfireTasks()
@@ -28,6 +31,7 @@ namespace FHICORC.ApplicationHost.Hangfire
             _updateCertificateRepositoryTask.SetupTask();
             _coutriesReportRepositoryTask.SetupTask();
             _smartHealthCardIssuersTask.SetupTask();
+            _smartHealthCardVaccinesTask.SetupTask();
         }
     }
 }

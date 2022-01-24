@@ -67,6 +67,8 @@ namespace FHICORC.ApplicationHost.Hangfire
             services.AddScoped<IMetricLogService, MetricLogService>();
             services.AddScoped<ITrustedIssuerRepository, TrustedIssuerRepository>();
             services.AddScoped<ITrustedIssuerService, TrustedIssuerService>();
+            services.AddScoped<IVaccineCodesRepository, VaccineCodesRepository>();
+            services.AddScoped<IVaccineCodesService, VaccineCodesService>();
 
             services.AddHangfire(configuration => configuration.UsePostgreSqlStorage(connectionStrings.HangfirePgsqlDatabase));
             services.AddHangfireTaskManagerAndTasks();

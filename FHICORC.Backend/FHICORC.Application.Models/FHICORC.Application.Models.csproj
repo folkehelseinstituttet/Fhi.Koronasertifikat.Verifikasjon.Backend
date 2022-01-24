@@ -12,5 +12,11 @@
 
     <ItemGroup>
       <None Remove="SmartHealthCard\" />
+      <None Remove="SmartHealthCard\VaccineSystems\" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="SmartHealthCard\" />
+      <Folder Include="SmartHealthCard\VaccineSystems\" />
     </ItemGroup>
 </Project>

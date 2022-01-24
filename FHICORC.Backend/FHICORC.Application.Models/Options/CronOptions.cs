@@ -16,5 +16,9 @@ namespace FHICORC.Application.Models.Options
         public string SmartHealthCardIssuersCron { get; set; }
         [Required]
         public int SmartHealthCardIssuersOnStartupAfterSeconds { get; set; }
+        [Required]
+        public string SmartHealthCardVaccinesCron { get; set; }
+        [Required]
+        public int SmartHealthCardVaccinesOnStartupAfterSeconds { get; set; }
     }
 }

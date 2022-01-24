@@ -17,10 +17,10 @@ namespace FHICORC.Tests.UnitTests.ApiTests
     public class SHCControllerUnitTests
     {
         private readonly Mock<ITrustedIssuerService> trustedIssuerService = new Mock<ITrustedIssuerService>();
-        private readonly Mock<IVaccineCodesService> vcService = new Mock<IVaccineCodesService>();
-        private readonly Mock<ILogger<ShCController>> logger = new Mock<ILogger<ShCController>>();
+        private readonly Mock<IVaccineCodesService> vaccineCodesService = new Mock<IVaccineCodesService>();
+        private readonly Mock<ILogger<SHCController>> logger = new Mock<ILogger<SHCController>>();
 
-        private ShCController controller;
+        private SHCController controller;
 
         [Test]
         public async Task GetIsTrusted_WithKnownIss_ReturnsTrusted()
@@ -79,27 +79,27 @@ namespace FHICORC.Tests.UnitTests.ApiTests
             Assert.IsInstanceOf<BadRequestObjectResult>(response);
         }
 
-        //[Test]
-        //public async Task GetVaccineInfo_WithValidRequest_ReturnsOK()
-        //{
-        //    const string jsonString = "{\"codes\": []}";
-        //    ShcVaccineResponseDto expected = new ShcVaccineResponseDto() { Name = "name", Manufacturer = "manu"};
-        //    trustedIssuerService.Setup(x => x.GetVaccinationInfosync(It.IsAny<ShcCodeRequestDto>()))
-        //        .ReturnsAsync(expected);
-        //    CreateControllerWithRequest(jsonString);
+        [Test]
+        public async Task GetVaccineInfo_WithValidRequest_ReturnsOK()
+        {
+            const string jsonString = "{\"codes\": []}";
+            VaccineCodesModel expected = new() { Name = "name", Manufacturer = "manu" };
+            vaccineCodesService.Setup(x => x.GetVaccinationInfo(It.IsAny<ShcCodeRequestDto>()))
+                .Returns(Task.FromResult(expected));
+            CreateControllerWithRequest(jsonString);
 
-        //    IActionResult response = await controller.GetVaccineInfo();
+            IActionResult response = await controller.GetVaccineInfo();
 
-        //    Assert.IsInstanceOf<OkObjectResult>(response);
-        //    OkObjectResult okResponse = response as OkObjectResult;
-        //    Assert.IsInstanceOf<ShcVaccineResponseDto>(okResponse.Value);
-        //    ShcVaccineResponseDto responseBody = okResponse.Value as ShcVaccineResponseDto;
+            Assert.IsInstanceOf<OkObjectResult>(response);
+            OkObjectResult okResponse = response as OkObjectResult;
+            Assert.IsInstanceOf<VaccineCodesModel>(okResponse.Value);
+            VaccineCodesModel responseBody = okResponse.Value as VaccineCodesModel;
 
-        //    Assert.AreEqual(200, okResponse.StatusCode);
-        //    Assert.NotNull(responseBody);
-        //    Assert.AreEqual(expected.Name, responseBody.Name);
-        //    Assert.AreEqual(expected.Manufacturer, responseBody.Manufacturer);
-        //}
+            Assert.AreEqual(200, okResponse.StatusCode);
+            Assert.NotNull(responseBody);
+            Assert.AreEqual(expected.Name, responseBody.Name);
+            Assert.AreEqual(expected.Manufacturer, responseBody.Manufacturer);
+        }
 
         [Test]
         public async Task GetVaccineInfo_WithInvalidRequestParameterType_ReturnsBadRequest()
@@ -121,7 +121,10 @@ namespace FHICORC.Tests.UnitTests.ApiTests
             };
             ControllerContext controllerContext = new ControllerContext { HttpContext = httpContext };
 
-            controller = new ShCController(trustedIssuerService.Object, vcService.Object, logger.Object) { ControllerContext = controllerContext };
+            controller = new SHCController(
+                trustedIssuerService.Object,
+                vaccineCodesService.Object,
+                logger.Object) { ControllerContext = controllerContext };
         }
     }
 }
