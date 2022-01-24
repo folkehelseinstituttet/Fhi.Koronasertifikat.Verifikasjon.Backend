@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FHICORC.Application.Common.Interfaces;
 using FHICORC.Application.Models.SmartHealthCard;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Application.Services;
@@ -15,7 +14,6 @@ namespace FHICORC.Tests.UnitTests.Services
     public class TrustedIssuerServiceUnitTests
     {
         private readonly Mock<ILogger<TrustedIssuerService>> logger = new Mock<ILogger<TrustedIssuerService>>();
-        private readonly Mock<IMetricLogService> metricLogService = new Mock<IMetricLogService>();
         private readonly Mock<ITrustedIssuerRepository> trustedIssuerRepository = new Mock<ITrustedIssuerRepository>();
 
         private TrustedIssuerService service;
@@ -25,43 +23,8 @@ namespace FHICORC.Tests.UnitTests.Services
         {
             service = new TrustedIssuerService(
                 logger.Object,
-                metricLogService.Object,
                 trustedIssuerRepository.Object);
         }
-
-        //[Test]
-        //public async Task GetVaccinationInfosync_ValidCvxCode_ReturnsVaccineInfoAsync()
-        //{
-        //    ShcCodeRequestDto vaccineCode = new ShcCodeRequestDto()
-        //    {
-        //        Codes = new ShcCodeEntries[]
-        //    {
-        //        new ShcCodeEntries() { Code = "207", System = CodingSystem.Cvx } }
-        //    };
-
-        //    ShcVaccineResponseDto vaccine = await service.GetVaccinationInfosync(vaccineCode);
-
-        //    Assert.NotNull(vaccine.Manufacturer);
-        //    Assert.NotNull(vaccine.Name);
-        //    Assert.NotNull(vaccine.Target);
-        //    Assert.NotNull(vaccine.Type);
-        //}
-
-        //[Test]
-        //public async Task GetVaccinationInfosync_InalidCvxCode_ReturnsUnknownAsync()
-        //{
-        //    ShcCodeRequestDto vaccineCode = new ShcCodeRequestDto() { Codes = new ShcCodeEntries[]
-        //    {
-        //        new ShcCodeEntries() { Code = "12345lll", System = CodingSystem.Cvx } }
-        //    };
-
-        //    ShcVaccineResponseDto vaccine = await service.GetVaccinationInfosync(vaccineCode);
-
-        //    Assert.Null(vaccine.Manufacturer);
-        //    Assert.NotNull(vaccine.Name); // Unknown
-        //    Assert.Null(vaccine.Target);
-        //    Assert.Null(vaccine.Type);
-        //}
 
         [Test]
         public void GetIssuer_ValidIss_ReturnsTrusted()
@@ -144,6 +107,26 @@ namespace FHICORC.Tests.UnitTests.Services
             Assert.AreEqual(1, results.Count());
             Assert.AreEqual(1, results.First().Count());
             Assert.False(results.First().First().IsAddManually);
+        }
+
+        [Test]
+        public async Task RemoveIssuer_CallsRepository()
+        {
+            string iss = "iss1";
+
+            await service.RemoveIssuer(iss);
+
+            trustedIssuerRepository.Verify(x => x.RemoveIssuer(iss), Times.Once);
+        }
+
+        [Test]
+        public async Task RemoveAllIssuers_CallsRepository()
+        {
+            bool keepIsAddManually = true;
+
+            await service.RemoveAllIssuers(keepIsAddManually);
+
+            trustedIssuerRepository.Verify(x => x.CleanTable(keepIsAddManually), Times.Once);
         }
     }
 }

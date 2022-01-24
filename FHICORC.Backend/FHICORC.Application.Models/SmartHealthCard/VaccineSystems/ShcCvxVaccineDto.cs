@@ -59,6 +59,6 @@ namespace FHICORC.Application.Models.SmartHealthCard.VaccineSystems
             ManufacturerIndex = 3,
             StatusIndex = 6,
             LastUpdatedIndex = 7
-    }
+        }
     }
 }

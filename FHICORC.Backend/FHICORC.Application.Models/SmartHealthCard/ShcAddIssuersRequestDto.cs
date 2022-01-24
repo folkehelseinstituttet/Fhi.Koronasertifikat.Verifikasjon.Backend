@@ -1,6 +1,5 @@
 namespace FHICORC.Application.Models.SmartHealthCard
 {
-
     public class AddIssuersRequest
     {
         public Issuer[] issuers { get; set; }
@@ -11,5 +10,4 @@ namespace FHICORC.Application.Models.SmartHealthCard
         public string issuer { get; set; }
         public string name { get; set; }
     }
-
 }

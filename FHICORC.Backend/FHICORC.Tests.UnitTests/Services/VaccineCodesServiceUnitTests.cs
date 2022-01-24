@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using FHICORC.Application.Common.Interfaces;
-using FHICORC.Application.Models;
 using FHICORC.Application.Models.SmartHealthCard;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Application.Services;
@@ -15,7 +13,6 @@ namespace FHICORC.Tests.UnitTests.Services
     public class VaccineCodesServiceUnitTests
     {
         private readonly Mock<ILogger<TrustedIssuerService>> logger = new Mock<ILogger<TrustedIssuerService>>();
-        private readonly Mock<IMetricLogService> metricLogService = new Mock<IMetricLogService>();
         private readonly Mock<IVaccineCodesRepository> vaccineCodesRepository = new Mock<IVaccineCodesRepository>();
 
         private VaccineCodesService service;
@@ -25,8 +22,18 @@ namespace FHICORC.Tests.UnitTests.Services
         {
             service = new VaccineCodesService(
                 logger.Object,
-                metricLogService.Object,
                 vaccineCodesRepository.Object);
+        }
+
+        [Test]
+        public async Task ReplaceAutomaticVaccines_CallsRepository()
+        {
+            string codingSystem = "system1";
+
+            await service.ReplaceAutomaticVaccines(new List<VaccineCodesModel>(), codingSystem);
+
+            vaccineCodesRepository.Verify(x => x.ReplaceAutomaticVaccines(
+                It.IsAny<IEnumerable<VaccineCodesModel>>(), codingSystem), Times.Once);
         }
 
         [Test]
@@ -46,14 +53,23 @@ namespace FHICORC.Tests.UnitTests.Services
         }
 
         [Test]
-        public async Task ReplaceAutomaticVaccines_CallsRepository()
+        public async Task RemoveAllVaccineCodes_CallsRepository()
         {
-            string codingSystem = "system1";
+            bool onlyAuto = true;
 
-            await service.ReplaceAutomaticVaccines(new List<VaccineCodesModel>(), codingSystem);
+            await service.RemoveAllVaccineCodes(onlyAuto);
 
-            vaccineCodesRepository.Verify(x => x.ReplaceAutomaticVaccines(
-                It.IsAny<IEnumerable<VaccineCodesModel>>(), codingSystem), Times.Once);
+            vaccineCodesRepository.Verify(x => x.CleanTable(onlyAuto), Times.Once);
+        }
+
+        [Test]
+        public async Task RemoveVaccineCode_CallsRepository()
+        {
+            VaccineCodeKey vaccineCode = new VaccineCodeKey();
+
+            await service.RemoveVaccineCode(vaccineCode);
+
+            vaccineCodesRepository.Verify(x => x.RemoveVaccineCode(vaccineCode), Times.Once);
         }
     }
 }

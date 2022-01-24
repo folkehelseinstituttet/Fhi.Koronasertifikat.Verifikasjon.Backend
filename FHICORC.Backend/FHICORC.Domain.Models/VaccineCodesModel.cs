@@ -25,6 +25,5 @@ namespace FHICORC.Domain.Models
         public string Target { get; set; }
         
         public bool IsAddManually { get; set; }
-
     }
 }
