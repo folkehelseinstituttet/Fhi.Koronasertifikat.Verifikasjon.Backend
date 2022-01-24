@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using FHICORC.Application.Common.Interfaces;
 using FHICORC.Application.Models.SmartHealthCard;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Application.Services.Interfaces;
@@ -15,18 +14,15 @@ namespace FHICORC.Application.Services
     public class TrustedIssuerService : ITrustedIssuerService
     {
         private readonly ILogger<TrustedIssuerService> _logger;
-        private readonly IMetricLogService _metricLogService;
         private readonly ITrustedIssuerRepository _trustedIssuerRepository;
 
         public static string _tree = "";
 
         public TrustedIssuerService(
             ILogger<TrustedIssuerService> logger,
-            IMetricLogService metricLogService,
-            ITrustedIssuerRepository trustedIssuerRepository) // change a repo
+            ITrustedIssuerRepository trustedIssuerRepository)
         {
             _logger = logger;
-            _metricLogService = metricLogService;
             _trustedIssuerRepository = trustedIssuerRepository;
         }
 

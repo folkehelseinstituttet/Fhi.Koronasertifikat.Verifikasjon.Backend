@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using FHICORC.Application.Models;
+using FHICORC.Application.Models.SmartHealthCard;
 using FHICORC.Domain.Models;
 
 namespace FHICORC.Application.Repositories.Interfaces

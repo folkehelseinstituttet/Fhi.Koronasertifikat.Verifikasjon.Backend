@@ -1,8 +1,8 @@
 using System;
 using System.IO;
+using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
-using FHICORC.Application.Models;
 using FHICORC.Application.Models.SmartHealthCard;
 using FHICORC.Application.Services;
 using FHICORC.Application.Services.Interfaces;
@@ -30,7 +30,10 @@ namespace FHICORC.ApplicationHost.Api.Controllers
             IgnoreNullValues = false
         };
 
-        public SHCController(ITrustedIssuerService trustedIssuerService, IVaccineCodesService vaccineCodesService, ILogger<SHCController> logger)
+        public SHCController(
+            ITrustedIssuerService trustedIssuerService,
+            IVaccineCodesService vaccineCodesService,
+            ILogger<SHCController> logger)
         {
             _trustedIssuerService = trustedIssuerService;
             _vaccineCodesService = vaccineCodesService;
@@ -116,7 +119,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
             {
                 var errorMessage = $"An error occurred while trying add trusted: {ex}";
                 _logger.LogError(errorMessage);
-                return StatusCode(500);
+                return StatusCode((int) HttpStatusCode.InternalServerError);
             }
 
             try
@@ -125,9 +128,10 @@ namespace FHICORC.ApplicationHost.Api.Controllers
             }
             catch (Exception e)
             {
-                return Ok("Error: " + e.Message + e.InnerException + e.StackTrace);
+                return StatusCode((int) HttpStatusCode.InternalServerError,
+                    "Error: " + e.Message + e.InnerException + e.StackTrace);
             }
-            return Ok("Issuer added");
+            return StatusCode((int)HttpStatusCode.Created);
         }
 
         [HttpDelete]
@@ -217,12 +221,12 @@ namespace FHICORC.ApplicationHost.Api.Controllers
             {
                 var errorMessage = $"An error occurred while trying to save application statistics: {ex}";
                 _logger.LogError(errorMessage);
-                return StatusCode(500);
+                return StatusCode((int)HttpStatusCode.InternalServerError);
             }
 
             var vaccineResponseDto = await _vaccineCodesService.GetVaccinationInfo(shcRequestDeserialized);
             if (vaccineResponseDto == null)
-                return Ok("Code not found.");
+                return NotFound("Code not found.");
             return Ok(vaccineResponseDto);
         }
 
@@ -259,7 +263,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
             {
                 var errorMessage = $"An error occurred while trying add trusted: {ex}";
                 _logger.LogError(errorMessage);
-                return StatusCode(500);
+                return StatusCode((int)HttpStatusCode.InternalServerError);
             }
 
             try
@@ -268,9 +272,9 @@ namespace FHICORC.ApplicationHost.Api.Controllers
             }
             catch (Exception e)
             {
-                return Ok("Error: " + e.Message + e.InnerException + e.StackTrace);
+                return StatusCode((int)HttpStatusCode.InternalServerError, "Error: " + e.Message + e.InnerException + e.StackTrace);
             }
-            return Ok("Vaccine code added");
+            return StatusCode((int) HttpStatusCode.Created, "Vaccine code added");
         }
 
         [HttpDelete]
@@ -316,7 +320,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
             {
                 var errorMessage = $"An error occurred while trying get trusted: {ex}";
                 _logger.LogError(errorMessage);
-                return StatusCode(500);
+                return StatusCode((int)HttpStatusCode.InternalServerError);
             }
 
             var ret = await _vaccineCodesService.RemoveVaccineCode(new VaccineCodeKey(){VaccineCode = shcRequestDeserialized.Code, CodingSystem = shcRequestDeserialized.System });
@@ -330,7 +334,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         [MapToApiVersion("1")]
         [MapToApiVersion("2")]
         [Route("diag/printDir")]
-        public async Task<IActionResult> DiagnosticPrintDir()
+        public IActionResult DiagnosticPrintDir()
         {
             return Ok(TrustedIssuerService.PrintFolder("."));
         }

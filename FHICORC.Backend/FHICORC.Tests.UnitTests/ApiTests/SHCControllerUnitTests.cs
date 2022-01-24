@@ -22,6 +22,7 @@ namespace FHICORC.Tests.UnitTests.ApiTests
 
         private SHCController controller;
 
+        #region TrustedIssuer
         [Test]
         public async Task GetIsTrusted_WithKnownIss_ReturnsTrusted()
         {
@@ -80,6 +81,34 @@ namespace FHICORC.Tests.UnitTests.ApiTests
         }
 
         [Test]
+        public async Task AddIssuer_ValidJson_ReturnsCreated()
+        {
+            const string jsonString = "{\"issuers\": []}";
+            CreateControllerWithRequest(jsonString);
+
+            IActionResult response = await controller.AddIssuer();
+
+            Assert.IsInstanceOf<StatusCodeResult>(response);
+            StatusCodeResult statusCode = response as StatusCodeResult;
+            Assert.AreEqual(201, statusCode.StatusCode);
+        }
+
+        [Test]
+        public async Task AddIssuer_InvalidJson_ReturnsBadRequest()
+        {
+            const string jsonString = "{\"issuers\": 123}";
+            CreateControllerWithRequest(jsonString);
+
+            IActionResult response = await controller.AddIssuer();
+
+            Assert.IsInstanceOf<BadRequestObjectResult>(response);
+            BadRequestObjectResult statusCode = response as BadRequestObjectResult;
+            Assert.AreEqual(400, statusCode.StatusCode);
+        }
+        #endregion
+
+        #region Vaccine Codes
+        [Test]
         public async Task GetVaccineInfo_WithValidRequest_ReturnsOK()
         {
             const string jsonString = "{\"codes\": []}";
@@ -111,6 +140,37 @@ namespace FHICORC.Tests.UnitTests.ApiTests
 
             Assert.IsInstanceOf<BadRequestObjectResult>(response);
         }
+
+        [Test]
+        public async Task RemoveVaccineCode_WithKnownId_ReturnsOK()
+        {
+            const string jsonString = "{\"code\": \"code\"}";
+            vaccineCodesService.Setup(x => x.RemoveVaccineCode(It.IsAny<VaccineCodeKey>()))
+                .Returns(Task.FromResult(true));
+            CreateControllerWithRequest(jsonString);
+
+            IActionResult response = await controller.RemoveVaccineCode();
+
+            Assert.IsInstanceOf<OkObjectResult>(response);
+            OkObjectResult okResponse = response as OkObjectResult;
+            Assert.AreEqual(200, okResponse.StatusCode);
+        }
+
+        [Test]
+        public async Task RemoveVaccineCode_WithUnknownId_ReturnsNotFound()
+        {
+            const string jsonString = "{\"code\": \"code\"}";
+            vaccineCodesService.Setup(x => x.RemoveVaccineCode(It.IsAny<VaccineCodeKey>()))
+                .Returns(Task.FromResult(false));
+            CreateControllerWithRequest(jsonString);
+
+            IActionResult response = await controller.RemoveVaccineCode();
+
+            Assert.IsInstanceOf<NotFoundObjectResult>(response);
+            NotFoundObjectResult notFound = response as NotFoundObjectResult;
+            Assert.AreEqual(404, notFound.StatusCode);
+        }
+        #endregion
 
         private void CreateControllerWithRequest(string json)
         {

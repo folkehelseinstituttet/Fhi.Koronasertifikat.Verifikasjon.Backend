@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FHICORC.Application.Common.Interfaces;
-using FHICORC.Application.Models;
 using FHICORC.Application.Models.SmartHealthCard;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Application.Services.Interfaces;
@@ -15,17 +13,14 @@ namespace FHICORC.Application.Services
     public class VaccineCodesService : IVaccineCodesService
     {
         private readonly ILogger<TrustedIssuerService> _logger;
-        private readonly IMetricLogService _metricLogService;
         private readonly IVaccineCodesRepository _vaccineCodesRepository;
 
 
         public VaccineCodesService(
             ILogger<TrustedIssuerService> logger,
-            IMetricLogService metricLogService,
             IVaccineCodesRepository vaccineCodesRepository) 
         {
             _logger = logger;
-            _metricLogService = metricLogService;
             _vaccineCodesRepository = vaccineCodesRepository;
         }
 

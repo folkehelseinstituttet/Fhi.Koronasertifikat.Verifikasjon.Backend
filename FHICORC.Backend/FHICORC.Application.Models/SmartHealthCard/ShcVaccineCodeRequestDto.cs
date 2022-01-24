@@ -17,6 +17,4 @@ namespace FHICORC.Application.Models.SmartHealthCard
         [JsonPropertyName("target")]
         public string Target { get; set; }
     }
-
-
 }

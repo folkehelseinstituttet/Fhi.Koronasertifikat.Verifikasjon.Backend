@@ -1,10 +1,5 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
-
-namespace FHICORC.Application.Models
+﻿namespace FHICORC.Application.Models.SmartHealthCard
 {
-    
-
     public class VaccineCodeKey
     {
         public string VaccineCode { get; set; }
