@@ -18,11 +18,11 @@ namespace FHICORC.ApplicationHost.Api.Controllers
     [ApiVersion("2")]
     [Route("v{version:apiVersion}/[controller]")]
     [Route("[controller]")]
-    public class ShCController : ControllerBase
+    public class SHCController : ControllerBase
     {
         private readonly ITrustedIssuerService _trustedIssuerService;
         private readonly IVaccineCodesService _vaccineCodesService;
-        private readonly ILogger<ShCController> _logger;
+        private readonly ILogger<SHCController> _logger;
 
         private readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions()
         {
@@ -30,7 +30,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
             IgnoreNullValues = false
         };
 
-        public ShCController(ITrustedIssuerService trustedIssuerService, IVaccineCodesService vaccineCodesService, ILogger<ShCController> logger)
+        public SHCController(ITrustedIssuerService trustedIssuerService, IVaccineCodesService vaccineCodesService, ILogger<SHCController> logger)
         {
             _trustedIssuerService = trustedIssuerService;
             _vaccineCodesService = vaccineCodesService;

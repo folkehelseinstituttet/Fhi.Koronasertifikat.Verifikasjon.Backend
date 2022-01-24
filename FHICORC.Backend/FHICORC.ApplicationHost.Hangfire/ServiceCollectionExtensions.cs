@@ -3,8 +3,6 @@ using FHICORC.Application.Repositories.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using FHICORC.ApplicationHost.Hangfire.Interfaces;
 using FHICORC.ApplicationHost.Hangfire.Tasks;
-using FHICORC.Application.Services.Interfaces;
-using FHICORC.Application.Services;
 
 namespace FHICORC.ApplicationHost.Hangfire
 {
@@ -17,7 +15,8 @@ namespace FHICORC.ApplicationHost.Hangfire
                 .AddScoped<IUpdateCertificateRepositoryTask, UpdateCertificateRepositoryTask>()
                 .AddScoped<ICountriesReportRepository, CountriesReportRepository>()
                 .AddScoped<ICountriesReportRepositoryTask, CountriesReportRepositoryTask>()
-                .AddScoped<ISmartHealthCardIssuersTask, SmartHealthCardIssuersTask>();
+                .AddScoped<ISmartHealthCardIssuersTask, SmartHealthCardIssuersTask>()
+                .AddScoped<ISmartHealthCardVaccinesTask, SmartHealthCardVaccinesTask>();
         }
     }
 }

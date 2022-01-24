@@ -13,7 +13,7 @@ using Moq;
 using Moq.Protected;
 using NUnit.Framework;
 
-namespace FHICORC.Tests.UnitTests.UkGatewayTests
+namespace FHICORC.Tests.UnitTests.Services
 {
     [Category("Unit")]
     public class UkGatewayServiceUnitTests
