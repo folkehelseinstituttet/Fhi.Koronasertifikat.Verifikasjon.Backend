@@ -23,7 +23,8 @@ namespace FHICORC.Domain.Models
 
         [Column(TypeName = "varchar(1000)")]
         public string Target { get; set; }
-        
+
+        [Column(TypeName = "boolean")]
         public bool IsAddManually { get; set; }
     }
 }

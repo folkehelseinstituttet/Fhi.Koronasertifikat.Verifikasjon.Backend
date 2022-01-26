@@ -6,6 +6,7 @@ using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Domain.Models;
 using FHICORC.Infrastructure.Database.Context;
 using Microsoft.Extensions.Logging;
+using Npgsql.Bulk;
 
 namespace FHICORC.Application.Repositories
 {
@@ -13,11 +14,13 @@ namespace FHICORC.Application.Repositories
     {
         private readonly CoronapassContext _coronapassContext;
         private readonly ILogger<TrustedIssuerRepository> _logger;
+        private readonly NpgsqlBulkUploader _bulkUploader;
 
         public TrustedIssuerRepository(CoronapassContext coronapassContext, ILogger<TrustedIssuerRepository> logger)
         {
             _coronapassContext = coronapassContext;
             _logger = logger;
+            _bulkUploader = new NpgsqlBulkUploader(_coronapassContext);
         }
 
         public TrustedIssuerModel GetIssuer(string iss)
@@ -51,9 +54,9 @@ namespace FHICORC.Application.Repositories
             try
             {
                 await CleanTable(true);
-                await AddIssuers(trustedIssuerList);
-
-                await transaction.CommitAsync();
+                _bulkUploader.Insert(trustedIssuerList,
+                    InsertConflictAction.UpdateProperty<TrustedIssuerModel>(x => x.Iss, x => x.Name));
+                transaction.Commit();
             }
             catch (Exception e)
             {
