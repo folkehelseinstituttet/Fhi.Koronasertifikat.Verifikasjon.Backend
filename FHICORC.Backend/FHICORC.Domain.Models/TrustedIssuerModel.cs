@@ -14,5 +14,8 @@ namespace FHICORC.Domain.Models
 
         [Column(TypeName = "boolean")]
         public bool IsAddManually { get; set; }
+        
+        [Column(TypeName = "boolean")]
+        public bool IsMarkedUntrusted { get; set; }
     }
 }

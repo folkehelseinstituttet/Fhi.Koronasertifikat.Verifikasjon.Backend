@@ -109,6 +109,9 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.Property<bool>("IsAddManually")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsMarkedUntrusted")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Name")
                         .HasColumnType("varchar(5000)");
 

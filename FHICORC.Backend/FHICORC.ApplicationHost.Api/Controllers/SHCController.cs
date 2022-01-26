@@ -143,7 +143,49 @@ namespace FHICORC.ApplicationHost.Api.Controllers
             await _trustedIssuerService.RemoveAllIssuers();
             return Ok();
         }
-        
+
+        [HttpPut]
+        [MapToApiVersion("1")]
+        [MapToApiVersion("2")]
+        [Route("diag/MarkAsUntrust")]
+        public async Task<IActionResult> MarkAsUntrusted()
+        {
+            var requestBody = string.Empty;
+            ShcTrustRequestDto shcRequestDeserialized;
+            try
+            {
+                using (var reader = new StreamReader(HttpContext.Request.Body))
+                {
+                    requestBody = await reader.ReadToEndAsync();
+                }
+
+                shcRequestDeserialized = JsonSerializer.Deserialize<ShcTrustRequestDto>(
+                    requestBody,
+                    _jsonSerializerOptions);
+
+                if (shcRequestDeserialized == null)
+                {
+                    throw new NullReferenceException("Body values could not be serialized");
+                }
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError($"No application statistics found in body or unable to parse data. {ex} [Deserialized request]: {requestBody}");
+                return BadRequest("No application statistics found in body or unable to parse data");
+            }
+            catch (Exception ex)
+            {
+                var errorMessage = $"An error occurred while trying get trusted: {ex}";
+                _logger.LogError(errorMessage);
+                return StatusCode(500);
+            }
+
+            var ret = await _trustedIssuerService.MarkAsUntrusted(shcRequestDeserialized.iss);
+            if (ret == false)
+                return NotFound("Issuer not found.");
+            return Ok(requestBody + " marked.");
+        }
+
         [HttpDelete]
         [MapToApiVersion("1")]
         [MapToApiVersion("2")]

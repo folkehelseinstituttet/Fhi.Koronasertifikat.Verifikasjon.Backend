@@ -17,7 +17,8 @@ namespace FHICORC.Infrastructure.Database.Migrations
                 {
                     Iss = table.Column<string>(type: "varchar(5000)", nullable: false),
                     Name = table.Column<string>(type: "varchar(5000)", nullable: true),
-                    IsAddManually = table.Column<bool>(type: "boolean", nullable: false)
+                    IsAddManually = table.Column<bool>(type: "boolean", nullable: false),
+                    IsMarkedUntrusted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
