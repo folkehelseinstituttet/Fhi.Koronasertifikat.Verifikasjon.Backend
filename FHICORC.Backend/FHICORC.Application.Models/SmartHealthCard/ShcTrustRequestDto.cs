@@ -9,6 +9,6 @@ namespace FHICORC.Application.Models.SmartHealthCard
         [FromHeader]
         [Required]
         [JsonPropertyName("iss")]
-        public string iss { get; set; }
+        public string Iss { get; set; }
     }
 }

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Domain.Models;
 using FHICORC.Infrastructure.Database.Context;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 using Npgsql.Bulk;
@@ -55,8 +54,9 @@ namespace FHICORC.Application.Repositories
             await using var transaction = await _coronapassContext.Database.BeginTransactionAsync();
             try
             {
-                await CleanTable(true);
-                trustedIssuerList = FilterMarkedAsUntrusted(trustedIssuerList);
+                _coronapassContext.TrustedIssuerModels.RemoveRange(_coronapassContext.TrustedIssuerModels
+                    .Where(x => !x.IsAddManually && x.IsTrusted));
+                _coronapassContext.SaveChanges();
                 _bulkUploader.Insert(trustedIssuerList,
                     InsertConflictAction.UpdateProperty<TrustedIssuerModel>(x => x.Iss, x => x.Name));
                 transaction.Commit();
@@ -69,25 +69,17 @@ namespace FHICORC.Application.Repositories
             }
         }
 
-        private IEnumerable<TrustedIssuerModel> FilterMarkedAsUntrusted(IEnumerable<TrustedIssuerModel> trustedIssuerList)
+        public bool UpdateIsTrusted(string iss, bool trusted)
         {
-            try
+            var result = _coronapassContext.TrustedIssuerModels.SingleOrDefault(x => x.Iss == iss);
+            if (result != null)
             {
-                if (_coronapassContext.TrustedIssuerModels != null)
-                {
-                    var untrusted =  _coronapassContext.TrustedIssuerModels.Where(x => x.IsMarkedUntrusted == true);
-                    var result = trustedIssuerList.ToList();
-                    result.RemoveAll(item => untrusted.ToList().Any(item2 => item.Iss == item2.Iss));
-                    return result;
-                }
+                result.IsTrusted = trusted;
+                _coronapassContext.SaveChanges();
+                return true;
+            }
 
-                return null;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Failed to filter untrusted issuers");
-                throw;
-            }
+            return false;
         }
 
         public async Task<bool> CleanTable(bool keepIsAddManually)
@@ -122,18 +114,6 @@ namespace FHICORC.Application.Repositories
                 _logger.LogError(e, "Failed Get issuer" + e.Message);
                 return false;
             }
-        }
-        public async Task<bool> MarkAsUntrusted(string iss)
-        {
-            var result = _coronapassContext.TrustedIssuerModels.SingleOrDefault(x => x.Iss == iss);
-            if (result != null)
-            {
-                result.IsMarkedUntrusted = true;
-                await _coronapassContext.SaveChangesAsync();
-                return true;
-            }
-
-            return false;
         }
     }
 }

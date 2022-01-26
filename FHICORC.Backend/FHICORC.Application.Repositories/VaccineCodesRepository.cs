@@ -66,7 +66,6 @@ namespace FHICORC.Application.Repositories
         public async Task AddVaccineCode(IEnumerable<VaccineCodesModel> vaccineCodesModel)
         {
             _coronapassContext.VaccineCodesModels.AddRange(vaccineCodesModel);
-            _coronapassContext.SaveChanges();
             await _coronapassContext.SaveChangesAsync();
         }
 
@@ -76,9 +75,7 @@ namespace FHICORC.Application.Repositories
             {
                 IQueryable<VaccineCodesModel> all;
                 all = onlyAuto ? _coronapassContext.VaccineCodesModels.Where(c => c.IsAddManually == false) : _coronapassContext.VaccineCodesModels;
-
                 _coronapassContext.VaccineCodesModels.RemoveRange(all);
-                _coronapassContext.SaveChanges();
                 await _coronapassContext.SaveChangesAsync();
                 return true;
             }

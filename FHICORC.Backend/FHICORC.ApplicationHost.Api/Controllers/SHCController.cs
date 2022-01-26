@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using FHICORC.Application.Models.SmartHealthCard;
 using FHICORC.Application.Services;
 using FHICORC.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using JsonException = System.Text.Json.JsonException;
@@ -47,41 +48,26 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         [Route("trust")]
         public async Task<IActionResult> GetIsTrusted()
         {
-            string requestBody = string.Empty;
             ShcTrustRequestDto shcRequestDeserialized;
             try
             {
-                using (var reader = new StreamReader(HttpContext.Request.Body))
-                {
-                    requestBody = await reader.ReadToEndAsync();
-                }
-
-                shcRequestDeserialized = JsonSerializer.Deserialize<ShcTrustRequestDto>(
-                    requestBody,
-                    _jsonSerializerOptions);
-
-                if (shcRequestDeserialized == null)
-                {
-                    throw new NullReferenceException("Body values could not be serialized");
-                }
+                shcRequestDeserialized = await ParseHttpBody<ShcTrustRequestDto>();
             }
-            catch (JsonException ex)
+            catch (JsonException)
             {
-                _logger.LogError($"No application statistics found in body or unable to parse data. {ex} [Deserialized request]: {requestBody}");
                 return BadRequest("No application statistics found in body or unable to parse data");
             }
             catch (Exception ex)
             {
-                var errorMessage = $"An error occurred while trying get trusted: {ex}";
-                _logger.LogError(errorMessage);
+                _logger.LogError($"An error occurred while trying get trusted: {ex}");
                 return StatusCode(500);
             }
 
-            var ret = _trustedIssuerService.GetIssuer(shcRequestDeserialized.iss);
+            var issuer = _trustedIssuerService.GetIssuer(shcRequestDeserialized.Iss);
             ShcTrustResponseDto dto = new ShcTrustResponseDto()
             {
-                Trusted = ret != null,
-                Name = ret?.Name
+                Trusted = issuer?.IsTrusted ?? false,
+                Name = issuer?.Name
             };
             return Ok(dto);
         }
@@ -89,36 +75,21 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         [HttpPost]
         [MapToApiVersion("1")]
         [MapToApiVersion("2")]
-        [Route("diag/AddIssuer")]
+        [Route("diag/addIssuer")]
         public async Task<IActionResult> AddIssuer()
         {
-            var requestBody = string.Empty;
             AddIssuersRequest shcRequestDeserialized;
             try
             {
-                using (var reader = new StreamReader(HttpContext.Request.Body))
-                {
-                    requestBody = await reader.ReadToEndAsync();
-                }
-
-                shcRequestDeserialized = JsonSerializer.Deserialize<AddIssuersRequest>(
-                    requestBody,
-                    _jsonSerializerOptions);
-
-                if (shcRequestDeserialized == null)
-                {
-                    throw new NullReferenceException("Body values could not be serialized");
-                }
+                shcRequestDeserialized = await ParseHttpBody<AddIssuersRequest>();
             }
-            catch (JsonException ex)
+            catch (JsonException)
             {
-                _logger.LogError($"No data found in body or unable to parse data. {ex} [Deserialized request]: {requestBody}");
                 return BadRequest("No data found in body or unable to parse data");
             }
             catch (Exception ex)
             {
-                var errorMessage = $"An error occurred while trying add trusted: {ex}";
-                _logger.LogError(errorMessage);
+                _logger.LogError($"An error occurred while trying add trusted: {ex}");
                 return StatusCode((int) HttpStatusCode.InternalServerError);
             }
 
@@ -134,56 +105,59 @@ namespace FHICORC.ApplicationHost.Api.Controllers
             return StatusCode((int)HttpStatusCode.Created);
         }
 
-        [HttpDelete]
+        [HttpPut]
         [MapToApiVersion("1")]
         [MapToApiVersion("2")]
-        [Route("diag/CleanTableTrustedIssuer")]
-        public async Task<IActionResult> CleanTableTrustedIssuer()
+        [Route("diag/trustIssuer")]
+        public async Task<IActionResult> TrustIssuer()
         {
-            await _trustedIssuerService.RemoveAllIssuers();
-            return Ok();
+            return await UpdateIsTrusted(true);
         }
 
         [HttpPut]
         [MapToApiVersion("1")]
         [MapToApiVersion("2")]
-        [Route("diag/MarkAsUntrust")]
-        public async Task<IActionResult> MarkAsUntrusted()
+        [Route("diag/distrustIssuer")]
+        public async Task<IActionResult> DistrustIssuer()
         {
-            var requestBody = string.Empty;
+            return await UpdateIsTrusted(false);
+        }
+
+        private async Task<IActionResult> UpdateIsTrusted(bool trusted)
+        {
             ShcTrustRequestDto shcRequestDeserialized;
             try
             {
-                using (var reader = new StreamReader(HttpContext.Request.Body))
-                {
-                    requestBody = await reader.ReadToEndAsync();
-                }
-
-                shcRequestDeserialized = JsonSerializer.Deserialize<ShcTrustRequestDto>(
-                    requestBody,
-                    _jsonSerializerOptions);
-
-                if (shcRequestDeserialized == null)
-                {
-                    throw new NullReferenceException("Body values could not be serialized");
-                }
+                shcRequestDeserialized = await ParseHttpBody<ShcTrustRequestDto>();
             }
-            catch (JsonException ex)
+            catch (JsonException)
             {
-                _logger.LogError($"No application statistics found in body or unable to parse data. {ex} [Deserialized request]: {requestBody}");
                 return BadRequest("No application statistics found in body or unable to parse data");
             }
             catch (Exception ex)
             {
-                var errorMessage = $"An error occurred while trying get trusted: {ex}";
-                _logger.LogError(errorMessage);
-                return StatusCode(500);
+                _logger.LogError($"An error occurred while trying to uppdate trusted: {ex}");
+                return StatusCode((int)HttpStatusCode.InternalServerError);
             }
 
-            var ret = await _trustedIssuerService.MarkAsUntrusted(shcRequestDeserialized.iss);
-            if (ret == false)
-                return NotFound("Issuer not found.");
-            return Ok(requestBody + " marked.");
+            bool success = _trustedIssuerService.UpdateIsTrusted(shcRequestDeserialized.Iss, trusted);
+            if (success)
+            {
+                return Ok();
+            } else
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
+        }
+
+        [HttpDelete]
+        [MapToApiVersion("1")]
+        [MapToApiVersion("2")]
+        [Route("diag/cleanTableTrustedIssuer")]
+        public async Task<IActionResult> CleanTableTrustedIssuer()
+        {
+            await _trustedIssuerService.RemoveAllIssuers();
+            return Ok();
         }
 
         [HttpDelete]
@@ -192,27 +166,13 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         [Route("diag/removeIssuer")]
         public async Task<IActionResult> RemoveIssuer()
         {
-            var requestBody = string.Empty;
             ShcTrustRequestDto shcRequestDeserialized;
             try
             {
-                using (var reader = new StreamReader(HttpContext.Request.Body))
-                {
-                    requestBody = await reader.ReadToEndAsync();
-                }
-
-                shcRequestDeserialized = JsonSerializer.Deserialize<ShcTrustRequestDto>(
-                    requestBody,
-                    _jsonSerializerOptions);
-
-                if (shcRequestDeserialized == null)
-                {
-                    throw new NullReferenceException("Body values could not be serialized");
-                }
+                shcRequestDeserialized = await ParseHttpBody<ShcTrustRequestDto>();
             }
-            catch (JsonException ex)
+            catch (JsonException)
             {
-                _logger.LogError($"No application statistics found in body or unable to parse data. {ex} [Deserialized request]: {requestBody}");
                 return BadRequest("No application statistics found in body or unable to parse data");
             }
             catch (Exception ex)
@@ -222,10 +182,10 @@ namespace FHICORC.ApplicationHost.Api.Controllers
                 return StatusCode(500);
             }
 
-            var ret = await _trustedIssuerService.RemoveIssuer(shcRequestDeserialized.iss);
+            var ret = await _trustedIssuerService.RemoveIssuer(shcRequestDeserialized.Iss);
             if (ret == false)
                 return NotFound("Issuer not found.");
-            return Ok(requestBody + " removed.");
+            return Ok(shcRequestDeserialized.Iss + " removed.");
         }
         #endregion
 
@@ -236,27 +196,13 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         [Route("vaccineinfo")]
         public async Task<IActionResult> GetVaccineInfo()
         {
-            var requestBody = string.Empty;
             ShcCodeRequestDto shcRequestDeserialized;
             try
             {
-                using (var reader = new StreamReader(HttpContext.Request.Body))
-                {
-                    requestBody = await reader.ReadToEndAsync();
-                }
-
-                shcRequestDeserialized = JsonSerializer.Deserialize<ShcCodeRequestDto>(
-                    requestBody,
-                    _jsonSerializerOptions);
-
-                if (shcRequestDeserialized == null)
-                {
-                    throw new NullReferenceException("Body values could not be serialized");
-                }
+                shcRequestDeserialized = await ParseHttpBody<ShcCodeRequestDto>();
             }
-            catch (JsonException ex)
+            catch (JsonException)
             {
-                _logger.LogError($"No vaccine info found in body or unable to parse data. {ex} [Deserialized request]: {requestBody}");
                 return BadRequest("No vaccine info found in body or unable to parse data");
             }
             catch (Exception ex)
@@ -275,30 +221,16 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         [HttpPost]
         [MapToApiVersion("1")]
         [MapToApiVersion("2")]
-        [Route("diag/AddVaccineCodes")]
+        [Route("diag/addVaccineCodes")]
         public async Task<IActionResult> AddVaccineCode()
         {
-            var requestBody = string.Empty;
             VaccineCodesDto shcRequestDeserialized;
             try
             {
-                using (var reader = new StreamReader(HttpContext.Request.Body))
-                {
-                    requestBody = await reader.ReadToEndAsync();
-                }
-
-                shcRequestDeserialized = JsonSerializer.Deserialize<VaccineCodesDto>(
-                    requestBody,
-                    _jsonSerializerOptions);
-
-                if (shcRequestDeserialized == null)
-                {
-                    throw new NullReferenceException("Body values could not be serialized");
-                }
+                shcRequestDeserialized = await ParseHttpBody<VaccineCodesDto>();
             }
-            catch (JsonException ex)
+            catch (JsonException)
             {
-                _logger.LogError($"No data found in body or unable to parse data. {ex} [Deserialized request]: {requestBody}");
                 return BadRequest("No data found in body or unable to parse data");
             }
             catch (Exception ex)
@@ -322,7 +254,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         [HttpDelete]
         [MapToApiVersion("1")]
         [MapToApiVersion("2")]
-        [Route("diag/CleanTableVaccineCodes")]
+        [Route("diag/cleanTableVaccineCodes")]
         public async Task<IActionResult> CleanTableVaccineCodes()
         {
             await _vaccineCodesService.RemoveAllVaccineCodes();
@@ -339,23 +271,10 @@ namespace FHICORC.ApplicationHost.Api.Controllers
             VaccineCodeDto shcRequestDeserialized;
             try
             {
-                using (var reader = new StreamReader(HttpContext.Request.Body))
-                {
-                    requestBody = await reader.ReadToEndAsync();
-                }
-
-                shcRequestDeserialized = JsonSerializer.Deserialize<VaccineCodeDto>(
-                    requestBody,
-                    _jsonSerializerOptions);
-
-                if (shcRequestDeserialized == null)
-                {
-                    throw new NullReferenceException("Body values could not be serialized");
-                }
+                shcRequestDeserialized = await ParseHttpBody<VaccineCodeDto>();
             }
-            catch (JsonException ex)
+            catch (JsonException)
             {
-                _logger.LogError($"No vaccine codes found in body or unable to parse data. {ex} [Deserialized request]: {requestBody}");
                 return BadRequest("No vaccine codes found in body or unable to parse data");
             }
             catch (Exception ex)
@@ -372,6 +291,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         }
         #endregion
 
+        #region Other
         [HttpGet]
         [MapToApiVersion("1")]
         [MapToApiVersion("2")]
@@ -380,5 +300,32 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         {
             return Ok(TrustedIssuerService.PrintFolder("."));
         }
+
+        private async Task<T> ParseHttpBody<T>()
+        {
+            string requestBody = string.Empty;
+            try
+            {
+                using (var reader = new StreamReader(HttpContext.Request.Body))
+                {
+                    requestBody = await reader.ReadToEndAsync();
+                }
+                T deserialized = JsonSerializer.Deserialize<T>(
+                    requestBody,
+                    _jsonSerializerOptions);
+
+                if (deserialized == null)
+                {
+                    throw new NullReferenceException("Body values could not be deserialized");
+                }
+                return deserialized;
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError($"No application statistics found in body or unable to parse data. {ex} [Deserialized request]: {requestBody}");
+                throw;
+            }
+        }
+        #endregion
     }
 }

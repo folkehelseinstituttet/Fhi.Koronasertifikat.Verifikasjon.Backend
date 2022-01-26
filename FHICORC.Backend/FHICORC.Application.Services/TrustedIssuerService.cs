@@ -46,7 +46,7 @@ namespace FHICORC.Application.Services
                 Name = x.name,
                 Iss = x.issuer,
                 IsAddManually = isAddManually,
-                IsMarkedUntrusted = false
+                IsTrusted = true
             });
             await _trustedIssuerRepository.AddIssuers(trustedIssuers);
         }
@@ -58,9 +58,14 @@ namespace FHICORC.Application.Services
                 Name = x.Name,
                 Iss = x.Iss,
                 IsAddManually = false,
-                IsMarkedUntrusted = false
+                IsTrusted = true
             });
             await _trustedIssuerRepository.ReplaceAutomaticallyAddedIssuers(trustedIssuers);
+        }
+
+        public bool UpdateIsTrusted(string iss, bool trusted)
+        {
+            return _trustedIssuerRepository.UpdateIsTrusted(iss, trusted);
         }
 
         public async Task<bool> RemoveIssuer(string iss)
@@ -73,20 +78,6 @@ namespace FHICORC.Application.Services
             catch (Exception ex)
             {
                 _logger.LogError("Remove Issuer" + ex.Message);
-                return false;
-            }
-        }
-
-        public async Task<bool> MarkAsUntrusted(string iss)
-        {
-            try
-            {
-                bool res = await _trustedIssuerRepository.MarkAsUntrusted(iss);
-                return res;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Issuer Marked" + ex.Message);
                 return false;
             }
         }
