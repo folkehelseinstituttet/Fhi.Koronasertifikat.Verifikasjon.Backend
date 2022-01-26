@@ -10,8 +10,8 @@ namespace FHICORC.Application.Repositories.Interfaces
         Task AddIssuer(TrustedIssuerModel trustedIssuerModel);
         Task AddIssuers(IEnumerable<TrustedIssuerModel> trustedIssuerList);
         Task ReplaceAutomaticallyAddedIssuers(IEnumerable<TrustedIssuerModel> trustedIssuerList);
+        bool UpdateIsTrusted(string iss, bool trusted);
         Task<bool> CleanTable(bool keepIsAddManually);
         Task<bool> RemoveIssuer(string iss);
-        Task<bool> MarkAsUntrusted(string iss);
     }
 }

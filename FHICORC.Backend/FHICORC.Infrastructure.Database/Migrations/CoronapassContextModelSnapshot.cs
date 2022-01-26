@@ -109,7 +109,7 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.Property<bool>("IsAddManually")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsMarkedUntrusted")
+                    b.Property<bool>("IsTrusted")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")

@@ -28,7 +28,7 @@ namespace FHICORC.Tests.UnitTests.ApiTests
         {
             const string iss = "https://ekeys.ny.gov/epass/doh/dvc/2021";
             const string jsonString = "{\"iss\": \"" + iss + "\"}";
-            TrustedIssuerModel expected = new TrustedIssuerModel() { Name = "name", Iss = "iss" };
+            TrustedIssuerModel expected = new TrustedIssuerModel() { Name = "name", Iss = "iss", IsTrusted = true };
             trustedIssuerService.Setup(x => x.GetIssuer(iss))
                 .Returns(expected);
             CreateControllerWithRequest(jsonString);
@@ -105,6 +105,59 @@ namespace FHICORC.Tests.UnitTests.ApiTests
             BadRequestObjectResult statusCode = response as BadRequestObjectResult;
             Assert.AreEqual(400, statusCode.StatusCode);
         }
+
+        [Test]
+        public async Task TrustIssuer_CallsServiceWithTrustedTrue()
+        {
+            const string iss = "https://ekeys.ny.gov/epass/doh/dvc/2021";
+            const string jsonString = "{\"iss\": \"" + iss + "\"}";
+            CreateControllerWithRequest(jsonString);
+
+            IActionResult response = await controller.TrustIssuer();
+
+            trustedIssuerService.Verify(x => x.UpdateIsTrusted(iss, true), Times.Once);
+        }
+
+        [Test]
+        public async Task DistrustIssuer_CallsServiceWithTrustedFalse()
+        {
+            const string iss = "https://ekeys.ny.gov/epass/doh/dvc/2021";
+            const string jsonString = "{\"iss\": \"" + iss + "\"}";
+            CreateControllerWithRequest(jsonString);
+
+            IActionResult response = await controller.DistrustIssuer();
+
+            trustedIssuerService.Verify(x => x.UpdateIsTrusted(iss, false), Times.Once);
+        }
+
+
+        [Test]
+        public async Task CleanTableTrustedIssuer_CallsService()
+        {
+            CreateControllerWithRequest("{}");
+
+            IActionResult response = await controller.CleanTableTrustedIssuer();
+
+            Assert.IsInstanceOf<OkResult>(response);
+            OkResult statusCode = response as OkResult;
+            Assert.AreEqual(200, statusCode.StatusCode);
+            trustedIssuerService.Verify(x => x.RemoveAllIssuers(It.IsAny<bool>()), Times.Once);
+        }
+
+        [Test]
+        public async Task RemoveIssuer_CallsServiceWithIss_ServiceReturnsFalse_GivesNotFound()
+        {
+            const string iss = "https://ekeys.ny.gov/epass/doh/dvc/2021";
+            const string jsonString = "{\"iss\": \"" + iss + "\"}";
+            CreateControllerWithRequest(jsonString);
+
+            IActionResult response = await controller.RemoveIssuer();
+
+            Assert.IsInstanceOf<NotFoundObjectResult>(response);
+            NotFoundObjectResult statusCode = response as NotFoundObjectResult;
+            Assert.AreEqual(404, statusCode.StatusCode);
+            trustedIssuerService.Verify(x => x.RemoveIssuer(iss), Times.Once);
+        }
         #endregion
 
         #region Vaccine Codes
@@ -142,6 +195,32 @@ namespace FHICORC.Tests.UnitTests.ApiTests
         }
 
         [Test]
+        public async Task AddVaccineCode_ValidJson_ReturnsCreated()
+        {
+            const string jsonString = "{\"codes\": []}";
+            CreateControllerWithRequest(jsonString);
+
+            IActionResult response = await controller.AddVaccineCode();
+
+            Assert.IsInstanceOf<ObjectResult>(response);
+            ObjectResult statusCode = response as ObjectResult;
+            Assert.AreEqual(201, statusCode.StatusCode);
+        }
+
+        [Test]
+        public async Task CleanTableVaccineCodes_CallsService()
+        {
+            CreateControllerWithRequest("{}");
+
+            IActionResult response = await controller.CleanTableVaccineCodes();
+
+            Assert.IsInstanceOf<OkResult>(response);
+            OkResult statusCode = response as OkResult;
+            Assert.AreEqual(200, statusCode.StatusCode);
+            vaccineCodesService.Verify(x => x.RemoveAllVaccineCodes(It.IsAny<bool>()), Times.Once);
+        }
+
+        [Test]
         public async Task RemoveVaccineCode_WithKnownId_ReturnsOK()
         {
             const string jsonString = "{\"code\": \"code\"}";
@@ -169,6 +248,20 @@ namespace FHICORC.Tests.UnitTests.ApiTests
             Assert.IsInstanceOf<NotFoundObjectResult>(response);
             NotFoundObjectResult notFound = response as NotFoundObjectResult;
             Assert.AreEqual(404, notFound.StatusCode);
+        }
+        #endregion
+
+        #region Other
+        [Test]
+        public void DiagnosticPrintDir_ReturnsHttpOk()
+        {
+            CreateControllerWithRequest("{}");
+
+            IActionResult response = controller.DiagnosticPrintDir();
+
+            Assert.IsInstanceOf<OkObjectResult>(response);
+            OkObjectResult notFound = response as OkObjectResult;
+            Assert.AreEqual(200, notFound.StatusCode);
         }
         #endregion
 
