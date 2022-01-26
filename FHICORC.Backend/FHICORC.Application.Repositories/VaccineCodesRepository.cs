@@ -7,6 +7,7 @@ using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Domain.Models;
 using FHICORC.Infrastructure.Database.Context;
 using Microsoft.Extensions.Logging;
+using Npgsql.Bulk;
 
 namespace FHICORC.Application.Repositories
 {
@@ -14,11 +15,15 @@ namespace FHICORC.Application.Repositories
     {
         private readonly CoronapassContext _coronapassContext;
         private readonly ILogger<VaccineCodesRepository> _logger;
+        private readonly NpgsqlBulkUploader _bulkUploader;
 
-        public VaccineCodesRepository(CoronapassContext coronapassContext, ILogger<VaccineCodesRepository> logger)
+        public VaccineCodesRepository(
+            CoronapassContext coronapassContext,
+            ILogger<VaccineCodesRepository> logger)
         {
             _coronapassContext = coronapassContext;
             _logger = logger;
+            _bulkUploader = new NpgsqlBulkUploader(_coronapassContext);
         }
 
         public async Task ReplaceAutomaticVaccines(
@@ -29,10 +34,9 @@ namespace FHICORC.Application.Repositories
             try
             {
                 _coronapassContext.VaccineCodesModels.RemoveRange(_coronapassContext.VaccineCodesModels
-                    .Where(x => x.CodingSystem.Equals(codingSystem) && x.IsAddManually));
+                    .Where(x => x.CodingSystem.Equals(codingSystem) && !x.IsAddManually));
                 _coronapassContext.SaveChanges();
-                _coronapassContext.VaccineCodesModels.AddRange(vaccineCodesList);
-                _coronapassContext.SaveChanges();
+                _bulkUploader.Insert(vaccineCodesList, InsertConflictAction.DoNothing());
                 transaction.Commit();
             }
             catch (Exception e)

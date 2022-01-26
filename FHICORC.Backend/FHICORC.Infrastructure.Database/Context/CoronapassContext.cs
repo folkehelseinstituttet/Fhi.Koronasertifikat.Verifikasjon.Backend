@@ -35,10 +35,6 @@ namespace FHICORC.Infrastructure.Database.Context
             modelBuilder
                 .Entity<VaccineCodesModel>()
                 .HasKey(k => new {k.VaccineCode, k.CodingSystem});
-            
-            modelBuilder
-                .Entity<VaccineCodesModel>()
-                .Property(k => k.IsAddManually).HasDefaultValue(true);
 
             base.OnModelCreating(modelBuilder);
         }
