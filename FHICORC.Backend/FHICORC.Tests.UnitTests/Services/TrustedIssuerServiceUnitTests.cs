@@ -110,6 +110,17 @@ namespace FHICORC.Tests.UnitTests.Services
         }
 
         [Test]
+        public void UpdateIsTrusted_CallsRepository()
+        {
+            string iss = "iss1";
+            bool trusted = false;
+
+            service.UpdateIsTrusted(iss, trusted);
+
+            trustedIssuerRepository.Verify(x => x.UpdateIsTrusted(iss, trusted), Times.Once);
+        }
+
+        [Test]
         public async Task RemoveIssuer_CallsRepository()
         {
             string iss = "iss1";

@@ -5,10 +5,10 @@ namespace FHICORC.Application.Models.SmartHealthCard
     public class VaccineCodesDto
     {
         [JsonPropertyName("codes")]
-        public Codes[] Codes { get; set; }
+        public CodeDto[] Codes { get; set; }
     }
 
-    public class Codes
+    public class CodeDto
     {
         [JsonPropertyName("code")]
         public string Code { get; set; }

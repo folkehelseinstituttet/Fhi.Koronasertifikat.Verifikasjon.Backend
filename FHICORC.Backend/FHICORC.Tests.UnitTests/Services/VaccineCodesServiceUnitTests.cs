@@ -5,6 +5,7 @@ using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Application.Services;
 using FHICORC.Domain.Models;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 using Moq;
 using NUnit.Framework;
 
@@ -48,8 +49,30 @@ namespace FHICORC.Tests.UnitTests.Services
 
             VaccineCodesModel vaccine = await service.GetVaccinationInfo(vaccineCode);
 
-            vaccineCodesRepository.Verify(x => x.GetVaccInfo(
+            vaccineCodesRepository.Verify(x => x.GetVaccinationInfo(
                 It.IsAny<VaccineCodeKey>()), Times.Once);
+        }
+
+        [Test]
+        public async Task AddVaccineCode_ConvertsModelAndCallsRepository()
+        {
+            List<IEnumerable<VaccineCodesModel>> results = new();
+            vaccineCodesRepository.Setup(h => h.AddVaccineCode(Capture.In(results)));
+            VaccineCodesDto vaccineCodes = new VaccineCodesDto()
+            {
+                Codes = new CodeDto[]
+                {
+                    new CodeDto() {Code = "Code1"},
+                    new CodeDto() {Code = "Code2"}
+                }
+            };
+            bool addedManually = false;
+
+            await service.AddVaccineCode(vaccineCodes, addedManually);
+
+            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual(2, results[0].Count());
+            Assert.True(results[0].All(x => !x.IsAddManually));
         }
 
         [Test]

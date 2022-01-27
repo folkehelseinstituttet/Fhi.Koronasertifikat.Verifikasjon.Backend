@@ -47,7 +47,7 @@ namespace FHICORC.Application.Repositories
             }
         }
        
-        public async Task<VaccineCodesModel> GetVaccInfo(VaccineCodeKey vck)
+        public async Task<VaccineCodesModel> GetVaccinationInfo(VaccineCodeKey vck)
         {
             await using var transaction = await _coronapassContext.Database.BeginTransactionAsync();
             try

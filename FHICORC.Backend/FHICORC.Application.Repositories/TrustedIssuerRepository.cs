@@ -6,7 +6,6 @@ using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.Domain.Models;
 using FHICORC.Infrastructure.Database.Context;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 using Npgsql.Bulk;
 
 namespace FHICORC.Application.Repositories

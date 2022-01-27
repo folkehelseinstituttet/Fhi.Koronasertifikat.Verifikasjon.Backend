@@ -38,7 +38,7 @@ namespace FHICORC.Application.Services
             {
                 foreach (var shcRequest in shcRequestList.Codes)
                 {
-                     VaccineCodesModel ret = await _vaccineCodesRepository.GetVaccInfo(
+                     VaccineCodesModel ret = await _vaccineCodesRepository.GetVaccinationInfo(
                          new VaccineCodeKey() { VaccineCode = shcRequest.Code, CodingSystem = shcRequest.System });
 
                      if (ret != null)
@@ -51,6 +51,21 @@ namespace FHICORC.Application.Services
                 _logger.LogError("Get Issuer" + ex.Message);
                 return null;
             }
+        }
+
+        public async Task AddVaccineCode(VaccineCodesDto vaccineCodesModel, bool addedManually)
+        {
+            IEnumerable<VaccineCodesModel> vaccineCodesModels = vaccineCodesModel.Codes.Select(x => new VaccineCodesModel()
+            {
+                VaccineCode = x.Code,
+                CodingSystem = x.System,
+                Name = x.Name,
+                Manufacturer = x.Manufacturer,
+                Target = x.Target,
+                Type = x.Type,
+                IsAddManually = addedManually
+            });
+            await _vaccineCodesRepository.AddVaccineCode(vaccineCodesModels);
         }
 
         public async Task<bool> RemoveAllVaccineCodes(bool onlyAuto = false)
@@ -79,21 +94,6 @@ namespace FHICORC.Application.Services
                 _logger.LogError("Remove Issuer" + ex.Message);
                 return false;
             }
-        }
-
-        public async Task AddVaccineCode(VaccineCodesDto vaccineCodesModel , bool addedManually)
-        {
-            IEnumerable<VaccineCodesModel> vaccineCodesModels = vaccineCodesModel.Codes.Select(x => new VaccineCodesModel()
-            {
-                VaccineCode = x.Code,
-                CodingSystem = x.System,
-                Name = x.Name,
-                Manufacturer = x.Manufacturer,
-                Target = x.Target,
-                Type = x.Type,
-                IsAddManually = addedManually
-            });
-            await _vaccineCodesRepository.AddVaccineCode(vaccineCodesModels);
         }
     }
 }

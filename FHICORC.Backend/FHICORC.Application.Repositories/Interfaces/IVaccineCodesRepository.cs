@@ -10,7 +10,7 @@ namespace FHICORC.Application.Repositories.Interfaces
         Task ReplaceAutomaticVaccines(
             IEnumerable<VaccineCodesModel> vaccineCodesList,
             string codingSystem);
-        Task<VaccineCodesModel> GetVaccInfo(VaccineCodeKey vaccineCodeKey);
+        Task<VaccineCodesModel> GetVaccinationInfo(VaccineCodeKey vaccineCodeKey);
         Task<bool> CleanTable(bool onlyAuto = true);
         Task<bool> RemoveVaccineCode(VaccineCodeKey vaccineCodeKey);
         Task AddVaccineCode(IEnumerable<VaccineCodesModel> vaccineCodesModel);
