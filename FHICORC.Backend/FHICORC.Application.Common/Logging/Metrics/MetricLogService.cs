@@ -19,7 +19,7 @@ namespace FHICORC.Application.Common.Logging.Metrics
         {            
             if (!_metricDictionary.TryAdd(metricName, metricValue))
             {
-                _logger.LogWarning("Metric already added {MetricName}", metricName);
+                _logger.LogWarning($"Metric already added {metricName}", metricName);
             }
         }
 
