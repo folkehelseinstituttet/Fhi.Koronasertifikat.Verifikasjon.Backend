@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -105,6 +106,29 @@ namespace FHICORC.Tests.UnitTests.Tasks
             });
 
             trustedIssuerService.Verify(x => x.ReplaceAutomaticallyAddedIssuers(It.IsAny<ShcIssuersDto>()), Times.Once);
+        }
+
+        [Test]
+        public void UpdateSmartHealthCardIssuers_WithDuplicateIssuers_UpdatesRepositoryWithDistinct()
+        {
+            SetHttpResponse(new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent("{\"participating_issuers\":[" +
+                "{\"iss\":\"iss\", \"name\":\"name\" }," +
+                 "{\"iss\":\"iss\", \"name\":\"name\" }" +
+                "]}")
+            });
+            List<ShcIssuersDto> results = new();
+            trustedIssuerService.Setup(h => h.ReplaceAutomaticallyAddedIssuers(Capture.In(results)));
+
+            Assert.DoesNotThrowAsync(async () =>
+            {
+                await task.UpdateSmartHealthCardIssuers();
+            });
+
+            trustedIssuerService.Verify(x => x.ReplaceAutomaticallyAddedIssuers(It.IsAny<ShcIssuersDto>()), Times.Once);
+            Assert.AreEqual(1, results[0].ParticipatingIssuers.Length);
         }
 
         private void SetHttpResponse(HttpResponseMessage response)

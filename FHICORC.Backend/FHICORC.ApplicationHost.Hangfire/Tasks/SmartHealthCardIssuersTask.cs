@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -91,6 +92,12 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
                 throw new Exception("Fetched issuer list was empty");
             }
             _logger.LogInformation($"Job {JobId} fetched issuers: {issuers.ParticipatingIssuers.Length}");
+
+            // Clean duplicates, as source list has had that before.
+            issuers.ParticipatingIssuers = issuers.ParticipatingIssuers
+                .GroupBy(p => p.Iss)
+                .Select(g => g.FirstOrDefault())
+                .ToArray();
 
             return issuers;
         }
