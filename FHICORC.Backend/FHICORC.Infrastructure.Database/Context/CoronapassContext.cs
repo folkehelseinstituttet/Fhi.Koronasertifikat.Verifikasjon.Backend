@@ -13,6 +13,7 @@ namespace FHICORC.Infrastructure.Database.Context
         public DbSet<EuDocSignerCertificate> EuDocSignerCertificates { get; set; }
         public DbSet<BusinessRule> BusinessRules { get; set; }
         public DbSet<CountriesReportModel> CountriesReportModels { get; set; }
+        public DbSet<BatchTableModel> BatchTableModels { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
