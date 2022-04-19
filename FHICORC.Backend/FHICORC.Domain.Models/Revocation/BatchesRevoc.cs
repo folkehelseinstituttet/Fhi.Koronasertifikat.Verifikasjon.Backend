@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FHICORC.Domain.Models
 {
-    public class BatchTableModel
+    public class BatchesRevoc
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

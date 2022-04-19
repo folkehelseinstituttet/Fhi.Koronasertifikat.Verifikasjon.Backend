@@ -57,7 +57,7 @@ namespace FHICORC.Application.Services
             var hashData = BloomFilterUtils.HashData(Encoding.UTF8.GetBytes(str), 47936, 32);
 
             var listOfBatchIds = new List<int>();
-            foreach (var bf in _coronapassContext.BloomTableModels)
+            foreach (var bf in _coronapassContext.FiltersRevoc)
             {
                 var contains = new BitArray(bf.Filter).Contains(hashData);
                 if (contains)
@@ -107,12 +107,12 @@ namespace FHICORC.Application.Services
             filter.CopyTo(filterBytes, 0);
 
 
-            var record = new Domain.Models.BloomTableModel { BatchId = 3, Filter = filterBytes };
-            var aExists = _coronapassContext.BloomTableModels.Find(record.BatchId);
+            var record = new Domain.Models.FiltersRevoc { BatchId = 3, Filter = filterBytes };
+            var aExists = _coronapassContext.FiltersRevoc.Find(record.BatchId);
 
             if (aExists == null)
             {
-                _coronapassContext.BloomTableModels.Add(record);
+                _coronapassContext.FiltersRevoc.Add(record);
             }
             else
             {
