@@ -47,7 +47,7 @@ namespace FHICORC.Application.Services
 
         public bool ContainsCertificate() {
 
-            var str = "helloWhatsippp";
+            var str = "nononono";
             var testHash = sha256_hash(str);
 
             return ContainsCertificateFilter(testHash);
@@ -57,7 +57,12 @@ namespace FHICORC.Application.Services
             var hashData = BloomFilterUtils.HashData(Encoding.UTF8.GetBytes(str), 47936, 32);
 
             var listOfBatchIds = new List<int>();
-            foreach (var bf in _coronapassContext.FiltersRevoc)
+
+            var now = DateTime.UtcNow;
+            var relevantFilters = _coronapassContext.FiltersRevoc
+                .Where(b => !b.BatchesRevoc.Deleted && b.BatchesRevoc.Expires >= now);
+
+            foreach (var bf in relevantFilters)
             {
                 var contains = new BitArray(bf.Filter).Contains(hashData);
                 if (contains)
@@ -67,15 +72,18 @@ namespace FHICORC.Application.Services
             if (listOfBatchIds.Count == 0)
                 return false;
 
-            return ContainsCertificateBatch(listOfBatchIds);
+            return ContainsCertificateBatch(listOfBatchIds, str);
 
 
         }
 
-        public bool ContainsCertificateBatch(List<int> batchIds) {
+        public bool ContainsCertificateBatch(List<int> batchIds, string str) {
 
-            return false;
+            var b = _coronapassContext.BatchesRevoc
+                .FirstOrDefault(b => batchIds.Contains(b.BatchId) && b.HashesRevoc.Hash == str);
 
+
+            return b != null;
         }
 
 
@@ -100,7 +108,10 @@ namespace FHICORC.Application.Services
 
             var testStr = "helloWhatsippp";
             var testHash = sha256_hash(testStr);
+            filter.AddToFilter(testHash, m, k);
 
+            testStr = "nononono";
+            testHash = sha256_hash(testStr);
             filter.AddToFilter(testHash, m, k);
 
             byte[] filterBytes = new byte[filter.Length / 8];

@@ -9,8 +9,11 @@ namespace FHICORC.Domain.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        [ForeignKey(nameof(BatchesRevoc))]
         public int BatchId { get; set; }
 
         public string Hash { get; set; }
+
+        public virtual BatchesRevoc BatchesRevoc { get; set; }
     }
 }

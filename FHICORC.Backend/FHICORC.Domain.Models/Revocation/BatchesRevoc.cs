@@ -16,5 +16,9 @@ namespace FHICORC.Domain.Models
         public string Kid { get; set; }
         public string HashType { get; set; }
         public bool Upload { get; set; }
+
+        public virtual FiltersRevoc FiltersRevoc { get; set; }
+        public virtual HashesRevoc HashesRevoc { get; set; }
+
     }
 }

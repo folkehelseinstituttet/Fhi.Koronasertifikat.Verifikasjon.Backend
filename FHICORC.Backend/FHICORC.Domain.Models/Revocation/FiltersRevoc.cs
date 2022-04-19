@@ -7,9 +7,12 @@ namespace FHICORC.Domain.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [ForeignKey(nameof(BatchesRevoc))]
         public int BatchId { get; set; }
 
         [MaxLength(5992)]
         public byte[] Filter { get; set; }
+
+        public virtual BatchesRevoc BatchesRevoc { get; set; }
     }
 }
