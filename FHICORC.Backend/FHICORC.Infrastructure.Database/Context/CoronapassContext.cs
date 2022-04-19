@@ -14,6 +14,7 @@ namespace FHICORC.Infrastructure.Database.Context
         public DbSet<BusinessRule> BusinessRules { get; set; }
         public DbSet<CountriesReportModel> CountriesReportModels { get; set; }
         public DbSet<BatchTableModel> BatchTableModels { get; set; }
+        public DbSet<BloomTableModel> BloomTableModels { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

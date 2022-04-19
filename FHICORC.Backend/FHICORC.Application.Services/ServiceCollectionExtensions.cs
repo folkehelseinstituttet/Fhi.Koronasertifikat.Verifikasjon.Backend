@@ -10,6 +10,7 @@ namespace FHICORC.Application.Services
             serviceCollection
                 .AddScoped<ITextService, TextService>()
                 .AddScoped<IRuleService, RuleService>()
+                .AddScoped<IBloomFilterService, BloomFilterService>()
                 .AddScoped<IValueSetService, ValueSetService>();
 
             if (useEuDgcg)
