@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using FHICORC.Infrastructure.Database.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using FHICORC.Application.Models.Revocation;
 
 namespace FHICORC.Application.Services
 {
@@ -84,6 +85,27 @@ namespace FHICORC.Application.Services
 
 
             return b != null;
+        }
+
+
+        public List<FilterRevocDto> GetFilterRevocList() {
+
+
+            var _tmp = new List<FilterRevocDto>();
+            foreach (var fr in _coronapassContext.FiltersRevoc) {
+                var _fr = new FilterRevocDto()
+                {
+                    BatchId = fr.BatchId,
+                    Filter = fr.Filter,
+                    Date = DateTime.UtcNow,
+                };
+
+                _tmp.Add(_fr);
+            }
+
+            return _tmp;
+
+            
         }
 
 

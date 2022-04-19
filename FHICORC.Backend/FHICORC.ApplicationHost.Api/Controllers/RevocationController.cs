@@ -1,6 +1,9 @@
-﻿using FHICORC.Application.Services;
+﻿using FHICORC.Application.Models.Revocation;
+using FHICORC.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace FHICORC.ApplicationHost.Api.Controllers
@@ -42,6 +45,14 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         public bool ContainsCertificate() {
 
             return _bloomFilterService.ContainsCertificate();
+        }
+
+
+        [HttpGet("offlinefilter")]
+        public IActionResult GetOfflineRevocationList() {
+
+            return Ok(_bloomFilterService.GetFilterRevocList());
+        
         }
 
 
