@@ -42,9 +42,9 @@ namespace FHICORC.ApplicationHost.Api.Controllers
 
 
         [HttpGet("certificate")]
-        public bool ContainsCertificate() {
+        public bool ContainsCertificate([FromHeader] string dcc) {
 
-            return _bloomFilterService.ContainsCertificate();
+            return _bloomFilterService.ContainsCertificate(dcc);
         }
 
 

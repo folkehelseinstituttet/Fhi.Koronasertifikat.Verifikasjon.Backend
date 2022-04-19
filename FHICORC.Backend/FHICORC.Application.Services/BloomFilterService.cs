@@ -46,12 +46,12 @@ namespace FHICORC.Application.Services
 
         }
 
-        public bool ContainsCertificate() {
+        public bool ContainsCertificate(string dcc) {
 
-            var str = "nononono";
-            var testHash = sha256_hash(str);
+            //var str = "nononono";
+            //var testHash = sha256_hash(str);
 
-            return ContainsCertificateFilter(testHash);
+            return ContainsCertificateFilter(dcc);
         }
 
         public bool ContainsCertificateFilter(string str) {
@@ -127,20 +127,16 @@ namespace FHICORC.Application.Services
                 filter.AddToFilter(element, m, k);
             }
 
+            filter.AddToFilter("wow", m, k);
+            filter.AddToFilter("sup", m, k);
+            filter.AddToFilter("yeah", m, k);
 
-            var testStr = "helloWhatsippp";
-            var testHash = sha256_hash(testStr);
-            filter.AddToFilter(testHash, m, k);
-
-            testStr = "nononono";
-            testHash = sha256_hash(testStr);
-            filter.AddToFilter(testHash, m, k);
 
             byte[] filterBytes = new byte[filter.Length / 8];
             filter.CopyTo(filterBytes, 0);
 
 
-            var record = new Domain.Models.FiltersRevoc { BatchId = 3, Filter = filterBytes };
+            var record = new Domain.Models.FiltersRevoc { BatchId = 2, Filter = filterBytes };
             var aExists = _coronapassContext.FiltersRevoc.Find(record.BatchId);
 
             if (aExists == null)

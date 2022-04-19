@@ -14,7 +14,7 @@ namespace FHICORC.Application.Services
     {
 
         public void CustomeFilter();
-        public bool ContainsCertificate();
+        public bool ContainsCertificate(string dcc);
         public void AddToFilterTest(int numberOfHashes = 1000);
         public List<FilterRevocDto> GetFilterRevocList();
 
