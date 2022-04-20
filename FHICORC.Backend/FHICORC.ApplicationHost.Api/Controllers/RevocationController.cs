@@ -11,9 +11,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
     [AllowAnonymous]
     [ApiController]
     [ApiVersion("1")]
-    [ApiVersion("2")]
     [Route("v{version:apiVersion}/[controller]")]
-    [Route("[controller]")]
     public class RevocationController : ControllerBase
     {
 
@@ -22,21 +20,6 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         public RevocationController(IBloomFilterService bloomFilterService)
         {
             _bloomFilterService = bloomFilterService;
-        }
-
-        [HttpGet("add")]
-        public IActionResult AddToFilter()
-        {
-            _bloomFilterService.AddToFilterTest();
-
-            return Ok("suppp");
-        }
-
-        [HttpGet("read")]
-        public IActionResult ReadFilter()
-        {
-            _bloomFilterService.AddToFilterTest();
-            return Ok("lol");
         }
 
 
@@ -57,7 +40,6 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         {
             _bloomFilterService.AddToRevocation(dcc);
             return Ok();
-
         }
 
 

@@ -25,33 +25,7 @@ namespace FHICORC.Application.Services
 
         private static Random random = new Random();
 
-        public void CustomeFilter()
-        {
-            var m = 47936;
-            var k = 32;
-            var bloomStats = BloomFilterUtils.CalcOptimalNP(m, k);
-
-            //var bloomStats = BloomFilterUtils.CalcOptimalMK(1000, 1E-10);
-            //var m = bloomStats.m;
-            //var k = bloomStats.k;
-
-            var str = "whatssup";
-
-            var filter = new BitArray(m);
-
-            filter.AddToFilter(str, m, k);
-            filter.AddToFilter("hello", m, k);
-            filter.AddToFilter("nahanaa", m, k);
-
-            var contains = filter.Contains(str, m, k);
-
-        }
-
         public bool ContainsCertificate(string dcc) {
-
-            //var str = "nononono";
-            //var testHash = sha256_hash(str);
-
             return ContainsCertificateFilter(dcc);
         }
 
@@ -80,12 +54,15 @@ namespace FHICORC.Application.Services
         }
 
         public bool ContainsCertificateBatch(List<int> batchIds, string str) {
+            foreach (var id in batchIds) {
+                var existingHash = _coronapassContext.HashesRevoc
+                    .FirstOrDefault(h => h.Hash.Equals(str));
 
-            var b = _coronapassContext.BatchesRevoc
-                .FirstOrDefault(b => batchIds.Contains(b.BatchId) && b.HashesRevoc.Hash == str);
-
-
-            return b != null;
+                if (existingHash != null)
+                    return true;
+            }
+            
+            return false;
         }
 
 
@@ -150,7 +127,7 @@ namespace FHICORC.Application.Services
                 _coronapassContext.HashesRevoc.Add(_newHash);
                 _coronapassContext.SaveChanges();
 
-
+                AddToFilter(b.BatchId, dcc);
                 return;
             }
 
@@ -165,7 +142,34 @@ namespace FHICORC.Application.Services
             };
             _coronapassContext.HashesRevoc.Add(newHash);
             _coronapassContext.SaveChanges();
-                 
+
+            AddToFilter(newBatch.BatchId, dcc);
+
+        }
+
+        public void AddToFilter(int batchId, string dcc) {
+            var existingFilter = _coronapassContext.FiltersRevoc.Find(batchId);
+            var m = 47936;
+            var k = 32;
+            //var bloomStats = BloomFilterUtils.CalcOptimalNP(m, k);
+
+            var filter = existingFilter == null ? new BitArray(m) : new BitArray(existingFilter.Filter);
+            filter.AddToFilter(dcc, m, k);
+
+            var filterBytes = new byte[filter.Length / 8];
+            filter.CopyTo(filterBytes, 0);
+            var newFilter = new FiltersRevoc { BatchId = batchId, Filter = filterBytes };
+
+            if (existingFilter == null)
+            {
+                _coronapassContext.FiltersRevoc.Add(newFilter);
+            }
+            else
+            {
+                _coronapassContext.Entry(existingFilter).State = EntityState.Detached;
+                _coronapassContext.Entry(newFilter).State = EntityState.Modified;
+            }
+            _coronapassContext.SaveChanges();
         }
 
 
@@ -220,6 +224,9 @@ namespace FHICORC.Application.Services
             var byteArray = hash.ComputeHash(Encoding.UTF8.GetBytes(value));
             return Convert.ToHexString(byteArray).ToLower();
         }
+
+
+
 
     }
 }
