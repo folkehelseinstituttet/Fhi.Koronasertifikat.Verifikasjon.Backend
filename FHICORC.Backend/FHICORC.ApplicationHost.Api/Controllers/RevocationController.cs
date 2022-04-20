@@ -36,23 +36,28 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         public IActionResult ReadFilter()
         {
             _bloomFilterService.AddToFilterTest();
-
             return Ok("lol");
         }
 
 
         [HttpGet("certificate")]
-        public bool ContainsCertificate([FromHeader] string dcc) {
+        public IActionResult CheckCertificateRevocated([FromHeader] string dcc) {
 
-            return _bloomFilterService.ContainsCertificate(dcc);
+            return Ok(_bloomFilterService.ContainsCertificate(dcc));
         }
-
 
         [HttpGet("offlinefilter")]
         public IActionResult GetOfflineRevocationList() {
 
             return Ok(_bloomFilterService.GetFilterRevocList());
-        
+        }
+
+        [HttpPost("addrevocatedcertificate")]
+        public IActionResult AddRevocatedCertificate(string dcc)
+        {
+            _bloomFilterService.AddToRevocation(dcc);
+            return Ok();
+
         }
 
 

@@ -33,6 +33,13 @@ namespace FHICORC.Infrastructure.Database.Context
                 .HasIndex(r => r.RuleIdentifier)
                 .IsUnique();
 
+
+            modelBuilder.Entity<HashesRevoc>()
+             .HasOne(x => x.BatchesRevoc)
+             .WithMany()
+             .HasForeignKey(x => x.BatchId);
+;
+
             base.OnModelCreating(modelBuilder);
         }
     }

@@ -3,15 +3,17 @@ using System;
 using FHICORC.Infrastructure.Database.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace FHICORC.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(CoronapassContext))]
-    partial class CoronapassContextModelSnapshot : ModelSnapshot
+    [Migration("20220420080906_removeIdendityOption")]
+    partial class removeIdendityOption
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,9 +43,6 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.Property<string>("HashType")
                         .HasColumnType("text");
 
-                    b.Property<int?>("HashesRevocId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Kid")
                         .HasColumnType("text");
 
@@ -51,8 +50,6 @@ namespace FHICORC.Infrastructure.Database.Migrations
                         .HasColumnType("boolean");
 
                     b.HasKey("BatchId");
-
-                    b.HasIndex("HashesRevocId");
 
                     b.ToTable("BatchesRevoc");
                 });
@@ -168,18 +165,10 @@ namespace FHICORC.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BatchId");
+                    b.HasIndex("BatchId")
+                        .IsUnique();
 
                     b.ToTable("HashesRevoc");
-                });
-
-            modelBuilder.Entity("FHICORC.Domain.Models.BatchesRevoc", b =>
-                {
-                    b.HasOne("FHICORC.Domain.Models.HashesRevoc", "HashesRevoc")
-                        .WithMany()
-                        .HasForeignKey("HashesRevocId");
-
-                    b.Navigation("HashesRevoc");
                 });
 
             modelBuilder.Entity("FHICORC.Domain.Models.FiltersRevoc", b =>
@@ -196,8 +185,8 @@ namespace FHICORC.Infrastructure.Database.Migrations
             modelBuilder.Entity("FHICORC.Domain.Models.HashesRevoc", b =>
                 {
                     b.HasOne("FHICORC.Domain.Models.BatchesRevoc", "BatchesRevoc")
-                        .WithMany()
-                        .HasForeignKey("BatchId")
+                        .WithOne("HashesRevoc")
+                        .HasForeignKey("FHICORC.Domain.Models.HashesRevoc", "BatchId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -207,6 +196,8 @@ namespace FHICORC.Infrastructure.Database.Migrations
             modelBuilder.Entity("FHICORC.Domain.Models.BatchesRevoc", b =>
                 {
                     b.Navigation("FiltersRevoc");
+
+                    b.Navigation("HashesRevoc");
                 });
 #pragma warning restore 612, 618
         }

@@ -8,6 +8,7 @@ using FHICORC.Infrastructure.Database.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using FHICORC.Application.Models.Revocation;
+using FHICORC.Domain.Models;
 
 namespace FHICORC.Application.Services
 {
@@ -104,8 +105,67 @@ namespace FHICORC.Application.Services
             }
 
             return _tmp;
+        }
 
-            
+        public void AddToRevocation(string dcc) {
+
+            if (ContainsCertificate(dcc))
+                return;
+
+
+            var newBatch = new BatchesRevoc()
+            {
+                Country = "Norway",
+                Date = DateTime.UtcNow.Date,
+                Expires = DateTime.UtcNow.AddDays(10).Date,
+                Deleted = false,
+                Upload = true,
+                Kid = "asdsadsadsa",
+                HashType = "Sha256"
+
+            };
+
+            var existingBatches = _coronapassContext.BatchesRevoc
+                .Where(b => b.Upload
+                && !b.Deleted
+                && b.Country == newBatch.Country
+                && b.Expires == newBatch.Expires
+                && b.HashType == newBatch.HashType)
+                .ToList();
+
+            foreach (var b in existingBatches) {
+
+                var cnt = _coronapassContext.HashesRevoc
+                    .Where(h => h.BatchId == b.BatchId)
+                    .Count();
+
+                if (cnt > 1000)
+                    continue;
+
+
+                var _newHash = new HashesRevoc() {
+                    BatchId = b.BatchId,
+                    Hash = dcc
+                };
+                _coronapassContext.HashesRevoc.Add(_newHash);
+                _coronapassContext.SaveChanges();
+
+
+                return;
+            }
+
+
+            _coronapassContext.BatchesRevoc.Add(newBatch);
+            _coronapassContext.SaveChanges();
+
+            var newHash = new HashesRevoc()
+            {
+                BatchId = newBatch.BatchId,
+                Hash = dcc
+            };
+            _coronapassContext.HashesRevoc.Add(newHash);
+            _coronapassContext.SaveChanges();
+                 
         }
 
 

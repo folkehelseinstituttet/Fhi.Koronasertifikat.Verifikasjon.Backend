@@ -6,7 +6,6 @@ namespace FHICORC.Domain.Models
     public class FiltersRevoc
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [ForeignKey(nameof(BatchesRevoc))]
         public int BatchId { get; set; }
 
