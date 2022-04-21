@@ -39,12 +39,11 @@ namespace FHICORC.Infrastructure.Database.Context
              .HasOne(x => x.BatchesRevoc)
              .WithMany()
              .HasForeignKey(x => x.BatchId);
-;
 
-            modelBuilder.Entity<BatchesRevoc>()
-             .HasOne(x => x.SuperFiltersRevoc)
-             .WithMany()
-             .HasForeignKey(x => x.SuperFiltersRevocId);
+            //modelBuilder.Entity<BatchesRevoc>()
+            // .HasOne(x => x.SuperFiltersRevoc)
+            // .WithMany()
+            // .HasForeignKey(x => x.SuperFiltersRevocId);
 
 
             base.OnModelCreating(modelBuilder);

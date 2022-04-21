@@ -172,9 +172,23 @@ namespace FHICORC.Application.Services
             _coronapassContext.SaveChanges();
         }
 
-        //public List<FilterRevocDto> CreateSuperFilter() { 
-        
-        //}
+        public void CreateSuperFilter()
+        {
+
+            var dateBuffer = 10;
+
+            _coronapassContext.BatchesRevoc
+                .Where(b => b.SuperFiltersRevocId == null);
+
+
+
+
+
+
+
+
+
+        }
 
         public void AddToFilterTest(int numberOfHashes=1000) 
         {

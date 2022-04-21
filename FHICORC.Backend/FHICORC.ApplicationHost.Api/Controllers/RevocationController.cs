@@ -43,5 +43,14 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         }
 
 
+        [HttpGet("manual")]
+        public IActionResult ManualActivateFilterRestructure() {
+
+            _bloomFilterService.CreateSuperFilter();
+            return Ok();
+        
+        }
+
+
     }
 }

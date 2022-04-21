@@ -17,9 +17,9 @@ namespace FHICORC.Domain.Models
         public string HashType { get; set; }
         public bool Upload { get; set; }
 
-        [ForeignKey(nameof(SuperFiltersRevoc))]
-        public int SuperFiltersRevocId { get; set; }
-        public virtual SuperFiltersRevoc SuperFiltersRevoc { get; set; }
+        //[ForeignKey(nameof(SuperFiltersRevoc))]
+        public int? SuperFiltersRevocId { get; set; }
+        //public virtual SuperFiltersRevoc SuperFiltersRevoc { get; set; }
 
 
 

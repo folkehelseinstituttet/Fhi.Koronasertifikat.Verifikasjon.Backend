@@ -17,5 +17,7 @@ namespace FHICORC.Application.Services
         public List<FilterRevocDto> GetFilterRevocList();
         public void AddToRevocation(string dcc);
 
+        public void CreateSuperFilter();
+
     }
 }
