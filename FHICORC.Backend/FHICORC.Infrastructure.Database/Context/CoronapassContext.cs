@@ -16,6 +16,7 @@ namespace FHICORC.Infrastructure.Database.Context
         public DbSet<BatchesRevoc> BatchesRevoc { get; set; }
         public DbSet<FiltersRevoc> FiltersRevoc { get; set; }
         public DbSet<HashesRevoc> HashesRevoc { get; set; }
+        public DbSet<SuperFiltersRevoc> SuperFiltersRevoc { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,6 +40,12 @@ namespace FHICORC.Infrastructure.Database.Context
              .WithMany()
              .HasForeignKey(x => x.BatchId);
 ;
+
+            modelBuilder.Entity<BatchesRevoc>()
+             .HasOne(x => x.SuperFiltersRevoc)
+             .WithMany()
+             .HasForeignKey(x => x.SuperFiltersRevocId);
+
 
             base.OnModelCreating(modelBuilder);
         }

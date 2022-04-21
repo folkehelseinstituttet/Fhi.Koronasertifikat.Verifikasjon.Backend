@@ -47,12 +47,17 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.Property<string>("Kid")
                         .HasColumnType("text");
 
+                    b.Property<int>("SuperFiltersRevocId")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("Upload")
                         .HasColumnType("boolean");
 
                     b.HasKey("BatchId");
 
                     b.HasIndex("HashesRevocId");
+
+                    b.HasIndex("SuperFiltersRevocId");
 
                     b.ToTable("BatchesRevoc");
                 });
@@ -173,13 +178,43 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.ToTable("HashesRevoc");
                 });
 
+            modelBuilder.Entity("FHICORC.Domain.Models.SuperFiltersRevoc", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<bool>("Changed")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("SuperExpires")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<byte[]>("SuperFilter")
+                        .HasMaxLength(5992)
+                        .HasColumnType("bytea");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SuperFiltersRevoc");
+                });
+
             modelBuilder.Entity("FHICORC.Domain.Models.BatchesRevoc", b =>
                 {
                     b.HasOne("FHICORC.Domain.Models.HashesRevoc", "HashesRevoc")
                         .WithMany()
                         .HasForeignKey("HashesRevocId");
 
+                    b.HasOne("FHICORC.Domain.Models.SuperFiltersRevoc", "SuperFiltersRevoc")
+                        .WithMany()
+                        .HasForeignKey("SuperFiltersRevocId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("HashesRevoc");
+
+                    b.Navigation("SuperFiltersRevoc");
                 });
 
             modelBuilder.Entity("FHICORC.Domain.Models.FiltersRevoc", b =>
