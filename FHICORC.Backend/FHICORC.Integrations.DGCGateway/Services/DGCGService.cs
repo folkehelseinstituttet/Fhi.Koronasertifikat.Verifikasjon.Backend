@@ -46,8 +46,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
         public async Task<DgcgRevocationBatchListRespondDto> GetRevocationListAsync() 
         {
             var d = "2021-06-01T00:00:00Z";
-            //var b = await _dgcgClient.FetchTrustListAsync("");
-
             var fullResponse = await _dgcgClient.FetchRevocationBatchListAsync(d);
 
             return fullResponse;

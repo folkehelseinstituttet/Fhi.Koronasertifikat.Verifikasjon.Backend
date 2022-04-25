@@ -8,11 +8,13 @@ namespace FHICORC.ApplicationHost.Hangfire
     {
         private readonly IUpdateCertificateRepositoryTask _updateCertificateRepositoryTask;
         private readonly ICountriesReportRepositoryTask _coutriesReportRepositoryTask;
+        private readonly IUpdateRevocationListTask _updateRevocationListTask;
 
-        public HangfireTaskManager(IUpdateCertificateRepositoryTask updateCertificateRepositoryTask, ICountriesReportRepositoryTask coutriesReportRepositoryTask)
+        public HangfireTaskManager(IUpdateCertificateRepositoryTask updateCertificateRepositoryTask, ICountriesReportRepositoryTask coutriesReportRepositoryTask, IUpdateRevocationListTask updateRevocationListTask)
         {
             _updateCertificateRepositoryTask = updateCertificateRepositoryTask;
             _coutriesReportRepositoryTask = coutriesReportRepositoryTask;
+            _updateRevocationListTask = updateRevocationListTask;
         }
 
         public void SetupHangfireTasks()
@@ -22,6 +24,7 @@ namespace FHICORC.ApplicationHost.Hangfire
 
             _updateCertificateRepositoryTask.SetupTask();
             _coutriesReportRepositoryTask.SetupTask();
+            _updateRevocationListTask.SetupTask();
         }
     }
 }

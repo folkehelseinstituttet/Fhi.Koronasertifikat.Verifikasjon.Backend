@@ -13,6 +13,7 @@ namespace FHICORC.ApplicationHost.Hangfire
             return serviceCollection
                 .AddScoped<IHangfireTaskManager, HangfireTaskManager>()
                 .AddScoped<IUpdateCertificateRepositoryTask, UpdateCertificateRepositoryTask>()
+                .AddScoped<IUpdateRevocationListTask, UpdateRevocationListTask>()
                 .AddScoped<ICountriesReportRepository, CountriesReportRepository>()
                 .AddScoped<ICountriesReportRepositoryTask, CountriesReportRepositoryTask>();
         }
