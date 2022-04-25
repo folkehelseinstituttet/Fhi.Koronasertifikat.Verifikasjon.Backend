@@ -56,6 +56,14 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         {
             var failure = false;
 
+            try 
+            {
+                var rev = await _dgcgService.GetRevocationListAsync();
+            }
+            catch(Exception e){
+                var k = e;
+            }
+            
             try
             {
                 var trustlistResponse = await _dgcgService.GetTrustListAsync();
@@ -75,7 +83,7 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
                     cleanupOptions |= CleanupWhichCertificates.UkScCertificates;
                 }
 
-                await _euCertificateRepository.CleanupAndPersistEuDocSignerCertificates(euDocSignerCertificates, cleanupOptions);
+                var a = await _euCertificateRepository.CleanupAndPersistEuDocSignerCertificates(euDocSignerCertificates, cleanupOptions);
 
                 _metricLogService.AddMetric("RetrieveEuCertificates_Success", true);
             }

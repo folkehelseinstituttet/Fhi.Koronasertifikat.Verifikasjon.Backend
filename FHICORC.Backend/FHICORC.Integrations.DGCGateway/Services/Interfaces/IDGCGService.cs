@@ -6,5 +6,6 @@ namespace FHICORC.Integrations.DGCGateway.Services.Interfaces
     public interface IDgcgService
     {
         public Task<DgcgTrustListResponseDto> GetTrustListAsync(string certificateType = "");
+        public Task<DgcgRevocationBatchListRespondDto> GetRevocationListAsync();
     }
 }

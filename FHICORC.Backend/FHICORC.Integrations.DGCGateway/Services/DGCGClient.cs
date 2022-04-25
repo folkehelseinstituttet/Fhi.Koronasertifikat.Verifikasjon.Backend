@@ -13,6 +13,10 @@ using Azure.Security.KeyVault.Secrets;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
 using FHICORC.Integrations.DGCGateway.Util;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using System.Net.Http;
+using System.Security.Authentication;
+using System.Reflection;
 
 namespace FHICORC.Integrations.DGCGateway.Services
 {
@@ -38,7 +42,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
             //Fetch TLS certificate 
             var certificate = await FetchTlsCertificate();
-
             client.ClientCertificates = new X509CertificateCollection() { certificate };
             client.Proxy = new WebProxy();
             var restRequest = new RestRequest(certificateType, Method.GET);
@@ -76,6 +79,58 @@ namespace FHICORC.Integrations.DGCGateway.Services
             }
             return resultDto;
         }
+
+
+        public async Task<DgcgRevocationBatchListRespondDto> FetchRevocationBatchListAsync(string date)
+        {
+            var client = new RestClient(_serviceEndpoints.DGCGRevocationEndpoint);
+
+
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.DefaultConnectionLimit = 9999;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+            //Fetch TLS certificate 
+            var certificate = await FetchTlsCertificate();
+            client.ClientCertificates = new X509CertificateCollection() { certificate };
+            client.Proxy = new WebProxy();
+            var restRequest = new RestRequest(Method.GET);
+
+
+            if (_certificateOptions.DisableDGCGServerCertValidation)
+            {
+                _logger.LogWarning("DGCG server certificate validation is disabled.");
+                client.RemoteCertificateValidationCallback += (sender, cert, chain, error) => { return true; };
+            }
+
+            client.ConfigureWebRequest(request =>
+            {
+                var methodInfo = request.Headers.GetType().GetMethod("AddWithoutValidate",
+                  BindingFlags.Instance | BindingFlags.NonPublic);
+                methodInfo?.Invoke(request.Headers, new[] { "If-Modified-Since", date });
+            });
+
+
+            var response = await client.ExecuteGetAsync(restRequest);
+
+            DgcgRevocationBatchListRespondDto parsedResponse;
+            try
+            {
+                parsedResponse = JsonConvert.DeserializeObject<DgcgRevocationBatchListRespondDto>(response.Content);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Response parse failed (status code {StatusCode}): {Content} - {Exception}", response.StatusCode, response.Content, e);
+                throw;
+            }
+
+            _logger.LogDebug("DGCG Response {StatusCode} {Content}", response.StatusCode, response.Content);
+            _logger.LogDebug("DGCG ParsedResponse {ItemCount}", parsedResponse == null ? "empty" : parsedResponse.Batches.Count);
+
+            return parsedResponse;
+        }
+
+
 
         private async Task<X509Certificate2> FetchTlsCertificate()
         {

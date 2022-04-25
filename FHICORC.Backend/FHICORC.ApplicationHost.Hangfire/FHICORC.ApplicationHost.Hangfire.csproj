@@ -30,10 +30,6 @@
 		<ProjectReference Include="..\FHICORC.Integrations.UKGateway\FHICORC.Integrations.UkGateway.csproj" />
     </ItemGroup>
 	
-  <ItemGroup>
-    <Folder Include="Certificates\" />
-  </ItemGroup>
-	
 	<ItemGroup>
     <None Update="Certificates\local_ta.pem">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
