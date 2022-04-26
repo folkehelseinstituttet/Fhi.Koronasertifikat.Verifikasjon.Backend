@@ -133,11 +133,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
             var response = await client.ExecuteGetAsync(restRequest);
 
-            var responseByte = Base64Util.FromString(response.Content);
-            //var trustAnchor = LoadCertificate(File.ReadAllBytes(_certificateOptions.DGCGTrustAnchorPath));
-
-
-
             DGCGRevocationBatchRespondDto parsedResponse;
             try
             {
@@ -148,7 +143,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 signedCms.CheckSignature(true);
 
                 var decodedMessage = Encoding.UTF8.GetString(signedCms.ContentInfo.Content);
-
                 parsedResponse = JsonConvert.DeserializeObject<DGCGRevocationBatchRespondDto>(decodedMessage);
 
             }
@@ -164,25 +158,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
             return parsedResponse;
 
         }
-
-        private static X509Certificate LoadCertificate(byte[] rawData)
-        {
-            if (typeof(X509Certificate) == typeof(X509Certificate2))
-            {
-                return (X509Certificate)(object)new X509Certificate2(rawData);
-            }
-
-            if (typeof(X509Certificate) == typeof(X509Certificate))
-            {
-                var parser = new X509CertificateParser();
-                return (X509Certificate)(object)parser.ReadCertificate(rawData);
-            }
-
-            throw new InvalidOperationException("Only System.Security.Cryptography.X509Certificates.X509Certificate2 and Org.BouncyCastle.X509.X509Certificate is supported");
-        }
-
-
-
 
         private async Task<X509Certificate2> FetchTlsCertificate()
         {

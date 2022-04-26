@@ -56,8 +56,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
         {
 
             var fullResponse = await _dgcgClient.FetchRevocationBatchAsync(batchId);
-
-
             return fullResponse;
         }
     }   

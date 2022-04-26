@@ -11,6 +11,7 @@ using FHICORC.Integrations.DGCGateway;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
 using FHICORC.Integrations.UkGateway.Services.Interfaces;
 using FHICORC.Application.Models;
+using FHICORC.Application.Services;
 
 namespace FHICORC.ApplicationHost.Hangfire.Tasks
 {
@@ -21,25 +22,20 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
 
         private readonly ILogger<UpdateCertificateRepositoryTask> _logger;
         private readonly CronOptions _cronOptions;
-        private readonly FeatureToggles _featureToggles;
         private readonly IDgcgService _dgcgService;
-        private readonly IDgcgResponseParser _dgcgResponseParser;
-        private readonly IUkGatewayService _ukGatewayService;
-        private readonly IEuCertificateRepository _euCertificateRepository;
         private readonly IMetricLogService _metricLogService;
+        private readonly IRevocationService _revocationService;
 
         public UpdateRevocationListTask(ILogger<UpdateCertificateRepositoryTask> logger, CronOptions cronOptions,
-            FeatureToggles featureToggles, IDgcgService dgcgService, IDgcgResponseParser dgcgResponseParser,
-            IUkGatewayService ukGatewayService, IEuCertificateRepository euCertificateRepository, IMetricLogService metricLogService)
+            IDgcgService dgcgService,
+            IMetricLogService metricLogService,
+            IRevocationService revocationService)
         {
             _logger = logger;
             _cronOptions = cronOptions;
-            _featureToggles = featureToggles;
             _dgcgService = dgcgService;
-            _dgcgResponseParser = dgcgResponseParser;
-            _ukGatewayService = ukGatewayService;
-            _euCertificateRepository = euCertificateRepository;
             _metricLogService = metricLogService;
+            _revocationService = revocationService;
         }
 
         public void SetupTask()
@@ -61,7 +57,7 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
 
             try
             {
-                //revocationBatchList = await _dgcgService.GetRevocationBatchListAsync();
+                revocationBatchList = await _dgcgService.GetRevocationBatchListAsync();
                 _metricLogService.AddMetric("RetrieveRevocationBatchList_Success", true);
             }
             catch (GeneralDgcgFaultException e)
@@ -80,11 +76,21 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
 
             try
             {
-                var batchId = "699978cf-d2d4-4093-8b54-ab2cf695d76d";
+
+                
+                //var batchId = "699978cf-d2d4-4093-8b54-ab2cf695d76d";
                 //revocationBatchList.Batches[0].BatchId;
 
-                var revocationHashList = await _dgcgService.GetRevocationBatchAsync(batchId);
+                foreach (var rb in revocationBatchList.Batches) {
+                    var revocationHashList = await _dgcgService.GetRevocationBatchAsync(rb.BatchId);
 
+                    _revocationService.AddToDatabase(rb, revocationHashList);
+
+                    break;
+                }
+
+
+               
                 _metricLogService.AddMetric("RetrieveRevocationBatch_Success", true);
 
 
