@@ -43,7 +43,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
             }
         }
 
-        public async Task<DgcgRevocationBatchListRespondDto> GetRevocationListAsync() 
+        public async Task<DgcgRevocationBatchListRespondDto> GetRevocationBatchListAsync() 
         {
             var d = "2021-06-01T00:00:00Z";
             var fullResponse = await _dgcgClient.FetchRevocationBatchListAsync(d);
@@ -51,5 +51,14 @@ namespace FHICORC.Integrations.DGCGateway.Services
             return fullResponse;
 
         }
-    }
+
+        public async Task<DGCGRevocationBatchRespondDto> GetRevocationBatchAsync(string batchId)
+        {
+
+            var fullResponse = await _dgcgClient.FetchRevocationBatchAsync(batchId);
+
+
+            return fullResponse;
+        }
+    }   
 }

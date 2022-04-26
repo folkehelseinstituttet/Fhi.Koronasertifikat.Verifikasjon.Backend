@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Security.Authentication;
 using System.Reflection;
+using System.Text;
 
 namespace FHICORC.Integrations.DGCGateway.Services
 {
@@ -35,15 +36,8 @@ namespace FHICORC.Integrations.DGCGateway.Services
         public async Task<DgcgTrustListResponseDto> FetchTrustListAsync(string certificateType)
         {
             var client = new RestClient(_serviceEndpoints.DGCGTrustListEndpoint);
-
-            ServicePointManager.Expect100Continue = true;
-            ServicePointManager.DefaultConnectionLimit = 9999;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-
-            //Fetch TLS certificate 
-            var certificate = await FetchTlsCertificate();
-            client.ClientCertificates = new X509CertificateCollection() { certificate };
-            client.Proxy = new WebProxy();
+            await AddTls(client);
+            
             var restRequest = new RestRequest(certificateType, Method.GET);
 
             if (_certificateOptions.DisableDGCGServerCertValidation)
@@ -84,19 +78,9 @@ namespace FHICORC.Integrations.DGCGateway.Services
         public async Task<DgcgRevocationBatchListRespondDto> FetchRevocationBatchListAsync(string date)
         {
             var client = new RestClient(_serviceEndpoints.DGCGRevocationEndpoint);
+            await AddTls(client);
 
-
-            ServicePointManager.Expect100Continue = true;
-            ServicePointManager.DefaultConnectionLimit = 9999;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-
-            //Fetch TLS certificate 
-            var certificate = await FetchTlsCertificate();
-            client.ClientCertificates = new X509CertificateCollection() { certificate };
-            client.Proxy = new WebProxy();
             var restRequest = new RestRequest(Method.GET);
-
-
             if (_certificateOptions.DisableDGCGServerCertValidation)
             {
                 _logger.LogWarning("DGCG server certificate validation is disabled.");
@@ -131,6 +115,42 @@ namespace FHICORC.Integrations.DGCGateway.Services
         }
 
 
+        public async Task<DGCGRevocationBatchRespondDto> FetchRevocationBatchAsync(string batchId)
+        {
+            var client = new RestClient(_serviceEndpoints.DGCGRevocationEndpoint + "/" + batchId);
+            await AddTls(client);
+
+
+            var restRequest = new RestRequest(Method.GET);
+            restRequest.AddHeader("Accept", "application/cms-text;charset=UTF-8");
+            if (_certificateOptions.DisableDGCGServerCertValidation)
+            {
+                _logger.LogWarning("DGCG server certificate validation is disabled.");
+                client.RemoteCertificateValidationCallback += (sender, cert, chain, error) => { return true; };
+            }
+
+            var response = await client.ExecuteGetAsync(restRequest);
+
+            DGCGRevocationBatchRespondDto parsedResponse;
+            try
+            {
+                byte[] data = Convert.FromBase64String(response.Content);
+                string decodedString = Encoding.UTF8.GetString(data);
+                parsedResponse = JsonConvert.DeserializeObject<DGCGRevocationBatchRespondDto>(response.Content);
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Response parse failed (status code {StatusCode}): {Content} - {Exception}", response.StatusCode, response.Content, e);
+                throw;
+            }
+
+            _logger.LogDebug("DGCG Response {StatusCode} {Content}", response.StatusCode, response.Content);
+            _logger.LogDebug("DGCG ParsedResponse {ItemCount}", parsedResponse == null ? "empty" : parsedResponse.Entries.Count);
+
+            return parsedResponse;
+
+        }
 
         private async Task<X509Certificate2> FetchTlsCertificate()
         {
@@ -155,6 +175,21 @@ namespace FHICORC.Integrations.DGCGateway.Services
             }
 
             return new X509Certificate2(_certificateOptions.NBTlsCertificatePath, _certificateOptions.NBTlsCertificatePassword);
+        }
+
+
+
+        private async Task AddTls(RestClient client) {
+
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.DefaultConnectionLimit = 9999;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+            //Fetch TLS certificate 
+            var certificate = await FetchTlsCertificate();
+            client.ClientCertificates = new X509CertificateCollection() { certificate };
+            client.Proxy = new WebProxy(); // new WebProxy("127.0.0.1", 8888);
+
         }
     }
 }

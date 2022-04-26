@@ -10,6 +10,7 @@ using FHICORC.ApplicationHost.Hangfire.Interfaces;
 using FHICORC.Integrations.DGCGateway;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
 using FHICORC.Integrations.UkGateway.Services.Interfaces;
+using FHICORC.Application.Models;
 
 namespace FHICORC.ApplicationHost.Hangfire.Tasks
 {
@@ -55,23 +56,50 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         public async Task UpdateRevocationList()
         {
             var failure = false;
-            
+            DgcgRevocationBatchListRespondDto revocationBatchList = new DgcgRevocationBatchListRespondDto();
+
+
             try
             {
-                var revocationList = await _dgcgService.GetRevocationListAsync();
-                _metricLogService.AddMetric("RetrieveRevocationList_Success", true);
+                //revocationBatchList = await _dgcgService.GetRevocationBatchListAsync();
+                _metricLogService.AddMetric("RetrieveRevocationBatchList_Success", true);
             }
             catch (GeneralDgcgFaultException e)
             {
                 failure = true;
                 _logger.LogError(e, "FaultException caught"); 
-                _metricLogService.AddMetric("RetrieveRevocationList_Success", false);
+                _metricLogService.AddMetric("RetrieveRevocationBatchList_Success", false);
             }
             catch (Exception e)
             {
                 failure = true;
                 _logger.LogError(e, "UpdateRevocationList fails");
-                _metricLogService.AddMetric("RetrieveRevocationList_Success", false);
+                _metricLogService.AddMetric("RetrieveRevocationBatchList_Success", false);
+            }
+
+
+            try
+            {
+                var batchId = "699978cf-d2d4-4093-8b54-ab2cf695d76d";
+                //revocationBatchList.Batches[0].BatchId;
+
+                var revocationHashList = await _dgcgService.GetRevocationBatchAsync(batchId);
+
+                _metricLogService.AddMetric("RetrieveRevocationBatch_Success", true);
+
+
+            }
+            catch (GeneralDgcgFaultException e)
+            {
+                failure = true;
+                _logger.LogError(e, "FaultException caught");
+                _metricLogService.AddMetric("RetrieveRevocationBatch_Success", false);
+            }
+            catch (Exception e)
+            {
+                failure = true;
+                _logger.LogError(e, "UpdateRevocationList fails");
+                _metricLogService.AddMetric("RetrieveRevocationBatch_Success", false);
             }
 
 
