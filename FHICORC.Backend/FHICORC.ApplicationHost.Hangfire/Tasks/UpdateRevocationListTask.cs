@@ -77,20 +77,24 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
             try
             {
 
-                
+
                 //var batchId = "699978cf-d2d4-4093-8b54-ab2cf695d76d";
                 //revocationBatchList.Batches[0].BatchId;
 
+                var cnt = 0; 
                 foreach (var rb in revocationBatchList.Batches) {
                     var revocationHashList = await _dgcgService.GetRevocationBatchAsync(rb.BatchId);
 
                     _revocationService.AddToDatabase(rb, revocationHashList);
 
-                    break;
+                    cnt += 1;
+
+                    if(cnt >= 2)
+                        break;
                 }
 
 
-               
+                //TRUNCATE public."BatchesRevoc", public."SuperFiltersRevoc" CASCADE;
                 _metricLogService.AddMetric("RetrieveRevocationBatch_Success", true);
 
 

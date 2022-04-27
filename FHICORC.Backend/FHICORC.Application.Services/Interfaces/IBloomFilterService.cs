@@ -12,12 +12,6 @@ namespace FHICORC.Application.Services
 {
     public interface IBloomFilterService
     {
-
         public bool ContainsCertificate(string dcc);
-        public List<FilterRevocDto> GetFilterRevocList();
-        public void AddToRevocation(string dcc);
-
-        public void CreateSuperFilter();
-
     }
 }

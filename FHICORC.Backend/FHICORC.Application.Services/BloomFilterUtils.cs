@@ -33,7 +33,8 @@ namespace FHICORC.Application.Services
         {
             foreach (int i in hashData)
             {
-                if (!filter[i])
+                var value = filter[i];
+                if (!value)
                     return false;
             }
             return true;

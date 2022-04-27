@@ -7,8 +7,7 @@ namespace FHICORC.Domain.Models
     public class BatchesRevoc
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int BatchId { get; set; }
+        public string BatchId { get; set; }
         public DateTime Expires { get; set; }
         public DateTime Date { get; set; }
         public string Country { get; set; }

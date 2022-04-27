@@ -15,7 +15,9 @@ namespace FHICORC.Domain.Models
         [MaxLength(5992)]
         public byte[] SuperFilter { get; set; }
 
-        public bool Changed { get; set; }        
+        public int BatchCount { get; set; }
+
+        public DateTime Modified { get; set; }
 
     }
 }

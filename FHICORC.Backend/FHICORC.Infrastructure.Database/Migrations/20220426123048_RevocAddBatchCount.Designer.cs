@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FHICORC.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(CoronapassContext))]
-    [Migration("20220421052921_RemovedFKConstrains")]
-    partial class RemovedFKConstrains
+    [Migration("20220426123048_RevocAddBatchCount")]
+    partial class RevocAddBatchCount
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,10 +23,8 @@ namespace FHICORC.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("FHICORC.Domain.Models.BatchesRevoc", b =>
                 {
-                    b.Property<int>("BatchId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                    b.Property<string>("BatchId")
+                        .HasColumnType("text");
 
                     b.Property<string>("Country")
                         .HasColumnType("text");
@@ -146,8 +144,8 @@ namespace FHICORC.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("FHICORC.Domain.Models.FiltersRevoc", b =>
                 {
-                    b.Property<int>("BatchId")
-                        .HasColumnType("integer");
+                    b.Property<string>("BatchId")
+                        .HasColumnType("text");
 
                     b.Property<byte[]>("Filter")
                         .HasMaxLength(5992)
@@ -165,8 +163,8 @@ namespace FHICORC.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int>("BatchId")
-                        .HasColumnType("integer");
+                    b.Property<string>("BatchId")
+                        .HasColumnType("text");
 
                     b.Property<string>("Hash")
                         .HasColumnType("text");
@@ -184,6 +182,9 @@ namespace FHICORC.Infrastructure.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int>("BatchCount")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("Changed")
                         .HasColumnType("boolean");
@@ -224,9 +225,7 @@ namespace FHICORC.Infrastructure.Database.Migrations
                 {
                     b.HasOne("FHICORC.Domain.Models.BatchesRevoc", "BatchesRevoc")
                         .WithMany()
-                        .HasForeignKey("BatchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BatchId");
 
                     b.Navigation("BatchesRevoc");
                 });

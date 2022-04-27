@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace FHICORC.Infrastructure.Database.Migrations
 {
-    public partial class Revocation : Migration
+    public partial class RevocDb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -32,7 +32,7 @@ namespace FHICORC.Infrastructure.Database.Migrations
                 name: "FiltersRevoc",
                 columns: table => new
                 {
-                    BatchId = table.Column<int>(type: "integer", nullable: false),
+                    BatchId = table.Column<string>(type: "text", nullable: false),
                     Filter = table.Column<byte[]>(type: "bytea", maxLength: 5992, nullable: true)
                 },
                 constraints: table =>
@@ -46,7 +46,7 @@ namespace FHICORC.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    BatchId = table.Column<int>(type: "integer", nullable: false),
+                    BatchId = table.Column<string>(type: "text", nullable: true),
                     Hash = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
@@ -58,8 +58,7 @@ namespace FHICORC.Infrastructure.Database.Migrations
                 name: "BatchesRevoc",
                 columns: table => new
                 {
-                    BatchId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    BatchId = table.Column<string>(type: "text", nullable: false),
                     Expires = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Date = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Country = table.Column<string>(type: "text", nullable: true),
@@ -67,7 +66,7 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     Kid = table.Column<string>(type: "text", nullable: true),
                     HashType = table.Column<string>(type: "text", nullable: true),
                     Upload = table.Column<bool>(type: "boolean", nullable: false),
-                    SuperFiltersRevocId = table.Column<int>(type: "integer", nullable: false),
+                    SuperFiltersRevocId = table.Column<int>(type: "integer", nullable: true),
                     HashesRevocId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
@@ -79,23 +78,12 @@ namespace FHICORC.Infrastructure.Database.Migrations
                         principalTable: "HashesRevoc",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_BatchesRevoc_SuperFiltersRevoc_SuperFiltersRevocId",
-                        column: x => x.SuperFiltersRevocId,
-                        principalTable: "SuperFiltersRevoc",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_BatchesRevoc_HashesRevocId",
                 table: "BatchesRevoc",
                 column: "HashesRevocId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BatchesRevoc_SuperFiltersRevocId",
-                table: "BatchesRevoc",
-                column: "SuperFiltersRevocId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_HashesRevoc_BatchId",
@@ -116,7 +104,7 @@ namespace FHICORC.Infrastructure.Database.Migrations
                 column: "BatchId",
                 principalTable: "BatchesRevoc",
                 principalColumn: "BatchId",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -129,13 +117,13 @@ namespace FHICORC.Infrastructure.Database.Migrations
                 name: "FiltersRevoc");
 
             migrationBuilder.DropTable(
+                name: "SuperFiltersRevoc");
+
+            migrationBuilder.DropTable(
                 name: "HashesRevoc");
 
             migrationBuilder.DropTable(
                 name: "BatchesRevoc");
-
-            migrationBuilder.DropTable(
-                name: "SuperFiltersRevoc");
 
             migrationBuilder.DropPrimaryKey(
                 name: "PK_CountriesReportModels",

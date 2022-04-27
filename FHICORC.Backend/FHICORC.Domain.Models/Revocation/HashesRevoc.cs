@@ -10,7 +10,7 @@ namespace FHICORC.Domain.Models
         public int Id { get; set; }
 
         [ForeignKey(nameof(BatchesRevoc))]
-        public int BatchId { get; set; }
+        public string BatchId { get; set; }
 
         public string Hash { get; set; }
 

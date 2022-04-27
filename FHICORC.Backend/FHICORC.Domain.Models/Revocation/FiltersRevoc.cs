@@ -6,8 +6,7 @@ namespace FHICORC.Domain.Models
     public class FiltersRevoc
     {
         [Key]
-        [ForeignKey(nameof(BatchesRevoc))]
-        public int BatchId { get; set; }
+        public string BatchId { get; set; }
 
         [MaxLength(5992)]
         public byte[] Filter { get; set; }
