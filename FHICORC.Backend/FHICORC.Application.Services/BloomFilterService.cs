@@ -29,7 +29,7 @@ namespace FHICORC.Application.Services
 
         public bool ContainsCertificateFilter(string str) {
             var hashData = BloomFilterUtils.HashData(Encoding.UTF8.GetBytes(str), 47936, 32);
-            
+
             foreach (var bf in _coronapassContext.SuperFiltersRevoc)
             {
                 var a = new BitArray(bf.SuperFilter);

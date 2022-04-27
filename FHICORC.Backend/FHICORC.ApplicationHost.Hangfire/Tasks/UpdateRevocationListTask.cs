@@ -87,10 +87,10 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
 
                     _revocationService.AddToDatabase(rb, revocationHashList);
 
-                    cnt += 1;
+                    //cnt += 1;
 
-                    if(cnt >= 2)
-                        break;
+                    //if (cnt >= 2)
+                    //    break;
                 }
 
 

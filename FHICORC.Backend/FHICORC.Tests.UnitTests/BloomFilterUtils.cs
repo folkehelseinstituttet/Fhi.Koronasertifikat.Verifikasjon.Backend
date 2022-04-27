@@ -8,7 +8,7 @@ namespace FHICORC.Tests.UnitTests
 {
     public static class BloomFilterUtils
     {
-        public static BitArray AddToFilter(this BitArray filter, string str, int m = 47926, int k = 34)
+        public static BitArray AddToFilter(this BitArray filter, string str, int m = 47936, int k = 32)
         {
             var hash = hashData(Encoding.UTF8.GetBytes(str), m, k);
 
@@ -19,7 +19,7 @@ namespace FHICORC.Tests.UnitTests
 
         }
 
-        public static bool Contains(this BitArray filter, string str, int m = 47926, int k = 34)
+        public static bool Contains(this BitArray filter, string str, int m = 47936, int k = 32)
         {
             var hash = hashData(Encoding.UTF8.GetBytes(str), m, k);
 

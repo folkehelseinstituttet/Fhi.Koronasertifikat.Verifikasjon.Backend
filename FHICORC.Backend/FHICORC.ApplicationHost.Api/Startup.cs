@@ -19,6 +19,7 @@ using FHICORC.Application.Validation;
 using FHICORC.ApplicationHost.Api.Middleware;
 using FHICORC.Infrastructure.Database;
 using FHICORC.Infrastructure.Database.Context;
+using System.Collections;
 
 namespace FHICORC.ApplicationHost.Api
 {
@@ -27,6 +28,40 @@ namespace FHICORC.ApplicationHost.Api
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+
+            //var aBit = new BitArray(new bool[]
+            //    {
+            //        false, false, false, false,
+            //        false, false, false, true
+            //    });
+
+            //byte[] aByte = new byte[(aBit.Length - 1) / 8 + 1];
+            //aBit.CopyTo(aByte, 0);
+
+
+
+
+            ////Download aByte
+            //var bBit = new BitArray(aByte);
+
+
+            //var cBit = new BitArray(new bool[]
+            //    {
+            //        false, true, false, false,
+            //        false, false, false, false
+            //    });
+
+            //cBit.Or(bBit);
+
+            //byte[] cByte = new byte[(cBit.Length - 1) / 8 + 1];
+            //cBit.CopyTo(cByte, 0);
+
+
+            //var dBit = new BitArray(cByte);
+
+
+
         }
 
         public IConfiguration Configuration { get; }

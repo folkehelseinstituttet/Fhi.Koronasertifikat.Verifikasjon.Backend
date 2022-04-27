@@ -30,11 +30,11 @@ namespace FHICORC.Application.Services
 
             var filter = FillInHashRevoc(batchRoot, batch);
 
-            byte[] filterBytes = new byte[filter.Length / 8];
+            byte[] filterBytes = new byte[(filter.Length - 1) / 8 + 1];
             filter.CopyTo(filterBytes, 0);
             FillInFilterRevoc(batchRoot, filterBytes);
 
-            FillInSuperFilterRevoc(batch, filter, filterBytes);
+            FillInSuperFilterRevoc(batch, filterBytes);
 
         }
 
@@ -89,55 +89,29 @@ namespace FHICORC.Application.Services
             _coronapassContext.SaveChanges();
         }
 
-        private void FillInSuperFilterRevoc(DGCGRevocationBatchRespondDto batch, BitArray filter, byte[] filterBytes) {
+        private void FillInSuperFilterRevoc(DGCGRevocationBatchRespondDto batch, byte[] filterBytes) {
             var exist = false;
             var currenBatchCount = batch.Entries.Count;
             foreach (var su in _coronapassContext.SuperFiltersRevoc)
             {
                 if (su.BatchCount + currenBatchCount <= 1000)
                 {
-                    //1896
-                    var _newFilter = new BitArray(su.SuperFilter);
-                    
-             
+                    var _newbatchFilter = new BitArray(filterBytes);
+                    var _oldBatchFilter = new BitArray(su.SuperFilter);
 
-                    _newFilter.Or(filter);
+                    var combinedFilter = _newbatchFilter.Or(_oldBatchFilter);
+                    var combinedFilterBytes = new byte[(combinedFilter.Length - 1) / 8 + 1];
+                    combinedFilter.CopyTo(combinedFilterBytes, 0);
 
+                    su.SuperFilter = combinedFilterBytes;
+                    su.BatchCount += currenBatchCount;
+                    su.Modified = DateTime.UtcNow;
 
-                    //var b = _newFilter.Cast<bool>().Select(x => x ? 1 : 0).ToList();
-                    //var _tmpb = new List<int>();
-                    //for (var i = 0; i < b.Count; i++)
-                    //{
-                    //    if (b[i] == 1)
-                    //        _tmpb.Add(i);
-
-                    //}
-                    //var bb = string.Join(",", _tmpb);
-
-                    byte[] _superFilterNewBytes = new byte[_newFilter.Length / 8];
-                    filter.CopyTo(_superFilterNewBytes, 0);
-
-                    try
-                    {
-                        su.SuperFilter = _superFilterNewBytes;
-                        su.BatchCount += currenBatchCount;
-                        su.Modified = DateTime.UtcNow;
-
-                        _coronapassContext.Entry(su).State = EntityState.Modified;
-
-
-
-                        //_coronapassContext.Entry(_superFilterRevoc).State = EntityState.Modified;
-
-                        
-                    }
-                    catch (Exception ex) { 
-                    
-                    }
-
+                    _coronapassContext.Entry(su).State = EntityState.Modified;
 
                     exist = true;
                     break;
+
                 }
             }
 
@@ -158,4 +132,5 @@ namespace FHICORC.Application.Services
 
         }
     }
+
 }

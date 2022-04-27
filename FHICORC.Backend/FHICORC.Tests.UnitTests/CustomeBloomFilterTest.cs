@@ -16,8 +16,8 @@ namespace FHICORC.Tests.UnitTests
         [Test]
         public void CustomeFilter()
         {
-            //var m = 47926;
-            //var k = 33;
+            //var m = 47936;
+            //var k = 32;
             //var bloomStats = CalcEleErr(m, k);
 
             var bloomStats = BloomFilterUtils.CalcOptimalMK(1000, 1E-10);

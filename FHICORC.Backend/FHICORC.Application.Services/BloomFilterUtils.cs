@@ -7,7 +7,7 @@ namespace FHICORC.Application.Services
 {
     public static class BloomFilterUtils
     {
-        public static BitArray AddToFilter(this BitArray filter, string str, int m = 47926, int k = 34)
+        public static BitArray AddToFilter(this BitArray filter, string str, int m = 47936, int k = 32)
         {
             var hash = HashData(Encoding.UTF8.GetBytes(str), m, k);
 
@@ -18,7 +18,7 @@ namespace FHICORC.Application.Services
 
         }
 
-        public static bool Contains(this BitArray filter, string str, int m = 47926, int k = 34)
+        public static bool Contains(this BitArray filter, string str, int m = 47936, int k = 32)
         {
             var hash = HashData(Encoding.UTF8.GetBytes(str), m, k);
 
@@ -125,6 +125,21 @@ namespace FHICORC.Application.Services
             }
 
             return num2;
+        }
+
+        public static BitArray Reverse(this BitArray array)
+        {
+            int length = array.Length;
+            int mid = (length / 2);
+
+            for (int i = 0; i < mid; i++)
+            {
+                bool bit = array[i];
+                array[i] = array[length - i - 1];
+                array[length - i - 1] = bit;
+            }
+
+            return new BitArray(array);
         }
 
 

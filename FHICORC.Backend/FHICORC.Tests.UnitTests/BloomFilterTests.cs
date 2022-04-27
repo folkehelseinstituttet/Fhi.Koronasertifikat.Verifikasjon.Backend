@@ -41,8 +41,8 @@ namespace FHICORC.Tests.UnitTests
 
             byte[] str = Encoding.UTF8.GetBytes("Value");
             //var manualCompteHash = new Murmur3KirschMitzenmacher().ComputeHash(str, 47926, 34);
-            var manualCompteHash = new HashCryptoSHA256().ComputeHash(str, 47926, 34);
-            var manualBoolArr = new bool[47926];
+            var manualCompteHash = new HashCryptoSHA256().ComputeHash(str, 47936, 32);
+            var manualBoolArr = new bool[47936];
 
             foreach (var m in manualCompteHash) {
                 manualBoolArr[m] = true;
@@ -59,14 +59,14 @@ namespace FHICORC.Tests.UnitTests
         [Test]
         public void CustomeFilter() 
         {
-            var m = 47926;
-            var k = 34;
+            var m = 47936;
+            var k = 32;
 
             var filer = new bool[m];
         
         }
 
-        public bool[] AddToFilter(bool[] filter, string str, int m=47926, int k=34)
+        public bool[] AddToFilter(bool[] filter, string str, int m=47936, int k=32)
         {
             var hash = hashData(Encoding.UTF8.GetBytes(str), m, k);
 
@@ -77,7 +77,7 @@ namespace FHICORC.Tests.UnitTests
 
         }
 
-        public bool Contains(bool[] filter, string str, int m = 47926, int k = 34)
+        public bool Contains(bool[] filter, string str, int m = 47936, int k = 32)
         {
             var hash = hashData(Encoding.UTF8.GetBytes(str), m, k);
 
@@ -105,7 +105,7 @@ namespace FHICORC.Tests.UnitTests
             Assert.That(b, Is.True);
         }
 
-        public bool ContainsMockPhone(string str, BitArray filter, int m=47926, int k=34) 
+        public bool ContainsMockPhone(string str, BitArray filter, int m=47936, int k=32) 
         {
             byte[] byteStr = Encoding.UTF8.GetBytes(str);
             var hash = hashData(byteStr, m, k);
