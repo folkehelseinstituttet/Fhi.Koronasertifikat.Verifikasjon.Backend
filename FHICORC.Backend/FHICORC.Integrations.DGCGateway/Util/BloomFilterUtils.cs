@@ -3,11 +3,11 @@ using System.Collections;
 using System.Security.Cryptography;
 using System;
 
-namespace FHICORC.Application.Services
+namespace FHICORC.Integrations.DGCGateway.Util
 {
     public static class BloomFilterUtils
     {
-        public static BitArray AddToFilter(this BitArray filter, string str, int m = 47936, int k = 32)
+        public static BitArray AddToFilter(this BitArray filter, string str, int m, int k)
         {
             var hash = HashData(Encoding.UTF8.GetBytes(str), m, k);
 
@@ -18,7 +18,7 @@ namespace FHICORC.Application.Services
 
         }
 
-        public static bool Contains(this BitArray filter, string str, int m = 47936, int k = 32)
+        public static bool Contains(this BitArray filter, string str, int m, int k)
         {
             var hash = HashData(Encoding.UTF8.GetBytes(str), m, k);
 

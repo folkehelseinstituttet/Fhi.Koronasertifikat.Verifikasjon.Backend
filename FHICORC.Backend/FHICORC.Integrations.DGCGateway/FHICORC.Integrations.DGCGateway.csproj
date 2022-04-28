@@ -34,6 +34,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\FHICORC.Application.Models\FHICORC.Application.Models.csproj" />
 		<ProjectReference Include="..\FHICORC.Domain.Models\FHICORC.Domain.Models.csproj" />
+		<ProjectReference Include="..\FHICORC.Infrastructure.Database\FHICORC.Infrastructure.Database.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

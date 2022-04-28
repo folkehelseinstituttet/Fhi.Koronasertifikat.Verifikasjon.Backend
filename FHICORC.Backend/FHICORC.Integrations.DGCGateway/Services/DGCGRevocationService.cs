@@ -1,25 +1,20 @@
-﻿using System.Text;
-using System.Collections;
-using System.Security.Cryptography;
+﻿using System.Collections;
 using System;
-using System.Linq;
 using Microsoft.Extensions.Logging;
-using FHICORC.Infrastructure.Database.Context;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using FHICORC.Application.Models.Revocation;
 using FHICORC.Domain.Models;
 using FHICORC.Application.Models;
-using System.Threading.Tasks;
+using FHICORC.Infrastructure.Database.Context;
+using FHICORC.Integrations.DGCGateway.Util;
+using Microsoft.EntityFrameworkCore;
 
-namespace FHICORC.Application.Services
+namespace FHICORC.Integrations.DGCGateway.Services
 {
-    public class RevocationService : IRevocationService
+    public class DGCGRevocationService : IDGCGRevocationService
     {
-        private readonly ILogger<RevocationService> _logger;
+        private readonly ILogger<DGCGRevocationService> _logger;
         private readonly CoronapassContext _coronapassContext;
 
-        public RevocationService(ILogger<RevocationService> logger, CoronapassContext coronapassContext)
+        public DGCGRevocationService(ILogger<DGCGRevocationService> logger, CoronapassContext coronapassContext)
         {
             _logger = logger;
             _coronapassContext = coronapassContext;

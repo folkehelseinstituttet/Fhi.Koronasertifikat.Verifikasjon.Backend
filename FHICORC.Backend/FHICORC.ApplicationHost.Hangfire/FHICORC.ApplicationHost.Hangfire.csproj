@@ -24,7 +24,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\FHICORC.Application.Common\FHICORC.Application.Common.csproj" />
 		<ProjectReference Include="..\FHICORC.Application.Repositories\FHICORC.Application.Repositories.csproj" />
-		<ProjectReference Include="..\FHICORC.Application.Services\FHICORC.Application.Services.csproj" />
 		<ProjectReference Include="..\FHICORC.Application.Validation\FHICORC.Application.Validation.csproj" />
     <ProjectReference Include="..\FHICORC.Infrastructure.Database\FHICORC.Infrastructure.Database.csproj" />
 		<ProjectReference Include="..\FHICORC.Integrations.DGCGateway\FHICORC.Integrations.DGCGateway.csproj" />

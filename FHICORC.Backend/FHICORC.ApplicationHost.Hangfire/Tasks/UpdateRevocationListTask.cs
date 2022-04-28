@@ -4,14 +4,11 @@ using Hangfire;
 using Microsoft.Extensions.Logging;
 using FHICORC.Application.Common.Interfaces;
 using FHICORC.Application.Models.Options;
-using FHICORC.Application.Repositories.Enums;
-using FHICORC.Application.Repositories.Interfaces;
 using FHICORC.ApplicationHost.Hangfire.Interfaces;
 using FHICORC.Integrations.DGCGateway;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
-using FHICORC.Integrations.UkGateway.Services.Interfaces;
 using FHICORC.Application.Models;
-using FHICORC.Application.Services;
+using FHICORC.Integrations.DGCGateway.Services;
 
 namespace FHICORC.ApplicationHost.Hangfire.Tasks
 {
@@ -24,12 +21,12 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         private readonly CronOptions _cronOptions;
         private readonly IDgcgService _dgcgService;
         private readonly IMetricLogService _metricLogService;
-        private readonly IRevocationService _revocationService;
+        private readonly IDGCGRevocationService _revocationService;
 
         public UpdateRevocationListTask(ILogger<UpdateCertificateRepositoryTask> logger, CronOptions cronOptions,
             IDgcgService dgcgService,
             IMetricLogService metricLogService,
-            IRevocationService revocationService)
+            IDGCGRevocationService revocationService)
         {
             _logger = logger;
             _cronOptions = cronOptions;
@@ -76,23 +73,10 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
 
             try
             {
-
-
-                //var batchId = "699978cf-d2d4-4093-8b54-ab2cf695d76d";
-                //revocationBatchList.Batches[0].BatchId;
-
-                var cnt = 0; 
                 foreach (var rb in revocationBatchList.Batches) {
                     var revocationHashList = await _dgcgService.GetRevocationBatchAsync(rb.BatchId);
-
                     _revocationService.AddToDatabase(rb, revocationHashList);
-
-                    //cnt += 1;
-
-                    //if (cnt >= 2)
-                    //    break;
                 }
-
 
                 //TRUNCATE public."BatchesRevoc", public."SuperFiltersRevoc" CASCADE;
                 _metricLogService.AddMetric("RetrieveRevocationBatch_Success", true);

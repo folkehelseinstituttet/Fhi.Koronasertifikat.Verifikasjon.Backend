@@ -3,7 +3,7 @@ using FHICORC.Application.Repositories.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using FHICORC.ApplicationHost.Hangfire.Interfaces;
 using FHICORC.ApplicationHost.Hangfire.Tasks;
-using FHICORC.Application.Services;
+using FHICORC.Integrations.DGCGateway.Services;
 
 namespace FHICORC.ApplicationHost.Hangfire
 {
@@ -17,7 +17,7 @@ namespace FHICORC.ApplicationHost.Hangfire
                 .AddScoped<IUpdateRevocationListTask, UpdateRevocationListTask>()
                 .AddScoped<ICountriesReportRepository, CountriesReportRepository>()
                 .AddScoped<ICountriesReportRepositoryTask, CountriesReportRepositoryTask>()
-                .AddScoped<IRevocationService, RevocationService>();
+                .AddScoped<IDGCGRevocationService, DGCGRevocationService>();
         }
     }
 }
