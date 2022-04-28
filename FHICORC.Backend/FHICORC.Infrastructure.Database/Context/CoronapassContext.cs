@@ -35,16 +35,17 @@ namespace FHICORC.Infrastructure.Database.Context
                 .IsUnique();
 
 
-            modelBuilder.Entity<HashesRevoc>()
-                 .HasOne(x => x.BatchesRevoc)
-                 .WithMany()
-                 .HasForeignKey(x => x.BatchId);
+            //modelBuilder.Entity<HashesRevoc>()
+            //     .HasOne(x => x.BatchesRevoc)
+            //     .WithMany()
+            //     .HasForeignKey(x => x.BatchId);
 
 
-            modelBuilder.Entity<BatchesRevoc>()
-                .HasOne(a => a.FiltersRevoc)
-                .WithOne(a => a.BatchesRevoc)
-                .HasForeignKey<FiltersRevoc>(c => c.BatchId);
+            //modelBuilder.Entity<BatchesRevoc>()
+            //    .HasOne(a => a.FiltersRevoc)
+            //    .WithOne(a => a.BatchesRevoc)
+            //    .HasForeignKey<FiltersRevoc>(c => c.BatchId);
+
 
             //modelBuilder.Entity<BatchesRevoc>()
             // .HasOne(x => x.SuperFiltersRevoc)

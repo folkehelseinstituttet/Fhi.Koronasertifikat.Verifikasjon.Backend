@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using FHICORC.Application.Models.Revocation;
 using FHICORC.Domain.Models;
 using FHICORC.Application.Models;
+using System.Threading.Tasks;
 
 namespace FHICORC.Application.Services
 {
@@ -26,20 +27,26 @@ namespace FHICORC.Application.Services
 
         public void AddToDatabase(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch) {
 
-            FillInBatchRevoc(batchRoot, batch);
+            var batchId = batchRoot.BatchId;
+            var batchesRevoc = FillInBatchRevoc(batchRoot, batch);
 
-            var filter = FillInHashRevoc(batchRoot, batch);
-
+            var filter = GenerateBatchFilter(batch);
             byte[] filterBytes = new byte[(filter.Length - 1) / 8 + 1];
             filter.CopyTo(filterBytes, 0);
-            FillInFilterRevoc(batchRoot, filterBytes);
+            var filtersRevoc = FillInFilterRevoc(batchId, filterBytes);
+                
+            var superId = FillInSuperFilterRevoc(batch, filterBytes);
+            batchesRevoc.SuperId = superId;
 
-            FillInSuperFilterRevoc(batch, filterBytes);
+            _coronapassContext.BatchesRevoc.Add(batchesRevoc);
+            _coronapassContext.FiltersRevoc.Add(filtersRevoc);
+            AddHashRevoc(batchId, batch);
 
+            _coronapassContext.SaveChanges();
         }
 
 
-        private void FillInBatchRevoc(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch) {
+        private BatchesRevoc FillInBatchRevoc(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch) {
             var batchesRevoc = new BatchesRevoc()
             {
                 BatchId = batchRoot.BatchId,
@@ -51,12 +58,10 @@ namespace FHICORC.Application.Services
                 HashType = batch.HashType,
                 Upload = false,
             };
-            _coronapassContext.BatchesRevoc.Add(batchesRevoc);
-            _coronapassContext.SaveChanges();
+            return batchesRevoc;
         }
 
-        private BitArray FillInHashRevoc(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch) {
-
+        private BitArray GenerateBatchFilter(DGCGRevocationBatchRespondDto batch) {
             var m = 47936;
             var k = 32;
 
@@ -64,34 +69,36 @@ namespace FHICORC.Application.Services
 
             foreach (var b in batch.Entries)
             {
-                var _hashesRevoc = new HashesRevoc()
-                {
-                    BatchId = batchRoot.BatchId,
-                    Hash = b.Hash
-                };
-
                 filter.AddToFilter(b.Hash, m, k);
-                _coronapassContext.HashesRevoc.Add(_hashesRevoc);
             }
-            _coronapassContext.SaveChanges();
-
-
             return filter;
         }
 
-        private void FillInFilterRevoc(DgcgRevocationListBatchItem batchRoot, byte[] filterBytes) {
-            var filtersRevoc = new FiltersRevoc()
+        private void AddHashRevoc(string batchId, DGCGRevocationBatchRespondDto batch) {
+            foreach (var b in batch.Entries)
             {
-                BatchId = batchRoot.BatchId,
-                Filter = filterBytes,
-            };
-            _coronapassContext.FiltersRevoc.Add(filtersRevoc);
-            _coronapassContext.SaveChanges();
+                var _hashesRevoc = new HashesRevoc()
+                {
+                    BatchId = batchId,
+                    Hash = b.Hash
+                };
+                _coronapassContext.HashesRevoc.Add(_hashesRevoc);
+            }
         }
 
-        private void FillInSuperFilterRevoc(DGCGRevocationBatchRespondDto batch, byte[] filterBytes) {
-            var exist = false;
+        private FiltersRevoc FillInFilterRevoc(string batchId, byte[] filterBytes) {
+            var filtersRevoc = new FiltersRevoc()
+            {
+                BatchId = batchId,
+                Filter = filterBytes,
+            };
+
+            return filtersRevoc;    
+        }
+
+        private int FillInSuperFilterRevoc(DGCGRevocationBatchRespondDto batch, byte[] filterBytes) {
             var currenBatchCount = batch.Entries.Count;
+
             foreach (var su in _coronapassContext.SuperFiltersRevoc)
             {
                 if (su.BatchCount + currenBatchCount <= 1000)
@@ -109,25 +116,21 @@ namespace FHICORC.Application.Services
 
                     _coronapassContext.Entry(su).State = EntityState.Modified;
 
-                    exist = true;
-                    break;
+                    return su.Id;
 
                 }
             }
 
-            if (!exist)
+            var superFilterRevoc = new SuperFiltersRevoc()
             {
-                var superFilterRevoc = new SuperFiltersRevoc()
-                {
-                    SuperFilter = filterBytes,
-                    BatchCount = currenBatchCount,
-                    Modified = DateTime.UtcNow
-                };
+                SuperFilter = filterBytes,
+                BatchCount = currenBatchCount,
+                Modified = DateTime.UtcNow
+            };
 
-                _coronapassContext.SuperFiltersRevoc.Add(superFilterRevoc);
-            }
-
+            _coronapassContext.SuperFiltersRevoc.Add(superFilterRevoc);
             _coronapassContext.SaveChanges();
+            return superFilterRevoc.Id;
 
 
         }

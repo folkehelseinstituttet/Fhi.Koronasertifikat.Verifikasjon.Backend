@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -16,14 +17,18 @@ namespace FHICORC.Domain.Models
         public string HashType { get; set; }
         public bool Upload { get; set; }
 
-        //[ForeignKey(nameof(SuperFiltersRevoc))]
-        public int? SuperFiltersRevocId { get; set; }
-        //public virtual SuperFiltersRevoc SuperFiltersRevoc { get; set; }
+        [ForeignKey(nameof(SuperFiltersRevoc))]
+        public int? SuperId { get; set; }
 
+        
+        public virtual SuperFiltersRevoc SuperFiltersRevoc { get; set; }
 
+        //[ForeignKey(nameof(FiltersRevoc))]
+        //public virtual FiltersRevoc FiltersRevoc { get; set; }
 
-        public virtual FiltersRevoc FiltersRevoc { get; set; }
-        public virtual HashesRevoc HashesRevoc { get; set; }
+        public virtual ICollection<FiltersRevoc> FiltersRevocs { get; set; }
+        public virtual ICollection<HashesRevoc> HashesRevocs { get; set; }
+
 
     }
 }

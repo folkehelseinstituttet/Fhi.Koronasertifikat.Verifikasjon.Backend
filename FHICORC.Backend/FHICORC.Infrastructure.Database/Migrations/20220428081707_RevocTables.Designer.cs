@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FHICORC.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(CoronapassContext))]
-    [Migration("20220426123358_RevocModifiedDate")]
-    partial class RevocModifiedDate
+    [Migration("20220428081707_RevocTables")]
+    partial class RevocTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -41,13 +41,10 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.Property<string>("HashType")
                         .HasColumnType("text");
 
-                    b.Property<int?>("HashesRevocId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Kid")
                         .HasColumnType("text");
 
-                    b.Property<int?>("SuperFiltersRevocId")
+                    b.Property<int?>("SuperId")
                         .HasColumnType("integer");
 
                     b.Property<bool>("Upload")
@@ -55,7 +52,7 @@ namespace FHICORC.Infrastructure.Database.Migrations
 
                     b.HasKey("BatchId");
 
-                    b.HasIndex("HashesRevocId");
+                    b.HasIndex("SuperId");
 
                     b.ToTable("BatchesRevoc");
                 });
@@ -147,11 +144,16 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.Property<string>("BatchId")
                         .HasColumnType("text");
 
+                    b.Property<string>("BatchesRevocBatchId")
+                        .HasColumnType("text");
+
                     b.Property<byte[]>("Filter")
                         .HasMaxLength(5992)
                         .HasColumnType("bytea");
 
                     b.HasKey("BatchId");
+
+                    b.HasIndex("BatchesRevocBatchId");
 
                     b.ToTable("FiltersRevoc");
                 });
@@ -203,20 +205,18 @@ namespace FHICORC.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("FHICORC.Domain.Models.BatchesRevoc", b =>
                 {
-                    b.HasOne("FHICORC.Domain.Models.HashesRevoc", "HashesRevoc")
-                        .WithMany()
-                        .HasForeignKey("HashesRevocId");
+                    b.HasOne("FHICORC.Domain.Models.SuperFiltersRevoc", "SuperFiltersRevoc")
+                        .WithMany("BatchesRevocs")
+                        .HasForeignKey("SuperId");
 
-                    b.Navigation("HashesRevoc");
+                    b.Navigation("SuperFiltersRevoc");
                 });
 
             modelBuilder.Entity("FHICORC.Domain.Models.FiltersRevoc", b =>
                 {
                     b.HasOne("FHICORC.Domain.Models.BatchesRevoc", "BatchesRevoc")
-                        .WithOne("FiltersRevoc")
-                        .HasForeignKey("FHICORC.Domain.Models.FiltersRevoc", "BatchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("FiltersRevocs")
+                        .HasForeignKey("BatchesRevocBatchId");
 
                     b.Navigation("BatchesRevoc");
                 });
@@ -224,7 +224,7 @@ namespace FHICORC.Infrastructure.Database.Migrations
             modelBuilder.Entity("FHICORC.Domain.Models.HashesRevoc", b =>
                 {
                     b.HasOne("FHICORC.Domain.Models.BatchesRevoc", "BatchesRevoc")
-                        .WithMany()
+                        .WithMany("HashesRevocs")
                         .HasForeignKey("BatchId");
 
                     b.Navigation("BatchesRevoc");
@@ -232,7 +232,14 @@ namespace FHICORC.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("FHICORC.Domain.Models.BatchesRevoc", b =>
                 {
-                    b.Navigation("FiltersRevoc");
+                    b.Navigation("FiltersRevocs");
+
+                    b.Navigation("HashesRevocs");
+                });
+
+            modelBuilder.Entity("FHICORC.Domain.Models.SuperFiltersRevoc", b =>
+                {
+                    b.Navigation("BatchesRevocs");
                 });
 #pragma warning restore 612, 618
         }

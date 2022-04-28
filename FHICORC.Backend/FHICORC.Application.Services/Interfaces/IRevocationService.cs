@@ -8,6 +8,7 @@ using FHICORC.Infrastructure.Database.Context;
 using FHICORC.Application.Models.Revocation;
 using System.Collections.Generic;
 using FHICORC.Application.Models;
+using System.Threading.Tasks;
 
 namespace FHICORC.Application.Services
 {
