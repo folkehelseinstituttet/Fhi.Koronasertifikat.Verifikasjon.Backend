@@ -9,12 +9,12 @@ using FHICORC.Integrations.DGCGateway.Util;
 
 namespace FHICORC.Application.Services
 {
-    public class BloomFilterService : IBloomFilterService
+    public class RevocationService : IRevocationService
     {
-        private readonly ILogger<BloomFilterService> _logger;
+        private readonly ILogger<RevocationService> _logger;
         private readonly CoronapassContext _coronapassContext;
 
-        public BloomFilterService(ILogger<BloomFilterService> logger, CoronapassContext coronapassContext)
+        public RevocationService(ILogger<RevocationService> logger, CoronapassContext coronapassContext)
         {
             _logger = logger;
             _coronapassContext = coronapassContext;

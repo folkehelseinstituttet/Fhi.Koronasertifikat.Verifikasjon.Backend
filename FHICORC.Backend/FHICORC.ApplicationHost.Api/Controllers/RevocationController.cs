@@ -15,9 +15,9 @@ namespace FHICORC.ApplicationHost.Api.Controllers
     public class RevocationController : ControllerBase
     {
 
-        private readonly IBloomFilterService _bloomFilterService;
+        private readonly IRevocationService _bloomFilterService;
 
-        public RevocationController(IBloomFilterService bloomFilterService)
+        public RevocationController(IRevocationService bloomFilterService)
         {
             _bloomFilterService = bloomFilterService;
         }

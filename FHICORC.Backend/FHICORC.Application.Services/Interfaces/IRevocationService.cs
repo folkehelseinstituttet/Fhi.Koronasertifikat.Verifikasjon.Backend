@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace FHICORC.Application.Services
 {
-    public interface IBloomFilterService
+    public interface IRevocationService
     {
         public bool ContainsCertificate(string dcc);
     }
