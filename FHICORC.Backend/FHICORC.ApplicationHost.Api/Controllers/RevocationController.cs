@@ -12,7 +12,6 @@ namespace FHICORC.ApplicationHost.Api.Controllers
     [Route("v{version:apiVersion}/[controller]")]
     public class RevocationController : ControllerBase
     {
-
         private readonly IRevocationService _revocationService;
 
         public RevocationController(IRevocationService revocationService)
@@ -32,7 +31,6 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         public SuperBatchesDto DownloadRevocationSuperBatches([FromHeader] DateTime lastDownloaded) {
             return _revocationService.FetchSuperBatches(lastDownloaded);
         }
-
 
     }
 }
