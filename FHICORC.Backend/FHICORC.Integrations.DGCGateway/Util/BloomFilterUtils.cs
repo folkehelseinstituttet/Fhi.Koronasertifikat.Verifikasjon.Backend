@@ -142,6 +142,14 @@ namespace FHICORC.Integrations.DGCGateway.Util
             return new BitArray(array);
         }
 
+        public static byte[] BitToByteArray(BitArray bitArray) {
+
+            byte[] byteArray = new byte[(bitArray.Length - 1) / 8 + 1];
+            bitArray.CopyTo(byteArray, 0);
+
+            return byteArray;
+
+        }
 
         public static BloomStats CalcOptimalMK(int expectedElements, double errorRate)
         {

@@ -6,6 +6,8 @@ using FHICORC.Application.Models;
 using FHICORC.Infrastructure.Database.Context;
 using FHICORC.Integrations.DGCGateway.Util;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace FHICORC.Integrations.DGCGateway.Services
 {
@@ -18,6 +20,59 @@ namespace FHICORC.Integrations.DGCGateway.Services
         {
             _logger = logger;
             _coronapassContext = coronapassContext;
+        }
+
+        public void DeleteExpiredBatches()
+        {
+            var batchesToDelete = _coronapassContext.BatchesRevoc
+                .Where(b => !b.Deleted && b.Expires <= DateTime.UtcNow);
+
+            var superBatchIdsToRecalculate = new HashSet<int>();
+            foreach (var b in batchesToDelete)
+            {
+                b.Deleted = true;
+
+                if (b.SuperId is not null)
+                    superBatchIdsToRecalculate.Add((int)b.SuperId);
+
+                b.SuperId = null;
+            }
+
+            _coronapassContext.Entry(batchesToDelete).State = EntityState.Modified;
+            _coronapassContext.SaveChanges();
+
+            RestructureSuperFilters(superBatchIdsToRecalculate.ToList());
+
+        }
+
+        public void RestructureSuperFilters(List<int> superIds)
+        {
+
+            foreach (var id in superIds)
+            {
+                var m = 47936;
+                var filter = new BitArray(m);
+                var cnt = 0;
+
+                var superBatch = _coronapassContext.SuperFiltersRevoc.FirstOrDefault(b => b.Id == id);
+
+                _ = superBatch.BatchesRevocs
+                    .Where(b => !b.Deleted)
+                    .Select(f => new
+                    {
+                        _ = filter.Or(new BitArray(f.FiltersRevoc.Filter)),
+                        c = cnt += f.HashesRevocs.Count
+                    });
+                    
+                var filterByte = BloomFilterUtils.BitToByteArray(filter);
+                superBatch.SuperFilter = filterByte;
+                superBatch.BatchCount = cnt;
+
+                _coronapassContext.Entry(superBatch).State = EntityState.Modified;
+
+            }
+            _coronapassContext.SaveChanges();
+
         }
 
         public void AddToDatabase(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch) {
