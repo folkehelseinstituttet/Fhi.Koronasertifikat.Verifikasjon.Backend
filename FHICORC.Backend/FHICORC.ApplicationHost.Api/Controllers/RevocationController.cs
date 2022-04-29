@@ -1,10 +1,8 @@
-﻿using FHICORC.Application.Models.Revocation;
+﻿using FHICORC.Application.Models;
 using FHICORC.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace FHICORC.ApplicationHost.Api.Controllers
 {
@@ -14,20 +12,25 @@ namespace FHICORC.ApplicationHost.Api.Controllers
     [Route("v{version:apiVersion}/[controller]")]
     public class RevocationController : ControllerBase
     {
+        private readonly IRevocationService _revocationService;
 
-        private readonly IRevocationService _bloomFilterService;
-
-        public RevocationController(IRevocationService bloomFilterService)
+        public RevocationController(IRevocationService revocationService)
         {
-            _bloomFilterService = bloomFilterService;
+            _revocationService = revocationService;
         }
 
 
         [HttpGet("certificate")]
         public IActionResult CheckCertificateRevocated([FromHeader] string dcc)
         {
-
-            return Ok(_bloomFilterService.ContainsCertificate(dcc));
+            return Ok(_revocationService.ContainsCertificate(dcc));
         }
+
+
+        [HttpGet("download")]
+        public SuperBatchesDto DownloadRevocationSuperBatches([FromHeader] DateTime lastDownloaded) {
+            return _revocationService.FetchSuperBatches(lastDownloaded);
+        }
+
     }
 }

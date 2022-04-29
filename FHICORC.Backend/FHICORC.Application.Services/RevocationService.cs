@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using FHICORC.Infrastructure.Database.Context;
 using Microsoft.EntityFrameworkCore;
 using FHICORC.Integrations.DGCGateway.Util;
+using FHICORC.Application.Models;
 
 namespace FHICORC.Application.Services
 {
@@ -36,5 +37,22 @@ namespace FHICORC.Application.Services
             }
             return false;
         }
+
+
+        public SuperBatchesDto FetchSuperBatches(DateTime dateTime) {
+            var superBatchList = _coronapassContext.SuperFiltersRevoc
+                .Where(s => s.Modified <= dateTime)
+                .Select(x => new SuperBatch()
+                {
+                    Id = x.Id,
+                    SuperFilter = x.SuperFilter,
+                }
+                ).ToList();
+
+            return new SuperBatchesDto()
+            {
+                SuperBatches = superBatchList
+            };           
+        }     
     }
 }
