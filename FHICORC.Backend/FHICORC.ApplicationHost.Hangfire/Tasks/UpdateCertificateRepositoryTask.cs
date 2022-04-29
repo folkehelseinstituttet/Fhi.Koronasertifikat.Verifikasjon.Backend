@@ -55,14 +55,6 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         public async Task UpdateEuCertificateRepository()
         {
             var failure = false;
-
-            //try 
-            //{
-            //    var rev = await _dgcgService.GetRevocationListAsync();
-            //}
-            //catch(Exception e){
-            //    var k = e;
-            //}
             
             try
             {
