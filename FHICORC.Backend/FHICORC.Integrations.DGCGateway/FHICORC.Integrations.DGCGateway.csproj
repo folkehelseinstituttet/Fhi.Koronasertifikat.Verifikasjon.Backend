@@ -25,6 +25,7 @@
 		<PackageReference Include="Serilog" Version="2.10.0" />
 		<PackageReference Include="Microsoft.IdentityModel.Protocols.WsTrust" Version="6.8.0" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.9.0" />
+		<PackageReference Include="System.Runtime.Extensions" Version="4.3.1" />
 		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="5.0.1" />
 		<PackageReference Include="System.ServiceModel.Http" Version="4.8.1" />
 		<PackageReference Include="System.ServiceModel.Primitives" Version="4.8.1" />
@@ -33,6 +34,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\FHICORC.Application.Models\FHICORC.Application.Models.csproj" />
 		<ProjectReference Include="..\FHICORC.Domain.Models\FHICORC.Domain.Models.csproj" />
+		<ProjectReference Include="..\FHICORC.Infrastructure.Database\FHICORC.Infrastructure.Database.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

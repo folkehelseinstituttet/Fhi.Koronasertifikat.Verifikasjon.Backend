@@ -41,6 +41,22 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 _logger.LogInformation("Verified successfully {count} ", verifiedResponse.TrustListItems.Count);
                 return verifiedResponse;
             }
-        } 
-    }
+        }
+
+        public async Task<DgcgRevocationBatchListRespondDto> GetRevocationBatchListAsync() 
+        {
+            var d = "2021-06-01T00:00:00Z";
+            var fullResponse = await _dgcgClient.FetchRevocationBatchListAsync(d);
+
+            return fullResponse;
+
+        }
+
+        public async Task<DGCGRevocationBatchRespondDto> GetRevocationBatchAsync(string batchId)
+        {
+
+            var fullResponse = await _dgcgClient.FetchRevocationBatchAsync(batchId);
+            return fullResponse;
+        }
+    }   
 }

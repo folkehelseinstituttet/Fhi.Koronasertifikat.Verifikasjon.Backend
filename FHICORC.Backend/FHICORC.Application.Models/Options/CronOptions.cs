@@ -9,6 +9,10 @@ namespace FHICORC.Application.Models.Options
         [Required]
         public int ScheduleUpdateEuCertificateRepositoryOnStartupAfterSeconds { get; set; }
         [Required]
+        public string UpdateRevocationListTaskCron { get; set; }
+        [Required]
+        public int ScheduleUpdateRevocationListTaskOnStartupAfterSeconds { get; set; }
+        [Required]
         public string CountriesReportRepositoryCron { get; set; }
         [Required]
         public int CountriesReportRepositoryOnStartupAfterSeconds { get; set; }
