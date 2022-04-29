@@ -80,7 +80,8 @@ namespace FHICORC.Integrations.DGCGateway.Services
             var batchId = batchRoot.BatchId;
             var batchesRevoc = FillInBatchRevoc(batchRoot, batch);
 
-            var filter = GenerateBatchFilter(batch);
+            var filter = GenerateBatchFilter(batch, 47936, 32);
+
             byte[] filterBytes = new byte[(filter.Length - 1) / 8 + 1];
             filter.CopyTo(filterBytes, 0);
             var filtersRevoc = FillInFilterRevoc(batchId, filterBytes);
@@ -96,7 +97,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
         }
 
 
-        private BatchesRevoc FillInBatchRevoc(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch) {
+        public static BatchesRevoc FillInBatchRevoc(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch) {
             var batchesRevoc = new BatchesRevoc()
             {
                 BatchId = batchRoot.BatchId,
@@ -111,10 +112,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
             return batchesRevoc;
         }
 
-        private BitArray GenerateBatchFilter(DGCGRevocationBatchRespondDto batch) {
-            var m = 47936;
-            var k = 32;
-
+        public static BitArray GenerateBatchFilter(DGCGRevocationBatchRespondDto batch, int m, int k) {
             var filter = new BitArray(m);
 
             foreach (var b in batch.Entries)
@@ -136,7 +134,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
             }
         }
 
-        private FiltersRevoc FillInFilterRevoc(string batchId, byte[] filterBytes) {
+        public static FiltersRevoc FillInFilterRevoc(string batchId, byte[] filterBytes) {
             var filtersRevoc = new FiltersRevoc()
             {
                 BatchId = batchId,
