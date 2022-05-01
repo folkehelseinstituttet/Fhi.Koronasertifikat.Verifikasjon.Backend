@@ -5,6 +5,7 @@ using System.Linq;
 using FHICORC.Application.Models;
 using FHICORC.Application.Models.Options;
 using FHICORC.Domain.Models;
+using FHICORC.Infrastructure.Database.Context;
 using FHICORC.Integrations.DGCGateway.Models;
 using FHICORC.Integrations.DGCGateway.Services;
 using FHICORC.Integrations.DGCGateway.Util;
@@ -21,10 +22,7 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
     {
         ILogger<DgcgResponseParser> nullLogger = new NullLoggerFactory().CreateLogger<DgcgResponseParser>();
         private readonly Mock<FeatureToggles> featureTogglesMock = new Mock<FeatureToggles>();
-
-
-        //private DGCGRevocationService DGCGRevocationService;
-
+        private CoronapassContext _coronapassContext;
 
         private DgcgRevocationListBatchItem batchRoot;
         private DGCGRevocationBatchRespondDto batch;
@@ -32,9 +30,6 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
         [SetUp]
         public void Setup()
         {
-
-            //DGCGRevocationService = new DGCGRevocationService();
-
             batchRoot = new DgcgRevocationListBatchItem()
             {
                 BatchId = "abc",
@@ -98,6 +93,16 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
         }
 
 
+        [Test]
+        public void Download() {
+
+
+            var parsedResponse = JsonConvert.DeserializeObject<DgcgRevocationBatchListRespondDto>(File.ReadAllText("TestFiles/tst_revocation_batch_list.json"));
+            _coronapassContext = SeedDb.GetInMemoryContext();
+
+
+        }
+
 
         private List<string> GenerateRandomStrings(int numberOfStrings)
         {
@@ -114,6 +119,7 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
         }
 
 
+        
 
 
     }
