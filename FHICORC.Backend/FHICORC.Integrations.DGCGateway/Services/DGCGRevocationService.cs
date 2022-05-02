@@ -92,12 +92,12 @@ namespace FHICORC.Integrations.DGCGateway.Services
             var batchId = batchRoot.BatchId;
             var batchesRevoc = FillInBatchRevoc(batchRoot, batch);
 
-            var filter = GenerateBatchFilter(batch, 47936, 32);
+            var filter = GenerateBatchFilter(batch.Entries, 47936, 32);
 
             var filterBytes = BloomFilterUtils.BitToByteArray(filter);
             var filtersRevoc = FillInFilterRevoc(batchId, filterBytes);
                 
-            var superId = FillInSuperFilterRevoc(batch, filterBytes);
+            var superId = FillInSuperFilterRevoc(batch.Entries.Count, filterBytes);
             batchesRevoc.SuperId = superId;
 
             _coronapassContext.BatchesRevoc.Add(batchesRevoc);
@@ -123,12 +123,12 @@ namespace FHICORC.Integrations.DGCGateway.Services
             return batchesRevoc;
         }
 
-        public static BitArray GenerateBatchFilter(DGCGRevocationBatchRespondDto batch, int m, int k) {
+        public static BitArray GenerateBatchFilter(List<DgcgHashItem> dgcgHashItems, int m, int k) {
             var filter = new BitArray(m);
 
-            foreach (var b in batch.Entries)
+            foreach (var h in dgcgHashItems)
             {
-                filter.AddToFilter(b.Hash, m, k);
+                filter.AddToFilter(h.Hash, m, k);
             }
             return filter;
         }
@@ -155,8 +155,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
             return filtersRevoc;    
         }
 
-        private int FillInSuperFilterRevoc(DGCGRevocationBatchRespondDto batch, byte[] filterBytes) {
-            var currenBatchCount = batch.Entries.Count;
+        public int FillInSuperFilterRevoc(int currenBatchCount, byte[] filterBytes){               
 
             foreach (var su in _coronapassContext.SuperFiltersRevoc)
             {

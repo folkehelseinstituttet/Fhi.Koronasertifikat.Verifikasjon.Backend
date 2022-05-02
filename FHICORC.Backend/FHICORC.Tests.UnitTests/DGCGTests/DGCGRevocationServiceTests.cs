@@ -84,25 +84,13 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
             GenerateRandomStrings(1000).ForEach(s => batch.Entries.Add(new DgcgHashItem() { Hash = s }));
 
             //Act
-            var filter = DGCGRevocationService.GenerateBatchFilter(batch, m, k);
+            var filter = DGCGRevocationService.GenerateBatchFilter(batch.Entries, m, k);
 
             //Assert
             batch.Entries.ForEach(e => Assert.True(filter.Contains(e.Hash, m, k)));
             GenerateRandomStrings(1000).ForEach(s => Assert.False(filter.Contains(s, m, k)));
             Assert.False(filter.Contains("thisShouldNotExist", m, k));
         }
-
-
-        [Test]
-        public void Download() {
-
-
-            var parsedResponse = JsonConvert.DeserializeObject<DgcgRevocationBatchListRespondDto>(File.ReadAllText("TestFiles/tst_revocation_batch_list.json"));
-            _coronapassContext = SeedDb.GetInMemoryContext();
-
-
-        }
-
 
         private List<string> GenerateRandomStrings(int numberOfStrings)
         {
