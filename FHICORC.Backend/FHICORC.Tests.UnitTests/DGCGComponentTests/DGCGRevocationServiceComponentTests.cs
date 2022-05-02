@@ -59,14 +59,9 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
 
 
                 }
-                catch (Exception e)
-                {
-
-                }
-
+                catch (Exception e) { }
             }
         }
-
 
 
         [Test]
@@ -84,12 +79,10 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
         public void SuperFilterTest()
         {
             var revocationService = new RevocationService(loggerRevocationService, _coronapassContext);
-
             _coronapassContext.HashesRevoc
                 .ToList()
                 .ForEach(h => Assert.True(revocationService.ContainsCertificate(h.Hash)));
         }
-
 
 
         [Test]
@@ -125,7 +118,6 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
                 .Where(x => x.BatchId != batchId)
                 .ToList()
                 .ForEach(h => Assert.True(revocationService.ContainsCertificateFilter(h.Hash)));
-
         }
 
 
@@ -134,10 +126,6 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
         {
             _coronapassContext.Database.EnsureDeleted();
         }
-
-
-
-
 
     }
 }
