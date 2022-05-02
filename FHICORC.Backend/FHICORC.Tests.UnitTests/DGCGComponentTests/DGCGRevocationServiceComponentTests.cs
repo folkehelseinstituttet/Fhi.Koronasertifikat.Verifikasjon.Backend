@@ -9,10 +9,12 @@ using FHICORC.Application.Models;
 using FHICORC.Application.Services;
 using FHICORC.Infrastructure.Database.Context;
 using FHICORC.Integrations.DGCGateway.Services;
+using FHICORC.Integrations.DGCGateway.Services.Interfaces;
 using FHICORC.Integrations.DGCGateway.Util;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace FHICORC.Tests.UnitTests.DGCGComponentTests
@@ -24,12 +26,13 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
         ILogger<RevocationService> loggerRevocationService = new NullLoggerFactory().CreateLogger<RevocationService>();
         private CoronapassContext _coronapassContext;
         private DGCGRevocationService _dgcgRevocationService;
+        private readonly IDgcgService _dgcgService = Substitute.For<IDgcgService>();
 
         [SetUp]
         public void Setup()
         {
             _coronapassContext = SeedDb.GetInMemoryContext();
-            _dgcgRevocationService = new DGCGRevocationService(loggerDGCGRevocationService, _coronapassContext);
+            _dgcgRevocationService = new DGCGRevocationService(loggerDGCGRevocationService, _coronapassContext, _dgcgService);
             SeedDatabase();
         }
 
@@ -65,8 +68,20 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
         }
 
 
+
         [Test]
-        public void CheckIfSuperFilterWork()
+        public void AddToDatabaseTest() {
+
+            Assert.AreEqual(_coronapassContext.BatchesRevoc.Count(), 102);
+            Assert.AreEqual(_coronapassContext.FiltersRevoc.Count(), 102);
+            Assert.AreEqual(_coronapassContext.HashesRevoc.Count(), 1638);
+            Assert.AreEqual(_coronapassContext.SuperFiltersRevoc.Count(), 2);
+
+        }
+
+
+        [Test]
+        public void SuperFilterTest()
         {
             var revocationService = new RevocationService(loggerRevocationService, _coronapassContext);
 
@@ -90,7 +105,7 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
             var hashInExpiredBatch = expiredBatch.HashesRevocs.FirstOrDefault().Hash;
             var inSuperFilterBefore = revocationService.ContainsCertificateFilter(hashInExpiredBatch);
 
-            CheckIfSuperFilterWork();
+            SuperFilterTest();
 
 
             //Act 

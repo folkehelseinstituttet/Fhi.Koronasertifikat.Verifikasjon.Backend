@@ -51,7 +51,7 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
             var failure = false;
             DgcgRevocationBatchListRespondDto revocationBatchList = new DgcgRevocationBatchListRespondDto();
 
-            _revocationService.DeleteExpiredBatches();
+            //_revocationService.DeleteExpiredBatches();
             try
             {
                 revocationBatchList = await _dgcgService.GetRevocationBatchListAsync();
@@ -73,10 +73,18 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
 
             try
             {
+
+                //_revocationService.PopulateRevocationDatabase(revocationBatchList);
+
                 foreach (var rb in revocationBatchList.Batches)
                 {
-                    var revocationHashList = await _dgcgService.GetRevocationBatchAsync(rb.BatchId);
-                    _revocationService.AddToDatabase(rb, revocationHashList);
+                    try
+                    {
+                        var revocationHashList = await _dgcgService.GetRevocationBatchAsync(rb.BatchId);
+                        _revocationService.AddToDatabase(rb, revocationHashList);
+                    }
+                    catch (Exception e) { }
+
                 }
 
                 //TRUNCATE public."BatchesRevoc", public."SuperFiltersRevoc" CASCADE;
