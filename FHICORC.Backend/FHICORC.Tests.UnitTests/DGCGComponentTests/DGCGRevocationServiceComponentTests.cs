@@ -98,6 +98,8 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
             var hashInExpiredBatch = expiredBatch.HashesRevocs.FirstOrDefault().Hash;
             var inSuperFilterBefore = revocationService.ContainsCertificateFilter(hashInExpiredBatch);
 
+
+            //Check if superfilter contains all hashes
             SuperFilterTest();
 
 
@@ -109,11 +111,14 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
             Assert.True(expiredBatch.Deleted);
             Assert.IsNull(expiredBatch.SuperId);
 
+
+            // Check if hashes from deleted batcj are removed from superfilter
             _coronapassContext.HashesRevoc
                 .Where(x => x.BatchId == batchId)
                 .ToList()
                 .ForEach(h => Assert.False(revocationService.ContainsCertificateFilter(h.Hash)));
 
+            // Check if ALL the other hashes are still in the superfilter
             _coronapassContext.HashesRevoc
                 .Where(x => x.BatchId != batchId)
                 .ToList()
