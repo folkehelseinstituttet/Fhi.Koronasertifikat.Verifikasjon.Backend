@@ -35,7 +35,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     AddToDatabase(rb, revocationHashList);
                 }
                 catch (Exception e) { }
-             
             }
         }
 
