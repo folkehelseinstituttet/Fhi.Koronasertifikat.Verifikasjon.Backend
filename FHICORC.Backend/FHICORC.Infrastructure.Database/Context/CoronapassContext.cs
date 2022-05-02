@@ -34,6 +34,11 @@ namespace FHICORC.Infrastructure.Database.Context
                 .HasIndex(r => r.RuleIdentifier)
                 .IsUnique();
 
+            modelBuilder.Entity<BatchesRevoc>()
+                .HasOne(a => a.FiltersRevoc)
+                .WithOne(a => a.BatchesRevoc)
+                .HasForeignKey<FiltersRevoc>(c => c.BatchId);
+
             base.OnModelCreating(modelBuilder);
         }
     }

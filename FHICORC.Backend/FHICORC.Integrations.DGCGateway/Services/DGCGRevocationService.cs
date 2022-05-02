@@ -6,6 +6,10 @@ using FHICORC.Application.Models;
 using FHICORC.Infrastructure.Database.Context;
 using FHICORC.Integrations.DGCGateway.Util;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Collections.Generic;
+using FHICORC.Integrations.DGCGateway.Services.Interfaces;
+using System.Threading.Tasks;
 
 namespace FHICORC.Integrations.DGCGateway.Services
 {
@@ -13,11 +17,25 @@ namespace FHICORC.Integrations.DGCGateway.Services
     {
         private readonly ILogger<DGCGRevocationService> _logger;
         private readonly CoronapassContext _coronapassContext;
+        private readonly IDgcgService _dgcgService;
 
-        public DGCGRevocationService(ILogger<DGCGRevocationService> logger, CoronapassContext coronapassContext)
+        public DGCGRevocationService(ILogger<DGCGRevocationService> logger, CoronapassContext coronapassContext, IDgcgService dgcgService)
         {
             _logger = logger;
             _coronapassContext = coronapassContext;
+            _dgcgService = dgcgService;
+        }
+
+        public async void PopulateRevocationDatabase(DgcgRevocationBatchListRespondDto revocationBatchList) {
+            foreach (var rb in revocationBatchList.Batches)
+            {
+                try
+                {
+                    var revocationHashList = await _dgcgService.GetRevocationBatchAsync(rb.BatchId);
+                    AddToDatabase(rb, revocationHashList);
+                }
+                catch (Exception e) { }
+            }
         }
 
         public void AddToDatabase(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch) {
@@ -25,13 +43,12 @@ namespace FHICORC.Integrations.DGCGateway.Services
             var batchId = batchRoot.BatchId;
             var batchesRevoc = FillInBatchRevoc(batchRoot, batch);
 
-            var filter = GenerateBatchFilter(batch, 47936, 32);
+            var filter = GenerateBatchFilter(batch.Entries, 47936, 32);
 
-            byte[] filterBytes = new byte[(filter.Length - 1) / 8 + 1];
-            filter.CopyTo(filterBytes, 0);
+            var filterBytes = BloomFilterUtils.BitToByteArray(filter);
             var filtersRevoc = FillInFilterRevoc(batchId, filterBytes);
                 
-            var superId = FillInSuperFilterRevoc(batch, filterBytes);
+            var superId = FillInSuperFilterRevoc(batch.Entries.Count, filterBytes);
             batchesRevoc.SuperId = superId;
 
             _coronapassContext.BatchesRevoc.Add(batchesRevoc);
@@ -57,12 +74,12 @@ namespace FHICORC.Integrations.DGCGateway.Services
             return batchesRevoc;
         }
 
-        public static BitArray GenerateBatchFilter(DGCGRevocationBatchRespondDto batch, int m, int k) {
+        public static BitArray GenerateBatchFilter(List<DgcgHashItem> dgcgHashItems, int m, int k) {
             var filter = new BitArray(m);
 
-            foreach (var b in batch.Entries)
+            foreach (var h in dgcgHashItems)
             {
-                filter.AddToFilter(b.Hash, m, k);
+                filter.AddToFilter(h.Hash, m, k);
             }
             return filter;
         }
@@ -89,8 +106,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
             return filtersRevoc;    
         }
 
-        private int FillInSuperFilterRevoc(DGCGRevocationBatchRespondDto batch, byte[] filterBytes) {
-            var currenBatchCount = batch.Entries.Count;
+        public int FillInSuperFilterRevoc(int currenBatchCount, byte[] filterBytes){               
 
             foreach (var su in _coronapassContext.SuperFiltersRevoc)
             {
@@ -100,8 +116,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     var _oldBatchFilter = new BitArray(su.SuperFilter);
 
                     var combinedFilter = _newbatchFilter.Or(_oldBatchFilter);
-                    var combinedFilterBytes = new byte[(combinedFilter.Length - 1) / 8 + 1];
-                    combinedFilter.CopyTo(combinedFilterBytes, 0);
+                    var combinedFilterBytes = BloomFilterUtils.BitToByteArray(combinedFilter);
 
                     su.SuperFilter = combinedFilterBytes;
                     su.BatchCount += currenBatchCount;
@@ -126,6 +141,73 @@ namespace FHICORC.Integrations.DGCGateway.Services
             return superFilterRevoc.Id;
 
 
+        }
+
+
+        public void DeleteExpiredBatches()
+        {
+            try
+            {
+
+                var batchesToDelete = _coronapassContext.BatchesRevoc
+                    .Where(b => !b.Deleted && b.Expires <= DateTime.UtcNow);
+
+                var superBatchIdsToRecalculate = new HashSet<int>();
+                foreach (var b in batchesToDelete)
+                {
+                    b.Deleted = true;
+
+                    if (b.SuperId is not null)
+                        superBatchIdsToRecalculate.Add((int)b.SuperId);
+
+                    b.SuperId = null;
+                    _coronapassContext.Entry(b).State = EntityState.Modified;
+                }
+
+
+                _coronapassContext.SaveChanges();
+
+                RestructureSuperFilters(superBatchIdsToRecalculate.ToList());
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public void RestructureSuperFilters(List<int> superIds)
+        {
+            foreach (var id in superIds)
+            {
+                var m = 47936;
+                var filter = new BitArray(m);
+                var batchCount = 0;
+
+                var superBatch = _coronapassContext.SuperFiltersRevoc
+                    .Include(r => r.BatchesRevocs)
+                        .ThenInclude(x => x.FiltersRevoc)
+                    .Include(r => r.BatchesRevocs)
+                        .ThenInclude(x => x.HashesRevocs)
+                    .FirstOrDefault(b => b.Id == id);
+
+                superBatch.BatchesRevocs
+                    .Where(b => !b.Deleted)
+                    .ToList()
+                    .ForEach(f => {
+                        filter.Or(new BitArray(f.FiltersRevoc.Filter));
+                        batchCount += f.HashesRevocs.Count;
+                    });
+
+                var filterByte = BloomFilterUtils.BitToByteArray(filter);
+                superBatch.SuperFilter = filterByte;
+                superBatch.BatchCount = batchCount;
+                superBatch.Modified = DateTime.Now;
+
+                _coronapassContext.Entry(superBatch).State = EntityState.Modified;
+
+            }
+            _coronapassContext.SaveChanges();
         }
     }
 

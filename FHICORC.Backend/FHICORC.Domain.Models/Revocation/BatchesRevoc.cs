@@ -20,9 +20,10 @@ namespace FHICORC.Domain.Models
         [ForeignKey(nameof(SuperFiltersRevoc))]
         public int? SuperId { get; set; }
 
-        
+     
         public virtual SuperFiltersRevoc SuperFiltersRevoc { get; set; }
-        public virtual ICollection<FiltersRevoc> FiltersRevocs { get; set; }
+        public virtual FiltersRevoc FiltersRevoc { get; set; }
+
         public virtual ICollection<HashesRevoc> HashesRevocs { get; set; }
 
 

@@ -142,16 +142,11 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.Property<string>("BatchId")
                         .HasColumnType("text");
 
-                    b.Property<string>("BatchesRevocBatchId")
-                        .HasColumnType("text");
-
                     b.Property<byte[]>("Filter")
                         .HasMaxLength(5992)
                         .HasColumnType("bytea");
 
                     b.HasKey("BatchId");
-
-                    b.HasIndex("BatchesRevocBatchId");
 
                     b.ToTable("FiltersRevoc");
                 });
@@ -213,8 +208,10 @@ namespace FHICORC.Infrastructure.Database.Migrations
             modelBuilder.Entity("FHICORC.Domain.Models.FiltersRevoc", b =>
                 {
                     b.HasOne("FHICORC.Domain.Models.BatchesRevoc", "BatchesRevoc")
-                        .WithMany("FiltersRevocs")
-                        .HasForeignKey("BatchesRevocBatchId");
+                        .WithOne("FiltersRevoc")
+                        .HasForeignKey("FHICORC.Domain.Models.FiltersRevoc", "BatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("BatchesRevoc");
                 });
@@ -230,7 +227,7 @@ namespace FHICORC.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("FHICORC.Domain.Models.BatchesRevoc", b =>
                 {
-                    b.Navigation("FiltersRevocs");
+                    b.Navigation("FiltersRevoc");
 
                     b.Navigation("HashesRevocs");
                 });

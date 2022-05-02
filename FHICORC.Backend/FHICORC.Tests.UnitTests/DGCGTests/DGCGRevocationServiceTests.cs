@@ -5,6 +5,7 @@ using System.Linq;
 using FHICORC.Application.Models;
 using FHICORC.Application.Models.Options;
 using FHICORC.Domain.Models;
+using FHICORC.Infrastructure.Database.Context;
 using FHICORC.Integrations.DGCGateway.Models;
 using FHICORC.Integrations.DGCGateway.Services;
 using FHICORC.Integrations.DGCGateway.Util;
@@ -21,10 +22,7 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
     {
         ILogger<DgcgResponseParser> nullLogger = new NullLoggerFactory().CreateLogger<DgcgResponseParser>();
         private readonly Mock<FeatureToggles> featureTogglesMock = new Mock<FeatureToggles>();
-
-
-        //private DGCGRevocationService DGCGRevocationService;
-
+        private CoronapassContext _coronapassContext;
 
         private DgcgRevocationListBatchItem batchRoot;
         private DGCGRevocationBatchRespondDto batch;
@@ -32,9 +30,6 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
         [SetUp]
         public void Setup()
         {
-
-            //DGCGRevocationService = new DGCGRevocationService();
-
             batchRoot = new DgcgRevocationListBatchItem()
             {
                 BatchId = "abc",
@@ -89,15 +84,13 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
             GenerateRandomStrings(1000).ForEach(s => batch.Entries.Add(new DgcgHashItem() { Hash = s }));
 
             //Act
-            var filter = DGCGRevocationService.GenerateBatchFilter(batch, m, k);
+            var filter = DGCGRevocationService.GenerateBatchFilter(batch.Entries, m, k);
 
             //Assert
             batch.Entries.ForEach(e => Assert.True(filter.Contains(e.Hash, m, k)));
             GenerateRandomStrings(1000).ForEach(s => Assert.False(filter.Contains(s, m, k)));
             Assert.False(filter.Contains("thisShouldNotExist", m, k));
         }
-
-
 
         private List<string> GenerateRandomStrings(int numberOfStrings)
         {
@@ -114,6 +107,7 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
         }
 
 
+        
 
 
     }
