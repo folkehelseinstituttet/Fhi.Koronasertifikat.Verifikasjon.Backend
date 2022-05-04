@@ -168,7 +168,7 @@ namespace FHICORC.Application.Services
         }
         private BatchItem FetchSmallestBatchItem()
         {
-            var batchItem = _coronapassContext.RevocationBatch
+            return _coronapassContext.RevocationBatch.ToList()
                 .Join(_coronapassContext.RevocationHash,
                     b => b.BatchId,
                     h => h.BatchId, (b, h) => new { Batch = b, Hash = h })
@@ -187,8 +187,6 @@ namespace FHICORC.Application.Services
                 })
                 .OrderBy(x => x.Count)
                 .FirstOrDefault();
-
-            return batchItem;
         }
         class BatchItem
         {
