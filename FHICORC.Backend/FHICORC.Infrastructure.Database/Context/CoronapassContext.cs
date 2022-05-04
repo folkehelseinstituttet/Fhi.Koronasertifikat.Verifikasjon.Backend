@@ -14,9 +14,9 @@ namespace FHICORC.Infrastructure.Database.Context
         public DbSet<BusinessRule> BusinessRules { get; set; }
         public DbSet<CountriesReportModel> CountriesReportModels { get; set; }
         public DbSet<RevocationBatch> RevocationBatch { get; set; }
-        public DbSet<FiltersRevoc> FiltersRevoc { get; set; }
+        public DbSet<RevocationFilter> RevocationFilter { get; set; }
         public DbSet<RevocationHash> RevocationHash { get; set; }
-        public DbSet<SuperFiltersRevoc> SuperFiltersRevoc { get; set; }
+        public DbSet<RevocationSuperFilter> RevocationSuperFilter { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,9 +35,9 @@ namespace FHICORC.Infrastructure.Database.Context
                 .IsUnique();
 
             modelBuilder.Entity<RevocationBatch>()
-                .HasOne(a => a.FiltersRevoc)
+                .HasOne(a => a.RevocationFilter)
                 .WithOne(a => a.RevocationBatch)
-                .HasForeignKey<FiltersRevoc>(c => c.BatchId);
+                .HasForeignKey<RevocationFilter>(c => c.BatchId);
 
             base.OnModelCreating(modelBuilder);
         }

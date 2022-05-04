@@ -17,12 +17,12 @@ namespace FHICORC.Domain.Models
         public string HashType { get; set; }
         public bool Upload { get; set; }
 
-        [ForeignKey(nameof(SuperFiltersRevoc))]
+        [ForeignKey(nameof(RevocationSuperFilter))]
         public int? SuperId { get; set; }
 
      
-        public virtual SuperFiltersRevoc SuperFiltersRevoc { get; set; }
-        public virtual FiltersRevoc FiltersRevoc { get; set; }
+        public virtual RevocationSuperFilter RevocationSuperFilter { get; set; }
+        public virtual RevocationFilter RevocationFilter { get; set; }
 
         public virtual ICollection<RevocationHash> RevocationHashes { get; set; }
 

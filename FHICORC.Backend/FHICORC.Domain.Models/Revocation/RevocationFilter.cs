@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FHICORC.Domain.Models
 {
-    public class FiltersRevoc
+    public class RevocationFilter
     {
         [Key]
         public string BatchId { get; set; }

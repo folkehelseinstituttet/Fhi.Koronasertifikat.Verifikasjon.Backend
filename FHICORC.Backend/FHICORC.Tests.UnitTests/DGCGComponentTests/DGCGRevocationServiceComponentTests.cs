@@ -68,9 +68,9 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
         public void AddToDatabaseTest() {
 
             Assert.AreEqual(_coronapassContext.RevocationBatch.Count(), 102);
-            Assert.AreEqual(_coronapassContext.FiltersRevoc.Count(), 102);
+            Assert.AreEqual(_coronapassContext.RevocationFilter.Count(), 102);
             Assert.AreEqual(_coronapassContext.RevocationHash.Count(), 1638);
-            Assert.AreEqual(_coronapassContext.SuperFiltersRevoc.Count(), 2);
+            Assert.AreEqual(_coronapassContext.RevocationSuperFilter.Count(), 2);
 
         }
 

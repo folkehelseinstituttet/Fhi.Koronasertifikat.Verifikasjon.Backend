@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FHICORC.Domain.Models
 {
-    public class SuperFiltersRevoc
+    public class RevocationSuperFilter
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
