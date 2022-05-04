@@ -3,14 +3,13 @@ using System.Collections.Generic;
 
 namespace FHICORC.Application.Models
 {
-    public class DGCGRevocationBatchRespondDto
+    public class DgcgRevocationBatchDto
     {
         public string Country { get; set; }
         public DateTime Expires { get; set; }
         public string Kid { get; set; }
         public string HashType { get; set; }
         public List<DgcgHashItem> Entries { get; set; }
-        
     }
 
     public class DgcgHashItem
