@@ -22,6 +22,6 @@ namespace FHICORC.Domain.Models
 
 
 
-        public virtual ICollection<BatchesRevoc> BatchesRevocs { get; set; }
+        public virtual ICollection<RevocationBatch> RevocationBatches { get; set; }
     }
 }

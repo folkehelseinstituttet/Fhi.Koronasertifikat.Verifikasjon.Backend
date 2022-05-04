@@ -11,6 +11,6 @@ namespace FHICORC.Domain.Models
         [MaxLength(5992)]
         public byte[] Filter { get; set; }
 
-        public virtual BatchesRevoc BatchesRevoc { get; set; }
+        public virtual RevocationBatch RevocationBatch { get; set; }
     }
 }

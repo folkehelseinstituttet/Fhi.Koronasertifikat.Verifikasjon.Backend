@@ -87,7 +87,7 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
 
                 }
 
-                //TRUNCATE public."BatchesRevoc", public."SuperFiltersRevoc" CASCADE;
+                //TRUNCATE public."RevocationBatch", public."SuperFiltersRevoc" CASCADE;
                 _metricLogService.AddMetric("RetrieveRevocationBatch_Success", true);
 
 

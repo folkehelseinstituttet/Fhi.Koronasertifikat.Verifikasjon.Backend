@@ -67,7 +67,7 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
         [Test]
         public void AddToDatabaseTest() {
 
-            Assert.AreEqual(_coronapassContext.BatchesRevoc.Count(), 102);
+            Assert.AreEqual(_coronapassContext.RevocationBatch.Count(), 102);
             Assert.AreEqual(_coronapassContext.FiltersRevoc.Count(), 102);
             Assert.AreEqual(_coronapassContext.HashesRevoc.Count(), 1638);
             Assert.AreEqual(_coronapassContext.SuperFiltersRevoc.Count(), 2);
@@ -90,7 +90,7 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
 
             //Assume
             var batchId = "699978cf-d2d4-4093-8b54-ab2cf695d76d";
-            var expiredBatch = _coronapassContext.BatchesRevoc.Find(batchId);
+            var expiredBatch = _coronapassContext.RevocationBatch.Find(batchId);
             expiredBatch.Expires = DateTime.UtcNow.AddDays(-100);
             _coronapassContext.SaveChanges();
 

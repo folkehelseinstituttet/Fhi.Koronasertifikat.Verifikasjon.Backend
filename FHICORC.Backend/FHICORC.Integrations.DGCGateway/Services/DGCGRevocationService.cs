@@ -41,7 +41,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
         public void AddToDatabase(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch) {
 
             var batchId = batchRoot.BatchId;
-            var batchesRevoc = FillInBatchRevoc(batchRoot, batch);
+            var revocationBatch = FillInBatchRevoc(batchRoot, batch);
 
             var filter = GenerateBatchFilter(batch.Entries, 47936, 32);
 
@@ -49,9 +49,9 @@ namespace FHICORC.Integrations.DGCGateway.Services
             var filtersRevoc = FillInFilterRevoc(batchId, filterBytes);
                 
             var superId = FillInSuperFilterRevoc(batch.Entries.Count, filterBytes);
-            batchesRevoc.SuperId = superId;
+            revocationBatch.SuperId = superId;
 
-            _coronapassContext.BatchesRevoc.Add(batchesRevoc);
+            _coronapassContext.RevocationBatch.Add(revocationBatch);
             _coronapassContext.FiltersRevoc.Add(filtersRevoc);
             AddHashRevoc(batchId, batch);
 
@@ -59,8 +59,8 @@ namespace FHICORC.Integrations.DGCGateway.Services
         }
 
 
-        public static BatchesRevoc FillInBatchRevoc(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch) {
-            var batchesRevoc = new BatchesRevoc()
+        public static RevocationBatch FillInBatchRevoc(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch) {
+            var revocationBatch = new RevocationBatch()
             {
                 BatchId = batchRoot.BatchId,
                 Expires = batch.Expires,
@@ -71,7 +71,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 HashType = batch.HashType,
                 Upload = false,
             };
-            return batchesRevoc;
+            return revocationBatch;
         }
 
         public static BitArray GenerateBatchFilter(List<DgcgHashItem> dgcgHashItems, int m, int k) {
@@ -149,7 +149,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
             try
             {
 
-                var batchesToDelete = _coronapassContext.BatchesRevoc
+                var batchesToDelete = _coronapassContext.RevocationBatch
                     .Where(b => !b.Deleted && b.Expires <= DateTime.UtcNow);
 
                 var superBatchIdsToRecalculate = new HashSet<int>();
@@ -185,13 +185,13 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 var batchCount = 0;
 
                 var superBatch = _coronapassContext.SuperFiltersRevoc
-                    .Include(r => r.BatchesRevocs)
+                    .Include(r => r.RevocationBatches)
                         .ThenInclude(x => x.FiltersRevoc)
-                    .Include(r => r.BatchesRevocs)
+                    .Include(r => r.RevocationBatches)
                         .ThenInclude(x => x.HashesRevocs)
                     .FirstOrDefault(b => b.Id == id);
 
-                superBatch.BatchesRevocs
+                superBatch.RevocationBatches
                     .Where(b => !b.Deleted)
                     .ToList()
                     .ForEach(f => {

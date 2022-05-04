@@ -13,7 +13,7 @@ namespace FHICORC.Infrastructure.Database.Context
         public DbSet<EuDocSignerCertificate> EuDocSignerCertificates { get; set; }
         public DbSet<BusinessRule> BusinessRules { get; set; }
         public DbSet<CountriesReportModel> CountriesReportModels { get; set; }
-        public DbSet<BatchesRevoc> BatchesRevoc { get; set; }
+        public DbSet<RevocationBatch> RevocationBatch { get; set; }
         public DbSet<FiltersRevoc> FiltersRevoc { get; set; }
         public DbSet<HashesRevoc> HashesRevoc { get; set; }
         public DbSet<SuperFiltersRevoc> SuperFiltersRevoc { get; set; }
@@ -34,9 +34,9 @@ namespace FHICORC.Infrastructure.Database.Context
                 .HasIndex(r => r.RuleIdentifier)
                 .IsUnique();
 
-            modelBuilder.Entity<BatchesRevoc>()
+            modelBuilder.Entity<RevocationBatch>()
                 .HasOne(a => a.FiltersRevoc)
-                .WithOne(a => a.BatchesRevoc)
+                .WithOne(a => a.RevocationBatch)
                 .HasForeignKey<FiltersRevoc>(c => c.BatchId);
 
             base.OnModelCreating(modelBuilder);

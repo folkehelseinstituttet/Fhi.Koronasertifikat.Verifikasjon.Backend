@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FHICORC.Domain.Models
 {
-    public class BatchesRevoc
+    public class RevocationBatch
     {
         [Key]
         public string BatchId { get; set; }
