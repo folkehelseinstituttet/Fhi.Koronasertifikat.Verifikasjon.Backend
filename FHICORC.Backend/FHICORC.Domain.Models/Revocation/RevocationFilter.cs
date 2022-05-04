@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FHICORC.Domain.Models
 {
-    public class FiltersRevoc
+    public class RevocationFilter
     {
         [Key]
         public string BatchId { get; set; }
@@ -11,6 +11,6 @@ namespace FHICORC.Domain.Models
         [MaxLength(5992)]
         public byte[] Filter { get; set; }
 
-        public virtual BatchesRevoc BatchesRevoc { get; set; }
+        public virtual RevocationBatch RevocationBatch { get; set; }
     }
 }

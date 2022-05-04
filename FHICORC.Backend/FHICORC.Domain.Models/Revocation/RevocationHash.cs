@@ -3,17 +3,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FHICORC.Domain.Models
 {
-    public class HashesRevoc
+    public class RevocationHash
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [ForeignKey(nameof(BatchesRevoc))]
+        [ForeignKey(nameof(RevocationBatch))]
         public string BatchId { get; set; }
 
         public string Hash { get; set; }
 
-        public virtual BatchesRevoc BatchesRevoc { get; set; }
+        public virtual RevocationBatch RevocationBatch { get; set; }
     }
 }

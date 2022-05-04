@@ -9,9 +9,11 @@
   <ItemGroup>
     <PackageReference Include="BloomFilter.NetCore" Version="1.0.4" />
     <PackageReference Include="Moq" Version="4.16.1" />
+    <PackageReference Include="NSubstitute" Version="4.3.0" />
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="5.0.16" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,12 +24,417 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="TestFiles\BatchHashes\83f17b82-acbc-4d62-988b-e96484a4d56c.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\004903ce-fc15-465a-af6e-be569e9dd66e.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\01822f43-0a43-4f43-9979-887c39dafe9d.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\045eb692-b3dd-4cdb-83c6-b5935482f08d.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\0630fbc7-bf52-442c-9008-eb72737d7e12.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\0786eaff-8a33-4f59-9cca-366cc3adab35.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\0858e5a9-b3e0-4db2-8d62-8377beeec2ff.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\097d7d59-04b2-4102-ab5e-d38db47c702a.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\0bb2bd55-ac35-442e-8c7e-d9439332785d.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\0c9d08dc-fd19-4ef4-bc60-2236fa436014.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\0d709921-4b97-434b-b74e-9682befa3cf3.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\0fac0b51-74e7-4692-948f-77a3c892a2c6.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\127e0f2b-a6d6-4840-a3b9-c2d50963f05c.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\15979bf5-34e6-4203-9ed3-85d85932fbcf.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\174afb93-a0a2-4c40-80b3-d0b497c2949d.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\177e517f-9c80-4ddc-b626-66599da456e1.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\183001af-a55d-4338-90c6-c3cece6c08d9.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\18eac378-f2bf-41f2-939d-4ece6588fecc.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\194d8bbd-296c-43f1-b532-4596d01a9f8c.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\1d0ef603-7c77-47f7-9a2f-4913551c3dbf.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\1d91c4ee-93db-4fb4-b98a-97ea8649181f.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\1ece30f9-8b15-4ff9-b91c-0565d81fad5e.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\1f9e06ee-2665-47bb-b880-256b03fe9656.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\2045038c-5796-43c9-a292-edf569b2d8fa.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\2339c4d0-9afc-4ff3-a6e9-30269d7fc822.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\24acdb36-7884-4aa9-b235-9514adac8c75.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\26d93b36-2e7b-467b-bb4a-f27e0d893da8.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\27898677-f067-49f9-9e95-b817ac421a72.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\28e4694c-2359-4a26-8495-d19ec88cd472.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\2c2150f9-a599-4c97-a22a-b7b885c537b2.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\2c2f567a-41e8-4b06-b0cb-a0a046f01231.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\2e217f6b-e84c-4749-b575-2717cc6a26a5.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\36ce9e8e-5f1b-4513-830f-23207dafd3ac.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\3714a257-fb07-459e-a12f-6a1b31cabdbe.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\3f3c78e3-a6f9-427c-842f-7f19a455635e.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\405a7988-dd1f-4bb4-a3db-c1b437b5e40d.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\4473e87b-0a1c-41e9-985e-0acc3bea06f2.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\4b04d127-08de-4151-91fb-1b57450c8cb4.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\4d224240-7023-4b70-83d8-e32dc6f44805.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\4f87082c-a4e8-4ba1-9437-13be10519ece.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\4fa80e5b-2d2f-49c0-a85f-9526a18feb71.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\530f0966-738f-475a-9f5a-6488fc9d3d33.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\55a5d46f-28c0-46d3-81e5-79c2aef786e2.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\586145c9-989e-4d5e-b2e3-590d717065fd.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\5887cf4c-8286-42b6-8858-3e1d4d5c2c33.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\598bd5bb-31b2-4662-94a6-c12f98b744ff.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\5bd69c46-3b2f-451a-9782-f3fe3aa7f622.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\5de7cd8f-4d34-466e-8de0-12fb1f6726df.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\5e92b648-16e1-4cb4-a39b-8d597dce60ab.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\5f56de38-1f71-4ec1-ba11-be1491bda43c.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\604a8926-0cdd-4956-8b6f-be47b463c202.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\60b24d65-449c-4ede-9566-e3168e1bd904.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\65d0b49f-a759-49e8-a395-791ce70a861c.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\66285228-3437-46d6-8290-a89c65c79214.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\694e627c-3b35-4737-b194-4f8a9fe8c84e.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\699978cf-d2d4-4093-8b54-ab2cf695d76d.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\6a1308e2-e499-4607-924e-ee2398adfe01.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\6aaeef0e-75fa-4db2-9c44-8bdf64ce8287.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\6c905e4c-a430-476e-877f-6af2ace329b9.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\6e00073a-334a-492e-95e2-0bcc410b58cb.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\6f3cd3b3-0363-42b5-9d82-1f1aedb6d463.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\6fd6689f-a1fb-488a-a1c8-18b02373164a.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\73ce6729-f241-4e75-9cba-31f839028a5f.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\74f765bd-0ef3-405b-9d8e-95ba21ffed3d.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\770f726e-817e-4479-a746-05fb68f67683.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\7909e736-a66c-45b4-a539-253698a0cb04.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\7aa461f4-8cb0-47de-824b-66c94c145925.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\7bd40ac6-392c-4f47-adb3-f1649e6a75bd.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\7f14d61f-6c83-4782-889c-7e83cd3ce581.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\829b8fef-51b7-4b00-acd0-031ecf68bf7f.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\86b189dd-0a4c-4f50-96d1-32007b023d11.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\871cd2c6-e7ec-4387-bda6-556efb9b80bd.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\885d2030-206e-4150-9dc7-dfbd41b7a3e1.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\8c26188a-8854-46d3-bd3a-be888d272e7a.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\8dd54e2b-3358-4d10-b734-ded311bb89f0.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\8e01f100-b3b9-4757-9a55-85f821704d38.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\8e6ded47-faf7-4ff2-952a-81cade709cb0.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\8f18113b-40d4-46bd-a948-dfa2e9b41f5d.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\8f6688d6-0b5b-4434-a9bc-a6a20e99b4cb.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\8f8f6244-8bc9-4e52-af0b-83ef2445bda4.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\91bfeecc-54e7-4b03-b9e0-089e78d54260.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\92548bf8-d77b-4087-bf51-827d5aa9ddf3.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\92a89811-85ce-43ca-ab8d-42898afc752e.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\96072c02-9c5d-40a7-b600-76719a292da1.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\9713ffd3-800b-4fa9-af44-2ecd2b358a30.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\99db2e11-9f30-48da-8974-a24f21514661.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\9f3d1089-2b13-4c9c-a46c-77779fa9e615.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\a003a369-b27f-4987-83c8-3d5a8e6606b3.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\a021ce27-79ba-49b9-9b0b-4d22ad25943f.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\a35df43e-59d8-4f8d-aa75-16bc6dba7aa4.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\a5110d40-8f21-4d79-8e48-1a7eec2533f6.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\a7869fd7-ff4a-4d55-bb8f-0456a220ffcb.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\a97949e6-f8c8-443a-b293-2e61636f77f0.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\af227044-f52f-438d-aedb-196c6af68e58.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\af30d832-8e62-46f9-b594-6d00fd70986d.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\b00923bc-3fb9-40ef-b147-0827eb1483f3.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\b0627c44-2f60-4ecc-abb1-814112778b85.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\b089fba6-92c9-486e-985e-f13063029cce.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\b3cb5eb5-cead-4daf-896a-73aa9b0fa545.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\b870a3b4-b13f-4804-b331-4cda07356c01.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\baa2d816-866b-49ce-89f4-2ffe505a39be.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\be5b22f6-7a6e-44fe-946a-5db67cc9ab93.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\bfa7f2f0-43c9-4881-9270-7b8b44228f3a.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\c26fba13-1cf3-44ba-aafb-55c723f39bca.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\c2c821e4-f8f7-45ec-993e-8d01c4b12b37.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\c4711a7a-1a91-441e-b4d8-0afce243ff81.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\c4d5c8bb-84d7-4fe5-860d-7bbe015354f4.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\ca16223e-4914-46d6-881a-1359674f9605.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\cf2a841c-10cd-41a1-8e12-1e7db9dc9e04.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\cf75e291-e066-497a-994a-208054c7edfb.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\cfebfe14-dd39-4bd1-8f2f-df1978e30daf.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\cffa31e1-9bce-497d-ad39-1d0c701e79d6.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\d449955b-aa3a-41f1-aaf2-fc77fffe5e48.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\d56ad667-afae-4109-848a-75f529f94abd.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\d8497185-cff3-4947-b5df-627e30936be3.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\db3fb92c-5bf2-466d-a719-aef36ec26c51.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\dc1ca7a9-cb4f-4d13-ab1a-2914be92561d.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\dd39efa2-00c5-4107-bb8b-014dfaf4028b.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\e15d811d-2495-459b-b2cb-f6f247fd7f43.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\e17c5290-83da-482a-8bdd-9bec6e412c69.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\e40a788c-8bc3-4245-9405-e952080d00b3.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\e7e2ac0d-ed77-4d96-a5ce-90dca9ba4e05.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\e8a4c53e-7c56-4987-9803-43a23088f352.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\e910ba03-dc2c-4b66-93a9-bca83c8b85eb.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\ea0190d9-a18b-49a2-aa1f-2a100636f49a.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\eacdb323-ca33-4360-86dd-7eb63478755a.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\eb41aede-d3b5-417d-893d-fae8c4d4ab76.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\ec713c87-84f2-4171-869f-6bebaa5f8964.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\f3975343-6ea2-4f92-8e7c-36620980182a.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\f56e3637-2b62-418d-8705-32a6696bbec6.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\f64968a0-6012-4d80-a033-ed401b1eb6c9.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\fbb127ae-197c-4ceb-9492-5ac49c0a0eea.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\BatchHashes\feb2729d-72ad-449f-bb93-be3f5b992db1.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="TestFiles\tst_full_trustlist_response.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="TestFiles\tst_invalid_response.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="TestFiles\tst_revocation_batch_list.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+	<None Update="TestFiles\BatchHashes\0c45ad9a-f204-4c8f-ac08-a82da2528c9b.txt">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
   </ItemGroup>
 
 </Project>

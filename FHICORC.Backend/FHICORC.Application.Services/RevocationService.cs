@@ -36,7 +36,7 @@ namespace FHICORC.Application.Services
         public bool ContainsCertificateFilter(string str) {
             var hashData = BloomFilterUtils.HashData(Encoding.UTF8.GetBytes(str), 47936, 32);
 
-            foreach (var bf in _coronapassContext.SuperFiltersRevoc)
+            foreach (var bf in _coronapassContext.RevocationSuperFilter)
             {
                 var a = new BitArray(bf.SuperFilter);
                 var contains = a.Contains(hashData);
@@ -47,7 +47,7 @@ namespace FHICORC.Application.Services
         }
 
         public SuperBatchesDto FetchSuperBatches(DateTime dateTime) {
-            var superBatchList = _coronapassContext.SuperFiltersRevoc
+            var superBatchList = _coronapassContext.RevocationSuperFilter
                 .Where(s => s.Modified <= dateTime)
                 .Select(x => new SuperBatch()
                 {
