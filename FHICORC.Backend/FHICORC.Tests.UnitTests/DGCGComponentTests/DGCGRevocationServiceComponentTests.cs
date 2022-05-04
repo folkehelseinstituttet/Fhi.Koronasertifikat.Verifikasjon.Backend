@@ -67,10 +67,10 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
         [Test]
         public void AddToDatabaseTest() {
 
-            Assert.AreEqual(_coronapassContext.BatchesRevoc.Count(), 102);
-            Assert.AreEqual(_coronapassContext.FiltersRevoc.Count(), 102);
-            Assert.AreEqual(_coronapassContext.HashesRevoc.Count(), 1638);
-            Assert.AreEqual(_coronapassContext.SuperFiltersRevoc.Count(), 2);
+            Assert.AreEqual(_coronapassContext.RevocationBatch.Count(), 102);
+            Assert.AreEqual(_coronapassContext.RevocationFilter.Count(), 102);
+            Assert.AreEqual(_coronapassContext.RevocationHash.Count(), 1638);
+            Assert.AreEqual(_coronapassContext.RevocationSuperFilter.Count(), 2);
 
         }
 
@@ -79,7 +79,7 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
         public void SuperFilterTest()
         {
             var revocationService = new RevocationService(loggerRevocationService, _coronapassContext);
-            _coronapassContext.HashesRevoc
+            _coronapassContext.RevocationHash
                 .ToList()
                 .ForEach(h => Assert.True(revocationService.ContainsCertificate(h.Hash)));
         }
@@ -90,12 +90,12 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
 
             //Assume
             var batchId = "699978cf-d2d4-4093-8b54-ab2cf695d76d";
-            var expiredBatch = _coronapassContext.BatchesRevoc.Find(batchId);
+            var expiredBatch = _coronapassContext.RevocationBatch.Find(batchId);
             expiredBatch.Expires = DateTime.UtcNow.AddDays(-100);
             _coronapassContext.SaveChanges();
 
             var revocationService = new RevocationService(loggerRevocationService, _coronapassContext);
-            var hashInExpiredBatch = expiredBatch.HashesRevocs.FirstOrDefault().Hash;
+            var hashInExpiredBatch = expiredBatch.RevocationHashes.FirstOrDefault().Hash;
             var inSuperFilterBefore = revocationService.ContainsCertificateFilter(hashInExpiredBatch);
 
 
@@ -113,13 +113,13 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
 
 
             // Check if hashes from deleted batcj are removed from superfilter
-            _coronapassContext.HashesRevoc
+            _coronapassContext.RevocationHash
                 .Where(x => x.BatchId == batchId)
                 .ToList()
                 .ForEach(h => Assert.False(revocationService.ContainsCertificateFilter(h.Hash)));
 
             // Check if ALL the other hashes are still in the superfilter
-            //_coronapassContext.HashesRevoc
+            //_coronapassContext.RevocationHash
             //    .Where(x => x.BatchId != batchId)
             //    .ToList()
             //    .ForEach(h => Assert.True(revocationService.ContainsCertificateFilter(h.Hash)));

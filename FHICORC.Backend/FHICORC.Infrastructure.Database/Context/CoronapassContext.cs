@@ -13,10 +13,10 @@ namespace FHICORC.Infrastructure.Database.Context
         public DbSet<EuDocSignerCertificate> EuDocSignerCertificates { get; set; }
         public DbSet<BusinessRule> BusinessRules { get; set; }
         public DbSet<CountriesReportModel> CountriesReportModels { get; set; }
-        public DbSet<BatchesRevoc> BatchesRevoc { get; set; }
-        public DbSet<FiltersRevoc> FiltersRevoc { get; set; }
-        public DbSet<HashesRevoc> HashesRevoc { get; set; }
-        public DbSet<SuperFiltersRevoc> SuperFiltersRevoc { get; set; }
+        public DbSet<RevocationBatch> RevocationBatch { get; set; }
+        public DbSet<RevocationFilter> RevocationFilter { get; set; }
+        public DbSet<RevocationHash> RevocationHash { get; set; }
+        public DbSet<RevocationSuperFilter> RevocationSuperFilter { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,10 +34,10 @@ namespace FHICORC.Infrastructure.Database.Context
                 .HasIndex(r => r.RuleIdentifier)
                 .IsUnique();
 
-            modelBuilder.Entity<BatchesRevoc>()
-                .HasOne(a => a.FiltersRevoc)
-                .WithOne(a => a.BatchesRevoc)
-                .HasForeignKey<FiltersRevoc>(c => c.BatchId);
+            modelBuilder.Entity<RevocationBatch>()
+                .HasOne(a => a.RevocationFilter)
+                .WithOne(a => a.RevocationBatch)
+                .HasForeignKey<RevocationFilter>(c => c.BatchId);
 
             base.OnModelCreating(modelBuilder);
         }

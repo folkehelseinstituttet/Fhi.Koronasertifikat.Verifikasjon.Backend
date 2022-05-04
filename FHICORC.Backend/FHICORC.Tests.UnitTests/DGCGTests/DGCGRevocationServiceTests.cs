@@ -55,17 +55,17 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
         [Test]
         public void FillInBatchRevocTest()
         {
-            var batchesRevoc = DGCGRevocationService.FillInBatchRevoc(batchRoot, batch);
+            var revocationBatch = DGCGRevocationService.FillInBatchRevoc(batchRoot, batch);
 
-            Assert.That(batchesRevoc.BatchId.Equals(batchRoot.BatchId));
-            Assert.That(batchesRevoc.Country.Equals(batchRoot.Country));
-            Assert.That(batchesRevoc.Date.Equals(batchRoot.Date));
-            Assert.That(batchesRevoc.Deleted.Equals(batchRoot.Deleted));
+            Assert.That(revocationBatch.BatchId.Equals(batchRoot.BatchId));
+            Assert.That(revocationBatch.Country.Equals(batchRoot.Country));
+            Assert.That(revocationBatch.Date.Equals(batchRoot.Date));
+            Assert.That(revocationBatch.Deleted.Equals(batchRoot.Deleted));
 
-            Assert.That(batchesRevoc.HashType.Equals(batch.HashType));
-            Assert.That(batchesRevoc.Expires.Equals(batch.Expires));
-            Assert.That(batchesRevoc.Kid.Equals(batch.Kid));
-            Assert.IsFalse(batchesRevoc.Upload);
+            Assert.That(revocationBatch.HashType.Equals(batch.HashType));
+            Assert.That(revocationBatch.Expires.Equals(batch.Expires));
+            Assert.That(revocationBatch.Kid.Equals(batch.Kid));
+            Assert.IsFalse(revocationBatch.Upload);
         }
 
 

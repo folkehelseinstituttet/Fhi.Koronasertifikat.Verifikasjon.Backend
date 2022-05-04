@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FHICORC.Domain.Models
 {
-    public class SuperFiltersRevoc
+    public class RevocationSuperFilter
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -22,6 +22,6 @@ namespace FHICORC.Domain.Models
 
 
 
-        public virtual ICollection<BatchesRevoc> BatchesRevocs { get; set; }
+        public virtual ICollection<RevocationBatch> RevocationBatches { get; set; }
     }
 }

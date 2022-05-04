@@ -41,26 +41,26 @@ namespace FHICORC.Integrations.DGCGateway.Services
         public void AddToDatabase(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch) {
 
             var batchId = batchRoot.BatchId;
-            var batchesRevoc = FillInBatchRevoc(batchRoot, batch);
+            var revocationBatch = FillInBatchRevoc(batchRoot, batch);
 
             var filter = GenerateBatchFilter(batch.Entries, 47936, 32);
 
             var filterBytes = BloomFilterUtils.BitToByteArray(filter);
-            var filtersRevoc = FillInFilterRevoc(batchId, filterBytes);
+            var revocationFilter = FillInFilterRevoc(batchId, filterBytes);
                 
-            var superId = FillInSuperFilterRevoc(batch.Entries.Count, filterBytes);
-            batchesRevoc.SuperId = superId;
+            var superId = FillInRevocationSuperFilter(batch.Entries.Count, filterBytes);
+            revocationBatch.SuperId = superId;
 
-            _coronapassContext.BatchesRevoc.Add(batchesRevoc);
-            _coronapassContext.FiltersRevoc.Add(filtersRevoc);
+            _coronapassContext.RevocationBatch.Add(revocationBatch);
+            _coronapassContext.RevocationFilter.Add(revocationFilter);
             AddHashRevoc(batchId, batch);
 
             _coronapassContext.SaveChanges();
         }
 
 
-        public static BatchesRevoc FillInBatchRevoc(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch) {
-            var batchesRevoc = new BatchesRevoc()
+        public static RevocationBatch FillInBatchRevoc(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch) {
+            var revocationBatch = new RevocationBatch()
             {
                 BatchId = batchRoot.BatchId,
                 Expires = batch.Expires,
@@ -71,7 +71,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 HashType = batch.HashType,
                 Upload = false,
             };
-            return batchesRevoc;
+            return revocationBatch;
         }
 
         public static BitArray GenerateBatchFilter(List<DgcgHashItem> dgcgHashItems, int m, int k) {
@@ -87,28 +87,28 @@ namespace FHICORC.Integrations.DGCGateway.Services
         private void AddHashRevoc(string batchId, DGCGRevocationBatchRespondDto batch) {
             foreach (var b in batch.Entries)
             {
-                var _hashesRevoc = new HashesRevoc()
+                var _revocationHash = new RevocationHash()
                 {
                     BatchId = batchId,
                     Hash = b.Hash
                 };
-                _coronapassContext.HashesRevoc.Add(_hashesRevoc);
+                _coronapassContext.RevocationHash.Add(_revocationHash);
             }
         }
 
-        public static FiltersRevoc FillInFilterRevoc(string batchId, byte[] filterBytes) {
-            var filtersRevoc = new FiltersRevoc()
+        public static RevocationFilter FillInFilterRevoc(string batchId, byte[] filterBytes) {
+            var revocationFilter = new RevocationFilter()
             {
                 BatchId = batchId,
                 Filter = filterBytes,
             };
 
-            return filtersRevoc;    
+            return revocationFilter;    
         }
 
-        public int FillInSuperFilterRevoc(int currenBatchCount, byte[] filterBytes){               
+        public int FillInRevocationSuperFilter(int currenBatchCount, byte[] filterBytes){               
 
-            foreach (var su in _coronapassContext.SuperFiltersRevoc)
+            foreach (var su in _coronapassContext.RevocationSuperFilter)
             {
                 if (su.BatchCount + currenBatchCount <= 1000)
                 {
@@ -129,16 +129,16 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 }
             }
 
-            var superFilterRevoc = new SuperFiltersRevoc()
+            var revocationSuperFilter = new RevocationSuperFilter()
             {
                 SuperFilter = filterBytes,
                 BatchCount = currenBatchCount,
                 Modified = DateTime.UtcNow
             };
 
-            _coronapassContext.SuperFiltersRevoc.Add(superFilterRevoc);
+            _coronapassContext.RevocationSuperFilter.Add(revocationSuperFilter);
             _coronapassContext.SaveChanges();
-            return superFilterRevoc.Id;
+            return revocationSuperFilter.Id;
 
 
         }
@@ -149,7 +149,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
             try
             {
 
-                var batchesToDelete = _coronapassContext.BatchesRevoc
+                var batchesToDelete = _coronapassContext.RevocationBatch
                     .Where(b => !b.Deleted && b.Expires <= DateTime.UtcNow);
 
                 var superBatchIdsToRecalculate = new HashSet<int>();
@@ -184,19 +184,19 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 var filter = new BitArray(m);
                 var batchCount = 0;
 
-                var superBatch = _coronapassContext.SuperFiltersRevoc
-                    .Include(r => r.BatchesRevocs)
-                        .ThenInclude(x => x.FiltersRevoc)
-                    .Include(r => r.BatchesRevocs)
-                        .ThenInclude(x => x.HashesRevocs)
+                var superBatch = _coronapassContext.RevocationSuperFilter
+                    .Include(r => r.RevocationBatches)
+                        .ThenInclude(x => x.RevocationFilter)
+                    .Include(r => r.RevocationBatches)
+                        .ThenInclude(x => x.RevocationHashes)
                     .FirstOrDefault(b => b.Id == id);
 
-                superBatch.BatchesRevocs
+                superBatch.RevocationBatches
                     .Where(b => !b.Deleted)
                     .ToList()
                     .ForEach(f => {
-                        filter.Or(new BitArray(f.FiltersRevoc.Filter));
-                        batchCount += f.HashesRevocs.Count;
+                        filter.Or(new BitArray(f.RevocationFilter.Filter));
+                        batchCount += f.RevocationHashes.Count;
                     });
 
                 var filterByte = BloomFilterUtils.BitToByteArray(filter);
