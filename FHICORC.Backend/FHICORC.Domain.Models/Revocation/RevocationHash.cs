@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FHICORC.Domain.Models
 {
-    public class HashesRevoc
+    public class RevocationHash
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

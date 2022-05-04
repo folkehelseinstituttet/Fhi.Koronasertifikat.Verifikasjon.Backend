@@ -87,12 +87,12 @@ namespace FHICORC.Integrations.DGCGateway.Services
         private void AddHashRevoc(string batchId, DGCGRevocationBatchRespondDto batch) {
             foreach (var b in batch.Entries)
             {
-                var _hashesRevoc = new HashesRevoc()
+                var _revocationHash = new RevocationHash()
                 {
                     BatchId = batchId,
                     Hash = b.Hash
                 };
-                _coronapassContext.HashesRevoc.Add(_hashesRevoc);
+                _coronapassContext.RevocationHash.Add(_revocationHash);
             }
         }
 
@@ -188,7 +188,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     .Include(r => r.RevocationBatches)
                         .ThenInclude(x => x.FiltersRevoc)
                     .Include(r => r.RevocationBatches)
-                        .ThenInclude(x => x.HashesRevocs)
+                        .ThenInclude(x => x.RevocationHashes)
                     .FirstOrDefault(b => b.Id == id);
 
                 superBatch.RevocationBatches
@@ -196,7 +196,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     .ToList()
                     .ForEach(f => {
                         filter.Or(new BitArray(f.FiltersRevoc.Filter));
-                        batchCount += f.HashesRevocs.Count;
+                        batchCount += f.RevocationHashes.Count;
                     });
 
                 var filterByte = BloomFilterUtils.BitToByteArray(filter);

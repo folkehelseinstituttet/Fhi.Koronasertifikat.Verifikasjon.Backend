@@ -15,7 +15,7 @@ namespace FHICORC.Infrastructure.Database.Context
         public DbSet<CountriesReportModel> CountriesReportModels { get; set; }
         public DbSet<RevocationBatch> RevocationBatch { get; set; }
         public DbSet<FiltersRevoc> FiltersRevoc { get; set; }
-        public DbSet<HashesRevoc> HashesRevoc { get; set; }
+        public DbSet<RevocationHash> RevocationHash { get; set; }
         public DbSet<SuperFiltersRevoc> SuperFiltersRevoc { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
