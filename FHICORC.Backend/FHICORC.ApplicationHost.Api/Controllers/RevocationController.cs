@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace FHICORC.ApplicationHost.Api.Controllers
 {
@@ -14,7 +13,6 @@ namespace FHICORC.ApplicationHost.Api.Controllers
     [Route("v{version:apiVersion}/[controller]")]
     public class RevocationController : ControllerBase
     {
-
         private readonly IRevocationService _revocationService;
 
         public RevocationController(IRevocationService revocationService)

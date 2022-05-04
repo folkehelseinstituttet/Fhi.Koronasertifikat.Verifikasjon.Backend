@@ -64,15 +64,8 @@ namespace FHICORC.Application.Services
 
         public void UploadHashes(List<string> hashList)
         {
-            // List of all Hashes
             var revokedHashList = FetchHashes();
-
-            // Compare List of Hashes from input to HashesRevoc table in DB
-            var newHashList = hashList
-                .Where(h => revokedHashList.Hashes
-                .All(rh => rh.HashInfo != h))
-                .ToList();
-
+            var newHashList = ReturnUniqueHashes(hashList, revokedHashList);
             var batchItem = FetchSmallestBatchItem();
 
             Guid newGuid = Guid.NewGuid();
@@ -118,18 +111,18 @@ namespace FHICORC.Application.Services
 
         private void CreateHash(string batchId, string hash)
         {
-            var hashDto = new HashesRevoc
+            var hashDto = new RevocationHash
             {
                 BatchId = batchId,
                 Hash = hash,
             };
             _coronapassContext.ChangeTracker.Clear();
-            _coronapassContext.HashesRevoc.Add(hashDto);
+            _coronapassContext.RevocationHash.Add(hashDto);
             _coronapassContext.SaveChanges();
         }
         private void CreateBatch(string batchId)
         {
-            var newBatch = new BatchesRevoc
+            var newBatch = new RevocationBatch
             {
                 BatchId = batchId,
                 Expires = DateTime.Now.AddMonths(3),
@@ -139,7 +132,7 @@ namespace FHICORC.Application.Services
                 Upload = true,
             };
             _coronapassContext.ChangeTracker.Clear();
-            _coronapassContext.BatchesRevoc.Add(newBatch);
+            _coronapassContext.RevocationBatch.Add(newBatch);
             try
             {
 
@@ -150,9 +143,16 @@ namespace FHICORC.Application.Services
                 _logger.LogError($"Duplicate Key: {batchId}, message: {ex.Message}");
             }
         }
+        private List<string> ReturnUniqueHashes(List<string> hashList, HashesDto revokedHashList)
+        {
+            return hashList
+                .Where(h => revokedHashList.Hashes
+                .All(rh => rh.HashInfo != h))
+                .ToList();
+        }
         private HashesDto FetchHashes()
         {
-            var hashList = _coronapassContext.HashesRevoc
+            var hashList = _coronapassContext.RevocationHash
                 .Select(x => new Hash()
                 {
                     Id = x.Id,
@@ -168,24 +168,25 @@ namespace FHICORC.Application.Services
         }
         private BatchItem FetchSmallestBatchItem()
         {
-            var batchItem = _coronapassContext.BatchesRevoc.Join(_coronapassContext.HashesRevoc,
-            b => b.BatchId,
-            h => h.BatchId, (b, h) => new { Batch = b, Hash = h })
-            .Where(x => x.Batch.Country.Equals(COUNTRY_CODE) && x.Batch.Expires.Date == ExpiryDate)
-            .GroupBy(y => new
-            {
-                y.Batch.BatchId,
-                y.Batch.Expires,
-            })
-            .Where(x => x.Count() < MAX_SIZE_BATCH)
-            .Select(y => new BatchItem
-            {
-                BatchId = y.Key.BatchId,
-                Count = y.Count(),
-                Expires = y.Key.Expires,
-            })
-            .OrderBy(x => x.Count)
-            .FirstOrDefault();
+            var batchItem = _coronapassContext.RevocationBatch
+                .Join(_coronapassContext.RevocationHash,
+                    b => b.BatchId,
+                    h => h.BatchId, (b, h) => new { Batch = b, Hash = h })
+                .Where(x => x.Batch.Country.Equals(COUNTRY_CODE) && x.Batch.Expires.Date == ExpiryDate)
+                .GroupBy(y => new
+                {
+                    y.Batch.BatchId,
+                    y.Batch.Expires,
+                })
+                .Where(x => x.Count() < MAX_SIZE_BATCH)
+                .Select(y => new BatchItem
+                {
+                    BatchId = y.Key.BatchId,
+                    Count = y.Count(),
+                    Expires = y.Key.Expires,
+                })
+                .OrderBy(x => x.Count)
+                .FirstOrDefault();
 
             return batchItem;
         }
