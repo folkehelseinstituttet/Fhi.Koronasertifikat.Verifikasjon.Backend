@@ -48,7 +48,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
             var filterBytes = BloomFilterUtils.BitToByteArray(filter);
             var revocationFilter = FillInFilterRevoc(batchId, filterBytes);
                 
-            var superId = FillInRevocationSuperFilter(batch.Entries.Count, filterBytes);
+            var superId = FillInRevocationSuperFilter(batch, filterBytes);
             revocationBatch.SuperId = superId;
 
             _coronapassContext.RevocationBatch.Add(revocationBatch);
@@ -106,32 +106,38 @@ namespace FHICORC.Integrations.DGCGateway.Services
             return revocationFilter;    
         }
 
-        public int FillInRevocationSuperFilter(int currenBatchCount, byte[] filterBytes){               
+        public int FillInRevocationSuperFilter(DGCGRevocationBatchRespondDto batch, byte[] filterBytes){               
 
+            var currenBatchCount = batch.Entries.Count;
             foreach (var su in _coronapassContext.RevocationSuperFilter)
             {
-                if (su.BatchCount + currenBatchCount <= 1000)
-                {
-                    var _newbatchFilter = new BitArray(filterBytes);
-                    var _oldBatchFilter = new BitArray(su.SuperFilter);
+                if (su.SuperCountry == batch.Country) {
+                    if (su.SuperExpires >= batch.Expires && batch.Expires >= su.SuperExpires.AddMonths(-2)) {
+                        if (su.BatchCount + currenBatchCount <= 1000)
+                        {
+                            var _newbatchFilter = new BitArray(filterBytes);
+                            var _oldBatchFilter = new BitArray(su.SuperFilter);
 
-                    var combinedFilter = _newbatchFilter.Or(_oldBatchFilter);
-                    var combinedFilterBytes = BloomFilterUtils.BitToByteArray(combinedFilter);
+                            var combinedFilter = _newbatchFilter.Or(_oldBatchFilter);
+                            var combinedFilterBytes = BloomFilterUtils.BitToByteArray(combinedFilter);
 
-                    su.SuperFilter = combinedFilterBytes;
-                    su.BatchCount += currenBatchCount;
-                    su.Modified = DateTime.UtcNow;
+                            su.SuperFilter = combinedFilterBytes;
+                            su.BatchCount += currenBatchCount;
+                            su.Modified = DateTime.UtcNow;
 
-                    _coronapassContext.Entry(su).State = EntityState.Modified;
+                            _coronapassContext.Entry(su).State = EntityState.Modified;
 
-                    return su.Id;
-
+                            return su.Id;
+                        }
+                    }
                 }
             }
 
             var revocationSuperFilter = new RevocationSuperFilter()
             {
                 SuperFilter = filterBytes,
+                SuperCountry = batch.Country,
+                SuperExpires = batch.Expires.AddMonths(2).Date,
                 BatchCount = currenBatchCount,
                 Modified = DateTime.UtcNow
             };
@@ -167,7 +173,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
                 _coronapassContext.SaveChanges();
 
-                RestructureSuperFilters(superBatchIdsToRecalculate.ToList());
+                //RestructureSuperFilters(superBatchIdsToRecalculate.ToList());
 
             }
             catch (Exception ex)
@@ -176,39 +182,39 @@ namespace FHICORC.Integrations.DGCGateway.Services
             }
         }
 
-        public void RestructureSuperFilters(List<int> superIds)
-        {
-            foreach (var id in superIds)
-            {
-                var m = 47936;
-                var filter = new BitArray(m);
-                var batchCount = 0;
+        //public void RestructureSuperFilters(List<int> superIds)
+        //{
+        //    foreach (var id in superIds)
+        //    {
+        //        var m = 47936;
+        //        var filter = new BitArray(m);
+        //        var batchCount = 0;
 
-                var superBatch = _coronapassContext.RevocationSuperFilter
-                    .Include(r => r.RevocationBatches)
-                        .ThenInclude(x => x.RevocationFilter)
-                    .Include(r => r.RevocationBatches)
-                        .ThenInclude(x => x.RevocationHashes)
-                    .FirstOrDefault(b => b.Id == id);
+        //        var superBatch = _coronapassContext.RevocationSuperFilter
+        //            .Include(r => r.RevocationBatches)
+        //                .ThenInclude(x => x.RevocationFilter)
+        //            .Include(r => r.RevocationBatches)
+        //                .ThenInclude(x => x.RevocationHashes)
+        //            .FirstOrDefault(b => b.Id == id);
 
-                superBatch.RevocationBatches
-                    .Where(b => !b.Deleted)
-                    .ToList()
-                    .ForEach(f => {
-                        filter.Or(new BitArray(f.RevocationFilter.Filter));
-                        batchCount += f.RevocationHashes.Count;
-                    });
+        //        superBatch.RevocationBatches
+        //            .Where(b => !b.Deleted)
+        //            .ToList()
+        //            .ForEach(f => {
+        //                filter.Or(new BitArray(f.RevocationFilter.Filter));
+        //                batchCount += f.RevocationHashes.Count;
+        //            });
 
-                var filterByte = BloomFilterUtils.BitToByteArray(filter);
-                superBatch.SuperFilter = filterByte;
-                superBatch.BatchCount = batchCount;
-                superBatch.Modified = DateTime.Now;
+        //        var filterByte = BloomFilterUtils.BitToByteArray(filter);
+        //        superBatch.SuperFilter = filterByte;
+        //        superBatch.BatchCount = batchCount;
+        //        superBatch.Modified = DateTime.Now;
 
-                _coronapassContext.Entry(superBatch).State = EntityState.Modified;
+        //        _coronapassContext.Entry(superBatch).State = EntityState.Modified;
 
-            }
-            _coronapassContext.SaveChanges();
-        }
+        //    }
+        //    _coronapassContext.SaveChanges();
+        //}
     }
 
 }

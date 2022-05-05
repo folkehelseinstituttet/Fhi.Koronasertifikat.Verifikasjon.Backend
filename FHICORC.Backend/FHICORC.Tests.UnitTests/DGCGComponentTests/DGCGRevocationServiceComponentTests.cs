@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.Pkcs;
 using System.Text;
+using BloomFilter;
 using FHICORC.Application.Models;
 using FHICORC.Application.Services;
 using FHICORC.Infrastructure.Database.Context;
@@ -130,7 +131,19 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
         public void TearDown()
         {
             _coronapassContext.Database.EnsureDeleted();
+
+                public class Demo
+        {
+            static IBloomFilter bf = FilterBuilder.Build(10000000, 0.01);
+
+            public void Sample()
+            {
+                bf.Add("Value");
+                Console.WriteLine(bf.Contains("Value"));
+            }
         }
 
     }
+
+}
 }

@@ -42,7 +42,6 @@ namespace FHICORC.Integrations.DGCGateway.Util
 
         public static int[] HashData(byte[] data, int m, int k)
         {
-
             var hashAlgorithm = SHA256.Create();
 
             int[] array = new int[k];
