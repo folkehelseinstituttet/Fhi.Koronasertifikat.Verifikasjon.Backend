@@ -7,5 +7,7 @@ namespace FHICORC.Integrations.DGCGateway.Services.Interfaces
         public BloomFilterBuckets CalculateBloomFilterBuckets();
         public BloomFilterBuckets GetBloomFilterBucket();
         public BucketItem GetBucketItemByBatchCount(int superBatchCount);
+        public int GetBucketIdx(int superBatchCount);
     }
+
 }

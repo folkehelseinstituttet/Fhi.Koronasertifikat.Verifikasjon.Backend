@@ -24,6 +24,8 @@ namespace FHICORC.Domain.Models
 
         public DateTime Modified { get; set; }
 
+        public int HashType { get; set; }
+
 
 
         public virtual ICollection<RevocationBatch> RevocationBatches { get; set; }

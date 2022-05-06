@@ -9,6 +9,7 @@ using FHICORC.Integrations.DGCGateway.Util;
 using FHICORC.Application.Models;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
 using System.Collections.Generic;
+using FHICORC.Core.Services.Enum;
 
 namespace FHICORC.Application.Services
 {
@@ -25,45 +26,40 @@ namespace FHICORC.Application.Services
             _bloomBucketService = bloomBucketService;
         }
 
-        public bool ContainsCertificate(string dcc) {
-            return ContainsCertificateFilter(dcc);
+        public bool ContainsCertificate(string dcc, string country) {
+            return BloomFilterUtils.IsHashRevocated(dcc, country, _coronapassContext, _bloomBucketService.GetBloomFilterBucket());
         }
 
-        public bool ContainsCertificateFilter(string str)
+        public List<SuperBatch> FetchSuperBatches(DateTime dateTime)
         {
-            foreach (var bucket in _bloomBucketService.GetBloomFilterBucket().Buckets)
+            try
             {
-                var superFilters = _coronapassContext.RevocationSuperFilter
-                    .Where(b => b.Bucket == bucket.MaxValue)
-                    .Select(s => s.SuperFilter);
+                var superBatchList = _coronapassContext.RevocationSuperFilter
+                    .Where(s => s.Modified >= dateTime)
+                    .Select(x => new SuperBatch()
+                    {
+                        Id = x.Id,
+                        CountryISO3166 = x.SuperCountry,
+                        BucketType = x.Bucket,
+                        BloomFilter = x.SuperFilter,
+                        HashType = (HashTypeEnum)x.HashType,
+                        ExpirationDate = x.SuperExpires
+                    }
+                    ).ToList();
 
-                foreach (var superFilter in superFilters)
-                {
-                    var bitVector = new BitArray(superFilter);
-                    var contains = bitVector.Contains(str, bucket.BitVectorLength_m, bucket.NumberOfHashFunctions_k);
+                if (!superBatchList.Any())
+                    return null;
 
-                    if (contains)
-                        return true;
-                }
+                return superBatchList;
             }
-            return false;
+            catch (Exception e)
+            {
+                return null;
+            }
         }
 
-
-        public SuperBatchesDto FetchSuperBatches(DateTime dateTime) {
-            var superBatchList = _coronapassContext.RevocationSuperFilter
-                .Where(s => s.Modified <= dateTime)
-                .Select(x => new SuperBatch()
-                {
-                    Id = x.Id,
-                    SuperFilter = x.SuperFilter,
-                }
-                ).ToList();
-
-            return new SuperBatchesDto()
-            {
-                SuperBatches = superBatchList
-            };           
-        }     
+        public BloomFilterBuckets FetchBucketInfo() {
+            return _bloomBucketService.GetBloomFilterBucket();
+        }
     }
 }

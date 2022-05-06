@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using FHICORC.Application.Models;
 using FHICORC.Application.Models.Options;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
+using System;
+using System.IO;
 
 namespace FHICORC.Integrations.DGCGateway.Services
 {
@@ -43,9 +45,10 @@ namespace FHICORC.Integrations.DGCGateway.Services
             }
         }
 
-        public async Task<DgcgRevocationBatchListRespondDto> GetRevocationBatchListAsync() 
+        public async Task<DgcgRevocationBatchListRespondDto> GetRevocationBatchListAsync(string modifiedSince) 
         {
-            var d = "2021-06-01T00:00:00Z";
+
+            var d = "2022-05-23T00:00:00Z";
             var fullResponse = await _dgcgClient.FetchRevocationBatchListAsync(d);
 
             return fullResponse;

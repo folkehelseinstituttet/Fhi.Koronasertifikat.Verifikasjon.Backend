@@ -13,7 +13,8 @@ namespace FHICORC.Application.Services
 {
     public interface IRevocationService
     {
-        public bool ContainsCertificate(string dcc);
-        public SuperBatchesDto FetchSuperBatches(DateTime dateTime);
+        public bool ContainsCertificate(string dcc, string country);
+        public List<SuperBatch> FetchSuperBatches(DateTime dateTime);
+        public BloomFilterBuckets FetchBucketInfo();
     }
 }
