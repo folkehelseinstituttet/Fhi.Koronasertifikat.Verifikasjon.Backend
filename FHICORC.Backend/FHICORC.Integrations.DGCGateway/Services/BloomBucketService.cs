@@ -25,12 +25,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
         public BloomFilterBuckets CalculateBloomFilterBuckets() {
 
-            //var NumberOfBuckets = 10;
-            //var MinValue = 5;
-            //var MaxValue = 1000;
-            //var FalsePositiveProbability = 1e-10;
-
-
             var _l = new List<int>() { 5, 10, 100, 250, 500, 1000 };
             var bloomFilterBucketsList = new List<BucketItem>();
 
