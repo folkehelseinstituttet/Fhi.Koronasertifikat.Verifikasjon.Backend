@@ -134,17 +134,17 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
         //}
 
 
-        
-        ////public class Demo
-        ////{
-        ////    static IBloomFilter bf = FilterBuilder.Build(10000000, 0.01);
 
-        ////    public void Sample()
-        ////    {
-        ////        bf.Add("Value");
-        ////        Console.WriteLine(bf.Contains("Value"));
-        ////    }
-        ////}
+        public class Demo
+        {
+            static IBloomFilter bf = FilterBuilder.Build(10000000, 0.01, HashFunction.Functions[HashMethod.Murmur3KirschMitzenmacher]);
+
+            public void Sample()
+            {
+                bf.Add("Value");
+                Console.WriteLine(bf.Contains("Value"));
+            }
+        }
 
     }
 
