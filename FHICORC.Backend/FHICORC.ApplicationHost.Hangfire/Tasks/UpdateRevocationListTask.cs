@@ -74,19 +74,19 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
             try
             {
 
-                //_revocationService.PopulateRevocationDatabase(revocationBatchList);
+                await _revocationService.PopulateRevocationDatabase(revocationBatchList);
 
-                foreach (var rb in revocationBatchList.Batches)
-                {
-                    try
-                    {
-                        var revocationHashList = await _dgcgService.GetRevocationBatchAsync(rb.BatchId);
-                        _revocationService.AddToDatabase(rb, revocationHashList);
-                    }
-                    catch (Exception e) { }
+                //foreach (var rb in revocationBatchList.Batches)
+                //{
+                //    try
+                //    {
+                //        var revocationHashList = await _dgcgService.GetRevocationBatchAsync(rb.BatchId);
+                //        _revocationService.AddToDatabase(rb, revocationHashList);
+                //    }
+                //    catch (Exception e) { }
 
-                }
-
+                //}
+                
                 //TRUNCATE public."RevocationBatch", public."RevocationSuperFilter" CASCADE;
                 _metricLogService.AddMetric("RetrieveRevocationBatch_Success", true);
 

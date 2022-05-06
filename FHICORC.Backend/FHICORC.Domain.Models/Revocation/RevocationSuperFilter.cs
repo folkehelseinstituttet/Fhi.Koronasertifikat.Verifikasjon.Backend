@@ -20,6 +20,8 @@ namespace FHICORC.Domain.Models
 
         public int BatchCount { get; set; }
 
+        public int Bucket { get; set; }
+
         public DateTime Modified { get; set; }
 
 

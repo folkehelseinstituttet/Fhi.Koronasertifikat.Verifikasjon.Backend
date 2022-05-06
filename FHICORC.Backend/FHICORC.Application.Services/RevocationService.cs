@@ -7,6 +7,8 @@ using FHICORC.Infrastructure.Database.Context;
 using Microsoft.EntityFrameworkCore;
 using FHICORC.Integrations.DGCGateway.Util;
 using FHICORC.Application.Models;
+using FHICORC.Integrations.DGCGateway.Services.Interfaces;
+using System.Collections.Generic;
 
 namespace FHICORC.Application.Services
 {
@@ -14,26 +16,35 @@ namespace FHICORC.Application.Services
     {
         private readonly ILogger<RevocationService> _logger;
         private readonly CoronapassContext _coronapassContext;
+        private readonly IBloomBucketService _bloomBucketService;
 
-        public RevocationService(ILogger<RevocationService> logger, CoronapassContext coronapassContext)
+        public RevocationService(ILogger<RevocationService> logger, CoronapassContext coronapassContext, IBloomBucketService bloomBucketService)
         {
             _logger = logger;
             _coronapassContext = coronapassContext;
+            _bloomBucketService = bloomBucketService;
         }
 
         public bool ContainsCertificate(string dcc) {
             return ContainsCertificateFilter(dcc);
         }
 
-        public bool ContainsCertificateFilter(string str) {
-            var hashData = BloomFilterUtils.HashData(Encoding.UTF8.GetBytes(str), 47936, 32);
-
-            foreach (var bf in _coronapassContext.RevocationSuperFilter)
+        public bool ContainsCertificateFilter(string str)
+        {
+            foreach (var bucket in _bloomBucketService.GetBloomFilterBucket().Buckets)
             {
-                var a = new BitArray(bf.SuperFilter);
-                var contains = a.Contains(hashData);
-                if (contains)
-                    return true;
+                var superFilters = _coronapassContext.RevocationSuperFilter
+                    .Where(b => b.Bucket == bucket.MaxValue)
+                    .Select(s => s.SuperFilter);
+
+                foreach (var superFilter in superFilters)
+                {
+                    var bitVector = new BitArray(superFilter);
+                    var contains = bitVector.Contains(str, bucket.BitVectorLength_m, bucket.NumberOfHashFunctions_k);
+
+                    if (contains)
+                        return true;
+                }
             }
             return false;
         }
