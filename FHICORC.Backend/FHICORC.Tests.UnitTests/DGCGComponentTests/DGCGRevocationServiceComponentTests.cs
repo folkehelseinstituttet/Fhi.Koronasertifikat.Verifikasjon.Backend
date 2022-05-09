@@ -57,14 +57,10 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
         }
 
 
-
         public void SeedDatabase()
         {
 
             var revocationBatchList = JsonConvert.DeserializeObject<DgcgRevocationBatchListRespondDto>(File.ReadAllText("TestFiles/tst_revocation_batch_list.json"));
-
-
-            //await _dgcgRevocationService.PopulateRevocationDatabase(revocationBatchList);
 
             foreach (var rb in revocationBatchList.Batches)
             {
@@ -108,8 +104,6 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
                 var result = MobileFilter.ContainsCertificateFilterMobile(country, hash.Hash, _coronapassContext, bloomBucketService.GetBloomFilterBucket());
                 Assert.True(result);
             }
-
-
         }
 
 
@@ -123,64 +117,11 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
 
         }
 
-
-        //[Test]
-        //public void SuperFilterTest()
-        //{
-        //    var revocationService = new RevocationService(loggerRevocationService, _coronapassContext);
-        //    _coronapassContext.RevocationHash
-        //        .ToList()
-        //        .ForEach(h => Assert.True(revocationService.ContainsCertificate(h.Hash)));
-        //}
-
-
-        //[Test]
-        //public void DeleteExpiredBatchesTest() {
-
-        //    //Assume
-        //    var batchId = "699978cf-d2d4-4093-8b54-ab2cf695d76d";
-        //    var expiredBatch = _coronapassContext.RevocationBatch.Find(batchId);
-        //    expiredBatch.Expires = DateTime.UtcNow.AddDays(-100);
-        //    _coronapassContext.SaveChanges();
-
-        //    var revocationService = new RevocationService(loggerRevocationService, _coronapassContext);
-        //    var hashInExpiredBatch = expiredBatch.RevocationHashes.FirstOrDefault().Hash;
-        //    var inSuperFilterBefore = revocationService.ContainsCertificateFilter(hashInExpiredBatch);
-
-
-        //    //Check if superfilter contains all hashes
-        //    SuperFilterTest();
-
-
-        //    //Act 
-        //    _dgcgRevocationService.DeleteExpiredBatches();
-
-
-        //    //Assert
-        //    Assert.True(expiredBatch.Deleted);
-        //    Assert.IsNull(expiredBatch.SuperId);
-
-
-        //    // Check if hashes from deleted batcj are removed from superfilter
-        //    _coronapassContext.RevocationHash
-        //        .Where(x => x.BatchId == batchId)
-        //        .ToList()
-        //        .ForEach(h => Assert.False(revocationService.ContainsCertificateFilter(h.Hash)));
-
-        //    // Check if ALL the other hashes are still in the superfilter
-        //    //_coronapassContext.RevocationHash
-        //    //    .Where(x => x.BatchId != batchId)
-        //    //    .ToList()
-        //    //    .ForEach(h => Assert.True(revocationService.ContainsCertificateFilter(h.Hash)));
-        //}
-
-
-        //[TearDown]
-        //public void TearDown()
-        //{
-        //    _coronapassContext.Database.EnsureDeleted();
-        //}
-
+        [TearDown]
+        public void TearDown()
+        {
+            _coronapassContext.Database.EnsureDeleted();
+        }
 
 
         public class Demo
