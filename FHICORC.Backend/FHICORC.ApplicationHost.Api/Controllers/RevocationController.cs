@@ -32,5 +32,11 @@ namespace FHICORC.ApplicationHost.Api.Controllers
             return _revocationService.FetchSuperBatches(lastDownloaded);
         }
 
+        [HttpGet("bucketinfo")]
+        public BloomFilterBuckets BucketInfo()
+        {
+            return _revocationService.FetchBucketInfo();
+        }
+
     }
 }

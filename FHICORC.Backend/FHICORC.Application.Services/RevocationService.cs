@@ -56,6 +56,7 @@ namespace FHICORC.Application.Services
                 .Select(x => new SuperBatch()
                 {
                     Id = x.Id,
+                    Bucket = x.Bucket,
                     SuperFilter = x.SuperFilter,
                 }
                 ).ToList();
@@ -64,6 +65,10 @@ namespace FHICORC.Application.Services
             {
                 SuperBatches = superBatchList
             };           
-        }     
+        }
+
+        public BloomFilterBuckets FetchBucketInfo() {
+            return _bloomBucketService.GetBloomFilterBucket();
+        }
     }
 }

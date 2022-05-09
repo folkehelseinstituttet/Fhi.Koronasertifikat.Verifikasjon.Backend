@@ -42,10 +42,15 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 catch (Exception e) { }
             }
 
+            OrganizeBatches();
+
+        }
+
+        public void OrganizeBatches() {
             var revocationSuperFilters = _coronapassContext.RevocationSuperFilter
-                .Where(s => s.Modified >= DateTime.UtcNow.AddHours(-10))
-                .Include(r => r.RevocationBatches)
-                    .ThenInclude(h => h.RevocationHashes);
+            .Where(s => s.Modified >= DateTime.UtcNow.AddHours(-10))
+            .Include(r => r.RevocationBatches)
+                .ThenInclude(h => h.RevocationHashes);
 
             foreach (var revocationSuperFilter in revocationSuperFilters)
             {
@@ -61,12 +66,12 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     }
                 }
 
-                revocationSuperFilter.Bucket = bucket.MaxValue;
                 revocationSuperFilter.SuperFilter = BloomFilterUtils.BitToByteArray(bitVector);
                 _coronapassContext.Entry(revocationSuperFilter).State = EntityState.Modified;
             }
 
             _coronapassContext.SaveChanges();
+
         }
 
 
@@ -139,7 +144,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
                             {
                                 su.BatchCount += currenBatchCount;
                                 su.Modified = DateTime.UtcNow;
-                                su.Bucket = bucket.MaxValue;
+                                su.Bucket = bucket.BucketId;
 
                                 _coronapassContext.Entry(su).State = EntityState.Modified;
                                 return su.Id;
@@ -155,13 +160,12 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 SuperExpires = batch.Expires.AddDays(_bloomBucketOptions.ExpieryDateLeewayInDays).Date,
                 BatchCount = currenBatchCount,
                 Modified = DateTime.UtcNow,
-                Bucket = _bloomBucketService.GetBucketItemByBatchCount(currenBatchCount).MaxValue
+                Bucket = _bloomBucketService.GetBucketItemByBatchCount(currenBatchCount).BucketId
             };
 
             _coronapassContext.RevocationSuperFilter.Add(revocationSuperFilter);
             _coronapassContext.SaveChanges();
             return revocationSuperFilter.Id;
-
 
         }
 

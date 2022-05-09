@@ -13,6 +13,7 @@ namespace FHICORC.Application.Models
 
     public class SuperBatch{
         public int Id { get; set; }
+        public int Bucket { get; set; }
         public byte[] SuperFilter { get; set; }
     }
 }
