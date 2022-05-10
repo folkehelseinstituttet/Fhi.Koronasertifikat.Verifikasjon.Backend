@@ -56,8 +56,6 @@ namespace FHICORC.Application.Services
                 }
             
             }
-        
-        }
 
         public BloomFilterBuckets FetchBucketInfo() {
             return _bloomBucketService.GetBloomFilterBucket();
