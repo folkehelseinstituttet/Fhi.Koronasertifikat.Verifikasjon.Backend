@@ -52,7 +52,7 @@ namespace FHICORC.Application.Services
             }
             catch (Exception e) {
                 return new SuperBatchesDto() {
-                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 42, Bucket = _coronapassContext.RevocationSuperFilter.Count() } } };   
+                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 42, Bucket = 100 } } };   
                 }
             
             }
