@@ -32,6 +32,11 @@ namespace FHICORC.Integrations.DGCGateway.Services
         }
 
         public async Task PopulateRevocationDatabase(DgcgRevocationBatchListRespondDto revocationBatchList) {
+            if (revocationBatchList is null) {
+                _logger.LogInformation("RevocationBatchList is empty");
+                return;
+            }
+
             foreach (var rb in revocationBatchList.Batches)
             {
                 try
@@ -39,7 +44,13 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     var revocationHashList = await _dgcgService.GetRevocationBatchAsync(rb.BatchId);
                     AddToDatabase(rb, revocationHashList);
                 }
-                catch (Exception e) { }
+                catch (System.Security.Cryptography.CryptographicException e)
+                {
+                    _logger.LogInformation(e, "No/Invalid data recevied from the DCCG for batch {batchId}", rb.BatchId);
+                }
+                catch (Exception e) {
+                    _logger.LogInformation(e, "Failed to Add Batch {BatchId} to the database", rb.BatchId);
+                }
             }
 
             OrganizeBatches();
@@ -74,22 +85,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
         }
 
-
-        //public BitArray GenerateBitVectorForSingleSuperBatch(ICollection<RevocationBatch> revocationBatches, int batchCount) {
-        //    var bucket = _bloomBucketService.GetBucketItemByBatchCount(batchCount);
-        //    var bitVector = new BitArray(bucket.BitVectorLength_m);
-
-        //    foreach (var revocationBatch in revocationBatches)
-        //    {
-        //        foreach (var hash in revocationBatch.RevocationHashes)
-        //        {
-        //            bitVector.AddToFilter(hash.Hash, bucket.BitVectorLength_m, bucket.NumberOfHashFunctions_k);
-        //        }
-        //    }
-
-        //    return bitVector;
-        //}
-
         public void AddToDatabase(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch) {
 
             var batchId = batchRoot.BatchId;
@@ -99,9 +94,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
             _coronapassContext.RevocationBatch.Add(revocationBatch);
             AddHashRevoc(batchId, batch);
-
-            //_coronapassContext.SaveChanges();
-
         }
 
 
@@ -175,7 +167,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
         {
             try
             {
-
                 var batchesToDelete = _coronapassContext.RevocationBatch
                     .Where(b => !b.Deleted && b.Expires <= DateTime.UtcNow);
 
@@ -190,11 +181,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     b.SuperId = null;
                     _coronapassContext.Entry(b).State = EntityState.Modified;
                 }
-
-
                 _coronapassContext.SaveChanges();
-
-                //RestructureSuperFilters(superBatchIdsToRecalculate.ToList());
 
             }
             catch (Exception ex)

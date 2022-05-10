@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using BloomFilter;
 using FHICORC.Application.Models;
 using FHICORC.Infrastructure.Database.Context;
 
-namespace FHICORC.Tests.UnitTests.DGCGComponentTests
+namespace FHICORC.Tests.ComponentTests.DGCGComponentTests
 {
-    public static class MobileFilter
+    public static class MobileUtil
     {
 
         public static bool ContainsCertificateFilterMobile(string country, string hashString, CoronapassContext _coronapassContext, BloomFilterBuckets bloomFilterBuckets)
