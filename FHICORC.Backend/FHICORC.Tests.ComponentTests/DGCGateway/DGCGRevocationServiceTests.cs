@@ -9,8 +9,7 @@ namespace FHICORC.Tests.ComponentTests.DGCGateway
     public class DGCGRevocationServiceTests : SeedDb
     {
 
-        [Test]
-
+        
 
 
     }
