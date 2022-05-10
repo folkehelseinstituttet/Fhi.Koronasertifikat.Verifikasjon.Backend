@@ -1,11 +1,8 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.Pkcs;
 using System.Text;
-using System.Threading.Tasks;
 using BloomFilter;
 using FHICORC.Application.Models;
 using FHICORC.Application.Models.Options;
@@ -13,7 +10,6 @@ using FHICORC.Application.Services;
 using FHICORC.Infrastructure.Database.Context;
 using FHICORC.Integrations.DGCGateway.Services;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
-using FHICORC.Integrations.DGCGateway.Util;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
@@ -22,8 +18,8 @@ using NUnit.Framework;
 
 namespace FHICORC.Tests.UnitTests.DGCGComponentTests
 {
-    [Category("Unit")]
-    public class DGCGRevocationServiceComponentTests
+    [Category("Component")]
+    public class MobileDemo
     {
         ILogger<DGCGRevocationService> loggerDGCGRevocationService = new NullLoggerFactory().CreateLogger<DGCGRevocationService>();
         ILogger<RevocationService> loggerRevocationService = new NullLoggerFactory().CreateLogger<RevocationService>();

@@ -21,9 +21,9 @@ namespace FHICORC.ApplicationHost.Api.Controllers
 
 
         [HttpGet("certificate")]
-        public IActionResult CheckCertificateRevocated([FromHeader] string dcc)
+        public IActionResult CheckCertificateRevocated([FromHeader] string dcc, [FromHeader] string country)
         {
-            return Ok(_revocationService.ContainsCertificate(dcc));
+            return Ok(_revocationService.ContainsCertificate(dcc, country));
         }
 
 

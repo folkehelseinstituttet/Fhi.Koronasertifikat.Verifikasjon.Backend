@@ -25,29 +25,10 @@ namespace FHICORC.Application.Services
             _bloomBucketService = bloomBucketService;
         }
 
-        public bool ContainsCertificate(string dcc) {
-            return ContainsCertificateFilter(dcc);
+        public bool ContainsCertificate(string dcc, string country) {
+            return BloomFilterUtils.IsHashRevocated(dcc, country, _coronapassContext, _bloomBucketService.GetBloomFilterBucket());
         }
 
-        public bool ContainsCertificateFilter(string str)
-        {
-            foreach (var bucket in _bloomBucketService.GetBloomFilterBucket().Buckets)
-            {
-                var superFilters = _coronapassContext.RevocationSuperFilter
-                    .Where(b => b.Bucket == bucket.MaxValue)
-                    .Select(s => s.SuperFilter);
-
-                foreach (var superFilter in superFilters)
-                {
-                    var bitVector = new BitArray(superFilter);
-                    var contains = bitVector.Contains(str, bucket.BitVectorLength_m, bucket.NumberOfHashFunctions_k);
-
-                    if (contains)
-                        return true;
-                }
-            }
-            return false;
-        }
 
 
         public SuperBatchesDto FetchSuperBatches(DateTime dateTime) {

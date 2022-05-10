@@ -2,11 +2,68 @@
 using System.Collections;
 using System;
 using BloomFilter;
+using System.Collections.Generic;
+using FHICORC.Infrastructure.Database.Context;
+using FHICORC.Application.Models;
+using System.Linq;
 
 namespace FHICORC.Integrations.DGCGateway.Util
 {
     public static class BloomFilterUtils
     {
+
+        public static bool IsHashRevocated(string hashString, string country, CoronapassContext _coronapassContext, BloomFilterBuckets bloomFilterBuckets)
+        {
+            var allHashFunctionIndicies_k = CalculateAllHashIndiciesByBucket(hashString, bloomFilterBuckets);
+            return SuperFilterContains(allHashFunctionIndicies_k, country, _coronapassContext);
+        }
+
+
+        public static bool SuperFilterContains(List<int[]> allHashFunctionIndicies_k, string country, CoronapassContext _coronapassContext)
+        {
+
+            var superFilter = _coronapassContext.RevocationSuperFilter
+                .Where(s => s.SuperCountry.Equals(country));
+
+            foreach (var s in superFilter)
+            {
+                var bitVector = new BitArray(s.SuperFilter);
+                var contains = bitVector.BitVectorContains(allHashFunctionIndicies_k[s.Bucket]);
+
+                if (contains)
+                    return true;
+            }
+
+            return false;
+        }
+
+
+
+        public static bool BitVectorContains(this BitArray filter, int[] indicies)
+        {
+            foreach (int i in indicies)
+            {
+                if (!filter[i])
+                    return false;
+            }
+            return true;
+        }
+
+
+        public static List<int[]> CalculateAllHashIndiciesByBucket(string hashString, BloomFilterBuckets bloomFilterBuckets)
+        {
+            var allHashFunctionIndicies_k = new List<int[]>();
+            foreach (var bucketItem in bloomFilterBuckets.Buckets)
+            {
+                var hashedIndicies = HashData(Encoding.UTF8.GetBytes(hashString), bucketItem.BitVectorLength_m, bucketItem.NumberOfHashFunctions_k);
+                allHashFunctionIndicies_k.Add(hashedIndicies);
+            };
+
+            return allHashFunctionIndicies_k;
+        }
+
+
+
         public static BitArray AddToFilter(this BitArray filter, string str, int m, int k)
         {
             var hash = HashData(Encoding.UTF8.GetBytes(str), m, k);
@@ -18,27 +75,7 @@ namespace FHICORC.Integrations.DGCGateway.Util
 
         }
 
-        public static bool Contains(this BitArray filter, string str, int m, int k)
-        {
-            var hash = HashData(Encoding.UTF8.GetBytes(str), m, k);
 
-            foreach (int i in hash) {
-                if (!filter[i])
-                    return false;
-            }
-            return true;
-        }
-
-        public static bool Contains(this BitArray filter, int[] hashData)
-        {
-            foreach (int i in hashData)
-            {
-                var value = filter[i];
-                if (!value)
-                    return false;
-            }
-            return true;
-        }
 
         public static int[] HashData(byte[] data, int m, int k)
         {
