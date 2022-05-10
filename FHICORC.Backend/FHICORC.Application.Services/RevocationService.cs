@@ -32,20 +32,31 @@ namespace FHICORC.Application.Services
 
 
         public SuperBatchesDto FetchSuperBatches(DateTime dateTime) {
-            var superBatchList = _coronapassContext.RevocationSuperFilter
-                .Where(s => s.Modified <= dateTime)
-                .Select(x => new SuperBatch()
-                {
-                    Id = x.Id,
-                    Bucket = x.Bucket,
-                    SuperFilter = x.SuperFilter,
-                }
-                ).ToList();
 
-            return new SuperBatchesDto()
+            try
             {
-                SuperBatches = superBatchList
-            };           
+                var superBatchList = _coronapassContext.RevocationSuperFilter
+                    .Where(s => s.Modified <= dateTime)
+                    .Select(x => new SuperBatch()
+                    {
+                        Id = x.Id,
+                        Bucket = x.Bucket,
+                        SuperFilter = x.SuperFilter,
+                    }
+                    ).ToList();
+
+                    return new SuperBatchesDto()
+                    {
+                        SuperBatches = superBatchList
+                    };
+            }
+            catch (Exception e) {
+                return new SuperBatchesDto() {
+                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 42, Bucket = _coronapassContext.RevocationSuperFilter.Count() } };   
+                }
+            
+            }
+        
         }
 
         public BloomFilterBuckets FetchBucketInfo() {
