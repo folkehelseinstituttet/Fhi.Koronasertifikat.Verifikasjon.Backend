@@ -43,10 +43,10 @@ namespace FHICORC.Application.Services
                 };
 
             }
-            catch {
+            catch (Exception e){
                 return new SuperBatchesDto()
                 {
-                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 420, Bucket = 101, Date = dateTime } }
+                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 420, Bucket = 101, Date = dateTime, RandomString = e.Message} }
                 };
             }
 
