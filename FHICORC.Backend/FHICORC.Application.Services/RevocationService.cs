@@ -84,6 +84,31 @@ namespace FHICORC.Application.Services
                         Id = x.Id,
                         Bucket = x.Bucket,
                         SuperFilter = x.SuperFilter,
+                    }).Count();
+
+                return new SuperBatchesDto()
+                {
+                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 4235, Bucket = a, Date = dateTime } }
+                };
+
+            }
+            catch
+            {
+                return new SuperBatchesDto()
+                {
+                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 423, Bucket = 101, Date = dateTime } }
+                };
+            }
+
+            try
+            {
+                var a = _coronapassContext.RevocationSuperFilter
+                    .Where(s => s.Modified <= dateTime)
+                    .Select(x => new SuperBatch()
+                    {
+                        Id = x.Id,
+                        Bucket = x.Bucket,
+                        SuperFilter = x.SuperFilter,
                     })
                     .ToList();
             }
@@ -91,7 +116,7 @@ namespace FHICORC.Application.Services
             {
                 return new SuperBatchesDto()
                 {
-                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 423, Bucket = 101, Date = dateTime } }
+                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 424, Bucket = 101, Date = dateTime } }
                 };
             }
 
