@@ -29,106 +29,7 @@ namespace FHICORC.Application.Services
             return BloomFilterUtils.IsHashRevocated(dcc, country, _coronapassContext, _bloomBucketService.GetBloomFilterBucket());
         }
 
-
-
         public SuperBatchesDto FetchSuperBatches(DateTime dateTime) {
-
-            try
-            {
-                var a = _coronapassContext.RevocationBatch.Where(s => s.Country == "RO").FirstOrDefault();
-
-                return new SuperBatchesDto()
-                {
-                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 7777777, Bucket = 101, Date = dateTime } }
-                };
-
-            }
-            catch (Exception e){
-                return new SuperBatchesDto()
-                {
-                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 420, Bucket = 101, Date = dateTime, RandomString = e.Message} }
-                };
-            }
-
-            try
-            {
-                var a = _coronapassContext.RevocationSuperFilter.Where(s => s.Modified <= dateTime);
-            }
-            catch
-            {
-                return new SuperBatchesDto()
-                {
-                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 421, Bucket = 101, Date = dateTime } }
-                };
-            }
-
-            try
-            {
-                var a = _coronapassContext.RevocationSuperFilter
-                    .Where(s => s.Modified <= dateTime)
-                    .Select(x => new SuperBatch()
-                    {
-                        Id = x.Id,
-                        Bucket = x.Bucket,
-                        SuperFilter = x.SuperFilter,
-                    });
-            }
-            catch
-            {
-                return new SuperBatchesDto()
-                {
-                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 422, Bucket = 101, Date = dateTime } }
-                };
-            }
-
-            try
-            {
-                var a = _coronapassContext.RevocationSuperFilter
-                    .Where(s => s.Modified <= dateTime)
-                    .Select(x => new SuperBatch()
-                    {
-                        Id = x.Id,
-                        Bucket = x.Bucket,
-                        SuperFilter = x.SuperFilter,
-                    });
-
-                foreach (var b in a)
-                {
-                    return new SuperBatchesDto()
-                    {
-                        SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 4235, Bucket = 77, Date = dateTime } }
-                    };
-                }
-
-            }
-            catch
-            {
-                return new SuperBatchesDto()
-                {
-                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 423, Bucket = 101, Date = dateTime } }
-                };
-            }
-
-            try
-            {
-                var a = _coronapassContext.RevocationSuperFilter
-                    .Where(s => s.Modified <= dateTime)
-                    .Select(x => new SuperBatch()
-                    {
-                        Id = x.Id,
-                        Bucket = x.Bucket,
-                        SuperFilter = x.SuperFilter,
-                    })
-                    .ToList();
-            }
-            catch
-            {
-                return new SuperBatchesDto()
-                {
-                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 424, Bucket = 101, Date = dateTime } }
-                };
-            }
-
             try
             {
 
@@ -149,7 +50,7 @@ namespace FHICORC.Application.Services
             }
             catch (Exception e) {
                 return new SuperBatchesDto() {
-                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 42, Bucket = 100, Date = dateTime} } };   
+                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 42, Bucket = 100, Date = dateTime, RandomString = e.Message} } };   
                 }
             
             }
