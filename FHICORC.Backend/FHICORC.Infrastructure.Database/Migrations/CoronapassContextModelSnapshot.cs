@@ -137,20 +137,6 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.ToTable("RevocationBatch");
                 });
 
-            modelBuilder.Entity("FHICORC.Domain.Models.RevocationFilter", b =>
-                {
-                    b.Property<string>("BatchId")
-                        .HasColumnType("text");
-
-                    b.Property<byte[]>("Filter")
-                        .HasMaxLength(5992)
-                        .HasColumnType("bytea");
-
-                    b.HasKey("BatchId");
-
-                    b.ToTable("RevocationFilter");
-                });
-
             modelBuilder.Entity("FHICORC.Domain.Models.RevocationHash", b =>
                 {
                     b.Property<int>("Id")
@@ -211,17 +197,6 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.Navigation("RevocationSuperFilter");
                 });
 
-            modelBuilder.Entity("FHICORC.Domain.Models.RevocationFilter", b =>
-                {
-                    b.HasOne("FHICORC.Domain.Models.RevocationBatch", "RevocationBatch")
-                        .WithOne("RevocationFilter")
-                        .HasForeignKey("FHICORC.Domain.Models.RevocationFilter", "BatchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("RevocationBatch");
-                });
-
             modelBuilder.Entity("FHICORC.Domain.Models.RevocationHash", b =>
                 {
                     b.HasOne("FHICORC.Domain.Models.RevocationBatch", "RevocationBatch")
@@ -233,8 +208,6 @@ namespace FHICORC.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("FHICORC.Domain.Models.RevocationBatch", b =>
                 {
-                    b.Navigation("RevocationFilter");
-
                     b.Navigation("RevocationHashes");
                 });
 

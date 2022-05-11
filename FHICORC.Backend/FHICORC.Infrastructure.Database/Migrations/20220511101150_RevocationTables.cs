@@ -4,33 +4,30 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace FHICORC.Infrastructure.Database.Migrations
 {
-    public partial class RevocTables : Migration
+    public partial class RevocationTables : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_CountriesReportModels",
-                table: "CountriesReportModels",
-                column: "Id");
-
             migrationBuilder.CreateTable(
-                name: "SuperFiltersRevoc",
+                name: "RevocationSuperFilter",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SuperCountry = table.Column<string>(type: "text", nullable: true),
                     SuperExpires = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     SuperFilter = table.Column<byte[]>(type: "bytea", maxLength: 5992, nullable: true),
                     BatchCount = table.Column<int>(type: "integer", nullable: false),
+                    Bucket = table.Column<int>(type: "integer", nullable: false),
                     Modified = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SuperFiltersRevoc", x => x.Id);
+                    table.PrimaryKey("PK_RevocationSuperFilter", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "BatchesRevoc",
+                name: "RevocationBatch",
                 columns: table => new
                 {
                     BatchId = table.Column<string>(type: "text", nullable: false),
@@ -45,36 +42,17 @@ namespace FHICORC.Infrastructure.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BatchesRevoc", x => x.BatchId);
+                    table.PrimaryKey("PK_RevocationBatch", x => x.BatchId);
                     table.ForeignKey(
-                        name: "FK_BatchesRevoc_SuperFiltersRevoc_SuperId",
+                        name: "FK_RevocationBatch_RevocationSuperFilter_SuperId",
                         column: x => x.SuperId,
-                        principalTable: "SuperFiltersRevoc",
+                        principalTable: "RevocationSuperFilter",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "FiltersRevoc",
-                columns: table => new
-                {
-                    BatchId = table.Column<string>(type: "text", nullable: false),
-                    Filter = table.Column<byte[]>(type: "bytea", maxLength: 5992, nullable: true),
-                    BatchesRevocBatchId = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FiltersRevoc", x => x.BatchId);
-                    table.ForeignKey(
-                        name: "FK_FiltersRevoc_BatchesRevoc_BatchesRevocBatchId",
-                        column: x => x.BatchesRevocBatchId,
-                        principalTable: "BatchesRevoc",
-                        principalColumn: "BatchId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "HashesRevoc",
+                name: "RevocationHash",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -84,48 +62,36 @@ namespace FHICORC.Infrastructure.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_HashesRevoc", x => x.Id);
+                    table.PrimaryKey("PK_RevocationHash", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_HashesRevoc_BatchesRevoc_BatchId",
+                        name: "FK_RevocationHash_RevocationBatch_BatchId",
                         column: x => x.BatchId,
-                        principalTable: "BatchesRevoc",
+                        principalTable: "RevocationBatch",
                         principalColumn: "BatchId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_BatchesRevoc_SuperId",
-                table: "BatchesRevoc",
+                name: "IX_RevocationBatch_SuperId",
+                table: "RevocationBatch",
                 column: "SuperId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FiltersRevoc_BatchesRevocBatchId",
-                table: "FiltersRevoc",
-                column: "BatchesRevocBatchId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_HashesRevoc_BatchId",
-                table: "HashesRevoc",
+                name: "IX_RevocationHash_BatchId",
+                table: "RevocationHash",
                 column: "BatchId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "FiltersRevoc");
+                name: "RevocationHash");
 
             migrationBuilder.DropTable(
-                name: "HashesRevoc");
+                name: "RevocationBatch");
 
             migrationBuilder.DropTable(
-                name: "BatchesRevoc");
-
-            migrationBuilder.DropTable(
-                name: "SuperFiltersRevoc");
-
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_CountriesReportModels",
-                table: "CountriesReportModels");
+                name: "RevocationSuperFilter");
         }
     }
 }

@@ -14,7 +14,6 @@ namespace FHICORC.Infrastructure.Database.Context
         public DbSet<BusinessRule> BusinessRules { get; set; }
         public DbSet<CountriesReportModel> CountriesReportModels { get; set; }
         public DbSet<RevocationBatch> RevocationBatch { get; set; }
-        public DbSet<RevocationFilter> RevocationFilter { get; set; }
         public DbSet<RevocationHash> RevocationHash { get; set; }
         public DbSet<RevocationSuperFilter> RevocationSuperFilter { get; set; }
 
@@ -33,11 +32,6 @@ namespace FHICORC.Infrastructure.Database.Context
             modelBuilder.Entity<BusinessRule>()
                 .HasIndex(r => r.RuleIdentifier)
                 .IsUnique();
-
-            modelBuilder.Entity<RevocationBatch>()
-                .HasOne(a => a.RevocationFilter)
-                .WithOne(a => a.RevocationBatch)
-                .HasForeignKey<RevocationFilter>(c => c.BatchId);
 
             base.OnModelCreating(modelBuilder);
         }

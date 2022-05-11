@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FHICORC.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(CoronapassContext))]
-    [Migration("20220504062816_nameChangeRevocationBatch")]
-    partial class nameChangeRevocationBatch
+    [Migration("20220511101150_RevocationTables")]
+    partial class RevocationTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -103,40 +103,6 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.ToTable("EuDocSignerCertificates");
                 });
 
-            modelBuilder.Entity("FHICORC.Domain.Models.FiltersRevoc", b =>
-                {
-                    b.Property<string>("BatchId")
-                        .HasColumnType("text");
-
-                    b.Property<byte[]>("Filter")
-                        .HasMaxLength(5992)
-                        .HasColumnType("bytea");
-
-                    b.HasKey("BatchId");
-
-                    b.ToTable("FiltersRevoc");
-                });
-
-            modelBuilder.Entity("FHICORC.Domain.Models.HashesRevoc", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("BatchId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Hash")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BatchId");
-
-                    b.ToTable("HashesRevoc");
-                });
-
             modelBuilder.Entity("FHICORC.Domain.Models.RevocationBatch", b =>
                 {
                     b.Property<string>("BatchId")
@@ -173,7 +139,27 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.ToTable("RevocationBatch");
                 });
 
-            modelBuilder.Entity("FHICORC.Domain.Models.SuperFiltersRevoc", b =>
+            modelBuilder.Entity("FHICORC.Domain.Models.RevocationHash", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("BatchId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Hash")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BatchId");
+
+                    b.ToTable("RevocationHash");
+                });
+
+            modelBuilder.Entity("FHICORC.Domain.Models.RevocationSuperFilter", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -183,8 +169,14 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.Property<int>("BatchCount")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Bucket")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("Modified")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("SuperCountry")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("SuperExpires")
                         .HasColumnType("timestamp without time zone");
@@ -195,24 +187,22 @@ namespace FHICORC.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SuperFiltersRevoc");
+                    b.ToTable("RevocationSuperFilter");
                 });
 
-            modelBuilder.Entity("FHICORC.Domain.Models.FiltersRevoc", b =>
+            modelBuilder.Entity("FHICORC.Domain.Models.RevocationBatch", b =>
                 {
-                    b.HasOne("FHICORC.Domain.Models.RevocationBatch", "RevocationBatch")
-                        .WithOne("FiltersRevoc")
-                        .HasForeignKey("FHICORC.Domain.Models.FiltersRevoc", "BatchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("FHICORC.Domain.Models.RevocationSuperFilter", "RevocationSuperFilter")
+                        .WithMany("RevocationBatches")
+                        .HasForeignKey("SuperId");
 
-                    b.Navigation("RevocationBatch");
+                    b.Navigation("RevocationSuperFilter");
                 });
 
-            modelBuilder.Entity("FHICORC.Domain.Models.HashesRevoc", b =>
+            modelBuilder.Entity("FHICORC.Domain.Models.RevocationHash", b =>
                 {
                     b.HasOne("FHICORC.Domain.Models.RevocationBatch", "RevocationBatch")
-                        .WithMany("HashesRevocs")
+                        .WithMany("RevocationHashes")
                         .HasForeignKey("BatchId");
 
                     b.Navigation("RevocationBatch");
@@ -220,21 +210,10 @@ namespace FHICORC.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("FHICORC.Domain.Models.RevocationBatch", b =>
                 {
-                    b.HasOne("FHICORC.Domain.Models.SuperFiltersRevoc", "SuperFiltersRevoc")
-                        .WithMany("RevocationBatches")
-                        .HasForeignKey("SuperId");
-
-                    b.Navigation("SuperFiltersRevoc");
+                    b.Navigation("RevocationHashes");
                 });
 
-            modelBuilder.Entity("FHICORC.Domain.Models.RevocationBatch", b =>
-                {
-                    b.Navigation("FiltersRevoc");
-
-                    b.Navigation("HashesRevocs");
-                });
-
-            modelBuilder.Entity("FHICORC.Domain.Models.SuperFiltersRevoc", b =>
+            modelBuilder.Entity("FHICORC.Domain.Models.RevocationSuperFilter", b =>
                 {
                     b.Navigation("RevocationBatches");
                 });

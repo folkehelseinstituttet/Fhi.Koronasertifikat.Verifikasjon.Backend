@@ -22,7 +22,6 @@ namespace FHICORC.Domain.Models
 
      
         public virtual RevocationSuperFilter RevocationSuperFilter { get; set; }
-        public virtual RevocationFilter RevocationFilter { get; set; }
 
         public virtual ICollection<RevocationHash> RevocationHashes { get; set; }
 
