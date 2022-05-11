@@ -35,6 +35,18 @@ namespace FHICORC.Application.Services
 
             try
             {
+                var a = _coronapassContext.RevocationSuperFilter;
+            }
+            catch {
+                return new SuperBatchesDto()
+                {
+                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 420, Bucket = 101 } }
+                };
+            }
+
+            try
+            {
+
                 var superBatchList = _coronapassContext.RevocationSuperFilter
                     .Where(s => s.Modified <= dateTime)
                     .Select(x => new SuperBatch()
