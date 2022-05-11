@@ -40,7 +40,58 @@ namespace FHICORC.Application.Services
             catch {
                 return new SuperBatchesDto()
                 {
-                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 420, Bucket = 101 } }
+                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 420, Bucket = 101, Date = dateTime } }
+                };
+            }
+
+            try
+            {
+                var a = _coronapassContext.RevocationSuperFilter.Where(s => s.Modified <= dateTime);
+            }
+            catch
+            {
+                return new SuperBatchesDto()
+                {
+                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 421, Bucket = 101, Date = dateTime } }
+                };
+            }
+
+            try
+            {
+                var a = _coronapassContext.RevocationSuperFilter
+                    .Where(s => s.Modified <= dateTime)
+                    .Select(x => new SuperBatch()
+                    {
+                        Id = x.Id,
+                        Bucket = x.Bucket,
+                        SuperFilter = x.SuperFilter,
+                    });
+            }
+            catch
+            {
+                return new SuperBatchesDto()
+                {
+                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 422, Bucket = 101, Date = dateTime } }
+                };
+            }
+
+            try
+            {
+                var a = _coronapassContext.RevocationSuperFilter
+                    .Where(s => s.Modified <= dateTime)
+                    .Select(x => new SuperBatch()
+                    {
+                        Id = x.Id,
+                        Bucket = x.Bucket,
+                        SuperFilter = x.SuperFilter,
+                    })
+                    .ToList();
+            }
+            catch
+            {
+                return new SuperBatchesDto()
+                {
+                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 423, Bucket = 101, Date = dateTime } }
                 };
             }
 
@@ -64,7 +115,7 @@ namespace FHICORC.Application.Services
             }
             catch (Exception e) {
                 return new SuperBatchesDto() {
-                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 42, Bucket = 100 } } };   
+                    SuperBatches = new List<SuperBatch>() { new SuperBatch() { Id = 42, Bucket = 100, Date = dateTime} } };   
                 }
             
             }

@@ -15,5 +15,9 @@ namespace FHICORC.Application.Models
         public int Id { get; set; }
         public int Bucket { get; set; }
         public byte[] SuperFilter { get; set; }
+
+        public DateTime Date { get; set; }
+        public string RandomString { get; set; }
+
     }
 }
