@@ -32,7 +32,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         }
 
         [HttpPost("upload")]
-        public void SendRevocationHashes([FromBody] List<string> hashList)
+        public void SendRevocationHashes([FromBody] IEnumerable<string> hashList)
         {
             _revocationService.UploadHashes(hashList);
         }

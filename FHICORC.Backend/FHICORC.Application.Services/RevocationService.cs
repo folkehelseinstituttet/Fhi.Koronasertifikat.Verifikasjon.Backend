@@ -10,6 +10,7 @@ using FHICORC.Application.Models;
 using System.Collections.Generic;
 using FHICORC.Domain.Models;
 using MoreLinq;
+using FHICORC.Application.Models.Options;
 
 namespace FHICORC.Application.Services
 {
@@ -17,16 +18,14 @@ namespace FHICORC.Application.Services
     {
         private readonly ILogger<RevocationService> _logger;
         private readonly CoronapassContext _coronapassContext;
-
-        private readonly int MAX_SIZE_BATCH = 1000;
-        private readonly string COUNTRY_CODE = "NO";
-        private readonly string HASH_TYPE = "COUNTRYCODEUCI";
+        private readonly BatchOptions _valueBatchOptions;
         private readonly DateTime ExpiryDate = DateTime.Now.AddMonths(3).Date;
 
-        public RevocationService(ILogger<RevocationService> logger, CoronapassContext coronapassContext)
+        public RevocationService(ILogger<RevocationService> logger, CoronapassContext coronapassContext, BatchOptions batchOptions)
         {
             _logger = logger;
             _coronapassContext = coronapassContext;
+            _valueBatchOptions = batchOptions;
         }
 
         public bool ContainsCertificate(string dcc) {
@@ -62,12 +61,11 @@ namespace FHICORC.Application.Services
             };           
         }
 
-        public void UploadHashes(List<string> hashList)
+        public void UploadHashes(IEnumerable<string> hashList)
         {
-            var revokedHashList = FetchHashes();
-            var newHashList = ReturnUniqueHashes(hashList, revokedHashList);
+            var revokedHashList = FetchHashes1();
+            var newHashList = ReturnUniqueHashes(hashList, revokedHashList).ToList();
             var batchItem = FetchSmallestBatchItem();
-
             Guid newGuid = Guid.NewGuid();
             bool expiresMatch = false;
             bool firstIteration = true;
@@ -83,11 +81,11 @@ namespace FHICORC.Application.Services
 
             foreach (var hash in newHashList.Select((value, index) => new { value, index }))
             {
-                if (hash.index < (MAX_SIZE_BATCH - batchItemCount) && expiresMatch)
+                if (hash.index < (_valueBatchOptions.BatchSize - batchItemCount) && expiresMatch)
                 {
                     CreateHash(batchItem.BatchId, hash.value);
                 }
-                else if (counter < MAX_SIZE_BATCH)
+                else if (counter < _valueBatchOptions.BatchSize)
                 {
                     if (firstIteration)
                     {
@@ -107,6 +105,7 @@ namespace FHICORC.Application.Services
                     CreateHash(newGuid.ToString(), hash.value);
                 }
             }
+            _coronapassContext.SaveChanges();
         }
 
         private void CreateHash(string batchId, string hash)
@@ -116,9 +115,7 @@ namespace FHICORC.Application.Services
                 BatchId = batchId,
                 Hash = hash,
             };
-            _coronapassContext.ChangeTracker.Clear();
             _coronapassContext.RevocationHash.Add(hashDto);
-            _coronapassContext.SaveChanges();
         }
         private void CreateBatch(string batchId)
         {
@@ -126,70 +123,51 @@ namespace FHICORC.Application.Services
             {
                 BatchId = batchId,
                 Expires = DateTime.Now.AddMonths(3),
-                Country = COUNTRY_CODE,
-                HashType = HASH_TYPE,
+                Country = _valueBatchOptions.CountryCode,
+                HashType = _valueBatchOptions.HashType,
                 Deleted = false,
                 Upload = true,
             };
-            _coronapassContext.ChangeTracker.Clear();
             _coronapassContext.RevocationBatch.Add(newBatch);
             try
             {
-
                 _coronapassContext.SaveChanges();
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Duplicate Key: {batchId}, message: {ex.Message}");
+                _logger.LogError($"Exception with BatchId: {batchId}, message: {ex.Message}");
             }
         }
-        private List<string> ReturnUniqueHashes(List<string> hashList, HashesDto revokedHashList)
-        {
-            return hashList
-                .Where(h => revokedHashList.Hashes
-                .All(rh => rh.HashInfo != h))
-                .ToList();
-        }
-        private HashesDto FetchHashes()
-        {
-            var hashList = _coronapassContext.RevocationHash
-                .Select(x => new Hash()
-                {
-                    Id = x.Id,
-                    BatchId = x.BatchId,
-                    HashInfo = x.Hash,
-                }
-                ).ToList();
+        private List<string> ReturnUniqueHashes(IEnumerable<string> hashList, IEnumerable<HashDto> revokedHashList) => hashList.Where(h => revokedHashList.All(rh => rh.HashInfo != h)).ToList();        
 
-            return new HashesDto()
-            {
-                Hashes = hashList
-            };
-        }
+        private List<HashDto> FetchHashes1() => _coronapassContext.RevocationHash.Select(x => new HashDto(x)).ToList();
+
         private BatchItem FetchSmallestBatchItem()
         {
             return _coronapassContext.RevocationBatch.ToList()
                 .Join(_coronapassContext.RevocationHash,
                     b => b.BatchId,
                     h => h.BatchId, (b, h) => new { Batch = b, Hash = h })
-                .Where(x => x.Batch.Country.Equals(COUNTRY_CODE) && x.Batch.Expires.Date == ExpiryDate)
+                .Where(x => x.Batch.Country != null && x.Batch.Country.Equals(_valueBatchOptions.CountryCode) && x.Batch.Expires.Date == ExpiryDate)
                 .GroupBy(y => new
                 {
                     y.Batch.BatchId,
                     y.Batch.Expires,
                 })
-                .Where(x => x.Count() < MAX_SIZE_BATCH)
-                .Select(y => new BatchItem
-                {
-                    BatchId = y.Key.BatchId,
-                    Count = y.Count(),
-                    Expires = y.Key.Expires,
-                })
+                .Where(x => x.Count() < _valueBatchOptions.BatchSize)
+                .Select(y => new BatchItem(y.Key.BatchId, y.Count(), y.Key.Expires))
                 .OrderBy(x => x.Count)
                 .FirstOrDefault();
         }
-        class BatchItem
+
+        private class BatchItem
         {
+            public BatchItem(string BatchId, int Count, DateTime Expires)
+            {
+                this.BatchId = BatchId;
+                this.Count = Count;
+                this.Expires = Expires;
+            }
             public string BatchId { get; set; }
             public int Count { get; set; }
             public DateTime Expires { get; set; }

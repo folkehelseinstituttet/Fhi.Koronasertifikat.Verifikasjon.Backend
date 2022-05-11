@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Cryptography.Pkcs;
 using System.Text;
 using FHICORC.Application.Models;
+using FHICORC.Application.Models.Options;
 using FHICORC.Application.Services;
 using FHICORC.Infrastructure.Database.Context;
 using FHICORC.Integrations.DGCGateway.Services;
@@ -27,14 +28,16 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
         private CoronapassContext _coronapassContext;
         private DGCGRevocationService _dgcgRevocationService;
         private readonly IDgcgService _dgcgService = Substitute.For<IDgcgService>();
+        private RevocationService _revocationService;
 
         [SetUp]
         public void Setup()
         {
             _coronapassContext = SeedDb.GetInMemoryContext();
             _dgcgRevocationService = new DGCGRevocationService(loggerDGCGRevocationService, _coronapassContext, _dgcgService);
+            _revocationService = new RevocationService(loggerRevocationService, _coronapassContext, FillBatchOptions());
             SeedDatabase();
-        }
+    }
 
         public void SeedDatabase() {
 
@@ -63,7 +66,7 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
             }
         }
 
-        private Tuple<List<string>, List<string>> GetRandomHashesInLists()
+        private (IEnumerable<string> HashCollectionOne, IEnumerable<string> HashCollectionTwo) GetRandomHashesInLists()
         {
             int amount = 2999;
             var hashList = new List<string>();
@@ -73,25 +76,26 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
                 hashList.Add(i.ToString());
                 hashList2.Add((i+10000).ToString());
             }
-            return Tuple.Create(hashList, hashList2);
+            return (hashList, hashList2);
         }
 
         [Test]
         public void UploadHashesTest()
         {
-            var revService = new RevocationService(loggerRevocationService, _coronapassContext);
             var hashLists = GetRandomHashesInLists();
+            var list1 = hashLists.Item1.ToList();
+            var list2 = hashLists.Item2.ToList();
             var countBatchesBefore = _coronapassContext.RevocationBatch.Count();
             var countHashesBefore = _coronapassContext.RevocationHash.Count();
 
-            revService.UploadHashes(hashLists.Item1);
+            _revocationService.UploadHashes(list1);
             var countBatchesAfter = _coronapassContext.RevocationBatch.Count();
             var countHashesAfter = _coronapassContext.RevocationHash.Count();
             Assert.AreEqual(countBatchesAfter, countBatchesBefore + 3);
             Assert.AreEqual(countHashesAfter, countHashesBefore + 2999);
 
-            hashLists.Item1.Add("abc");
-            revService.UploadHashes(hashLists.Item1);
+            list1.Add("abc");
+            _revocationService.UploadHashes(list1);
             var countBatchesAfter2 = _coronapassContext.RevocationBatch.Count();
             var countHashesAfter2 = _coronapassContext.RevocationHash.Count();
             var hash = _coronapassContext.RevocationHash.Where(x => x.Hash.Equals("abc")).FirstOrDefault();
@@ -99,21 +103,19 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
             Assert.AreEqual(countBatchesAfter2, countBatchesAfter);
             Assert.AreEqual(countHashesAfter2, countHashesAfter + 1);
 
-            hashLists.Item1.Add("abc");
-            revService.UploadHashes(hashLists.Item1);
+            list1.Add("abc");
+            _revocationService.UploadHashes(list1);
             var countBatchesAfter3 = _coronapassContext.RevocationBatch.Count();
             var countHashesAfter3 = _coronapassContext.RevocationHash.Count();
             Assert.AreEqual(countBatchesAfter3, countBatchesAfter2);
             Assert.AreEqual(countHashesAfter3, countHashesAfter2);
 
-
-            var distinctCount = hashLists.Item2.Except(hashLists.Item1).Count();
-            revService.UploadHashes(hashLists.Item2);
+            _revocationService.UploadHashes(list2);
             var countBatchesAfter4 = _coronapassContext.RevocationBatch.Count();
             var countHashesAfter4 = _coronapassContext.RevocationHash.Count();
 
             Assert.AreEqual(countBatchesAfter4, countBatchesAfter3 + 3);
-            Assert.AreEqual(countHashesAfter4, countHashesAfter3 + distinctCount);
+            Assert.AreEqual(countHashesAfter4, countHashesAfter3 + list2.Count());
         }
 
         [Test]
@@ -129,10 +131,9 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
         [Test]
         public void SuperFilterTest()
         {
-            var revocationService = new RevocationService(loggerRevocationService, _coronapassContext);
             _coronapassContext.RevocationHash
                 .ToList()
-                .ForEach(h => Assert.True(revocationService.ContainsCertificate(h.Hash)));
+                .ForEach(h => Assert.True(_revocationService.ContainsCertificate(h.Hash)));
         }
 
 
@@ -145,9 +146,8 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
             expiredBatch.Expires = DateTime.UtcNow.AddDays(-100);
             _coronapassContext.SaveChanges();
 
-            var revocationService = new RevocationService(loggerRevocationService, _coronapassContext);
             var hashInExpiredBatch = expiredBatch.RevocationHashes.FirstOrDefault().Hash;
-            var inSuperFilterBefore = revocationService.ContainsCertificateFilter(hashInExpiredBatch);
+            var inSuperFilterBefore = _revocationService.ContainsCertificateFilter(hashInExpiredBatch);
 
 
             //Check if superfilter contains all hashes
@@ -167,7 +167,7 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
             _coronapassContext.RevocationHash
                 .Where(x => x.BatchId == batchId)
                 .ToList()
-                .ForEach(h => Assert.False(revocationService.ContainsCertificateFilter(h.Hash)));
+                .ForEach(h => Assert.False(_revocationService.ContainsCertificateFilter(h.Hash)));
 
             // Check if ALL the other hashes are still in the superfilter
             //_coronapassContext.RevocationHash
@@ -183,5 +183,14 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
             _coronapassContext.Database.EnsureDeleted();
         }
 
+        public BatchOptions FillBatchOptions()
+        {
+            return new BatchOptions()
+            {
+                BatchSize = 1000,
+                CountryCode = "NO",
+                HashType = "COUNTRYCODEUCI"
+            };
+        }
     }
 }
