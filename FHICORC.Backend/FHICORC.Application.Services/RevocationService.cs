@@ -35,7 +35,7 @@ namespace FHICORC.Application.Services
 
             try
             {
-                var a = _coronapassContext.RevocationSuperFilter.Where(s => s.SuperCountry == "RO").FirstOrDefault();
+                var a = _coronapassContext.RevocationBatch.Where(s => s.Country == "RO").FirstOrDefault();
 
                 return new SuperBatchesDto()
                 {
