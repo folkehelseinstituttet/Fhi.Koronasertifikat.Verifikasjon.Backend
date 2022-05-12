@@ -22,20 +22,19 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         private readonly IDgcgService _dgcgService;
         private readonly IMetricLogService _metricLogService;
         private readonly IDGCGRevocationService _revocationService;
-        private readonly ISeedDbService _seedDbService;
+        //private readonly ISeedDbService _seedDbService;
 
         public UpdateRevocationListTask(ILogger<UpdateCertificateRepositoryTask> logger, CronOptions cronOptions,
             IDgcgService dgcgService,
             IMetricLogService metricLogService,
-            IDGCGRevocationService revocationService,
-            ISeedDbService seedDbService)
+            IDGCGRevocationService revocationService)
         {
             _logger = logger;
             _cronOptions = cronOptions;
             _dgcgService = dgcgService;
             _metricLogService = metricLogService;
             _revocationService = revocationService;
-            _seedDbService = seedDbService;
+            //_seedDbService = seedDbService;
         }
 
         public void SetupTask()
@@ -79,7 +78,7 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
 
                 //await _revocationService.PopulateRevocationDatabase(revocationBatchList);
 
-                _seedDbService.GetInfoAboutDb();
+                //_seedDbService.GetInfoAboutDb();
 
                 //foreach (var rb in revocationBatchList.Batches)
                 //{

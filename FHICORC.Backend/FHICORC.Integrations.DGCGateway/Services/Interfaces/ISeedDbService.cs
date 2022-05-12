@@ -8,7 +8,7 @@ namespace FHICORC.Integrations.DGCGateway.Services.Interfaces
 {
     public interface ISeedDbService
     {
-        void SeedDatabase();
-        void GetInfoAboutDb();
+        public void SeedDatabase();
+        public void GetInfoAboutDb();
     }
 }

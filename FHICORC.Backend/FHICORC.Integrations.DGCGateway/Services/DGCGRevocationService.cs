@@ -11,6 +11,10 @@ using System.Collections.Generic;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
 using System.Threading.Tasks;
 using FHICORC.Application.Models.Options;
+using Newtonsoft.Json;
+using System.Text;
+using System.Security.Cryptography.Pkcs;
+using System.IO;
 
 namespace FHICORC.Integrations.DGCGateway.Services
 {
@@ -29,6 +33,8 @@ namespace FHICORC.Integrations.DGCGateway.Services
             _dgcgService = dgcgService;
             _bloomBucketOptions = bloomBucketOptions;
             _bloomBucketService = bloomBucketService;
+
+            SeedDatabase();
         }
 
         public async Task PopulateRevocationDatabase(DgcgRevocationBatchListRespondDto revocationBatchList) {
@@ -189,6 +195,40 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
             }
         }
+
+
+
+        public void SeedDatabase()
+        {
+
+            var revocationBatchList = JsonConvert.DeserializeObject<DgcgRevocationBatchListRespondDto>(File.ReadAllText("TestFiles/tst_revocation_batch_list.json"));
+
+            foreach (var rb in revocationBatchList.Batches)
+            {
+                var response = File.ReadAllText("TestFiles/BatchHashes/" + rb.BatchId + ".txt");
+
+                try
+                {
+                    var encodedMessage = Convert.FromBase64String(response);
+
+                    var signedCms = new SignedCms();
+                    signedCms.Decode(encodedMessage);
+                    signedCms.CheckSignature(true);
+
+                    var decodedMessage = Encoding.UTF8.GetString(signedCms.ContentInfo.Content);
+                    var parsedResponse = JsonConvert.DeserializeObject<DGCGRevocationBatchRespondDto>(decodedMessage);
+
+                    AddToDatabase(rb, parsedResponse);
+
+
+                }
+                catch (Exception e) { }
+            }
+
+            OrganizeBatches();
+
+        }
+
     }
 
 }

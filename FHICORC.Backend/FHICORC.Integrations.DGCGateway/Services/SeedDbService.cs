@@ -16,18 +16,15 @@ using Newtonsoft.Json;
 namespace FHICORC.Integrations.DGCGateway.Services { 
     public class SeedDbService : ISeedDbService
     {
-        protected CoronapassContext _coronapassContext;
-        protected DGCGRevocationService _dgcgRevocationService;
-        protected readonly IDgcgService _dgcgService;
-        protected IBloomBucketService bloomBucketService;
+        private readonly CoronapassContext _coronapassContext;
+        private readonly DGCGRevocationService _dgcgRevocationService;
 
-
-        public SeedDbService(CoronapassContext coronapassContext, DGCGRevocationService dgcgRevocationService, IDgcgService dgcgService, IBloomBucketService bloomBucketService) { 
+        public SeedDbService(CoronapassContext coronapassContext) { 
             _coronapassContext = coronapassContext;
-            _dgcgRevocationService = dgcgRevocationService;
-            _dgcgService = dgcgService;
+            //_dgcgRevocationService = dgcgRevocationService;
 
             SeedDatabase();
+
 
         }
 
@@ -63,7 +60,7 @@ namespace FHICORC.Integrations.DGCGateway.Services {
         }
 
         public void GetInfoAboutDb() {
-            Console.WriteLine(_coronapassContext.RevocationBatch.ToQueryString());
+            //Console.WriteLine(_coronapassContext.RevocationBatch.ToQueryString());
         }
 
     }
