@@ -19,7 +19,7 @@ namespace FHICORC.Application.Services
         private readonly ILogger<RevocationService> _logger;
         private readonly CoronapassContext _coronapassContext;
         private readonly BatchOptions _valueBatchOptions;
-        private readonly DateTime ExpiryDate = DateTime.Now.AddMonths(3).Date;
+        private readonly DateTime _expiryDateInThreeMonth = DateTime.Now.AddMonths(3).Date;
 
         public RevocationService(ILogger<RevocationService> logger, CoronapassContext coronapassContext, BatchOptions batchOptions)
         {
@@ -67,39 +67,39 @@ namespace FHICORC.Application.Services
             var newHashList = ReturnUniqueHashes(hashList, revokedHashList).ToList();
             var smallestBatchItem = FetchSmallestBatchItem();
             Guid newGuid = Guid.NewGuid();
-            bool expiryInThreeMonths = false;
+            bool isExpiredInThreeMonths = false;
             bool firstIteration = true;
-            int counterNewBatch = 1;
+            int hashesInBatch = 1;
             int batchItemCount = 0;
             int countHashList = newHashList.Count;
 
             if (smallestBatchItem != null)
             {
-                expiryInThreeMonths = ExpiryDate == smallestBatchItem.Expires.Date;
+                isExpiredInThreeMonths = _expiryDateInThreeMonth == smallestBatchItem.Expires.Date;
                 batchItemCount = smallestBatchItem.Count;
             }
 
             foreach (var hash in newHashList.Select((value, index) => new { value, index }))
             {
-                if (hash.index < (_valueBatchOptions.BatchSize - batchItemCount) && expiryInThreeMonths)
+                if (hash.index < (_valueBatchOptions.BatchSize - batchItemCount) && isExpiredInThreeMonths)
                 {
                     AddHashToBatch(smallestBatchItem.BatchId, hash.value);
                 }
-                else if (counterNewBatch < _valueBatchOptions.BatchSize)
+                else if (hashesInBatch < _valueBatchOptions.BatchSize)
                 {
                     if (firstIteration)
                     {
                         AddBatch(newGuid.ToString());
                         firstIteration = false;
-                        counterNewBatch = 0;
+                        hashesInBatch = 0;
                     }
                     AddHashToBatch(newGuid.ToString(), hash.value);
-                    counterNewBatch++;
+                    hashesInBatch++;
                 }
                 else
                 {   
                     newGuid = Guid.NewGuid();
-                    counterNewBatch = 1;
+                    hashesInBatch = 1;
                     
                     AddBatch(newGuid.ToString());
                     AddHashToBatch(newGuid.ToString(), hash.value);
@@ -155,7 +155,7 @@ namespace FHICORC.Application.Services
                 .Join(_coronapassContext.RevocationHash,
                     b => b.BatchId,
                     h => h.BatchId, (b, h) => new { Batch = b, Hash = h })
-                .Where(x => x.Batch.Country != null && x.Batch.Country.Equals(_valueBatchOptions.CountryCode) && x.Batch.Expires.Date == ExpiryDate)
+                .Where(x => x.Batch.Country != null && x.Batch.Country.Equals(_valueBatchOptions.CountryCode) && x.Batch.Expires.Date == _expiryDateInThreeMonth)
                 .GroupBy(y => new
                 {
                     y.Batch.BatchId,
