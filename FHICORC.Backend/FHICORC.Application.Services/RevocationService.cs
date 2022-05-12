@@ -63,52 +63,52 @@ namespace FHICORC.Application.Services
 
         public void UploadHashes(IEnumerable<string> hashList)
         {
-            var revokedHashList = FetchHashes1();
+            var revokedHashList = FetchHashes();
             var newHashList = ReturnUniqueHashes(hashList, revokedHashList).ToList();
-            var batchItem = FetchSmallestBatchItem();
+            var smallestBatchItem = FetchSmallestBatchItem();
             Guid newGuid = Guid.NewGuid();
-            bool expiresMatch = false;
+            bool expiryInThreeMonths = false;
             bool firstIteration = true;
-            int counter = 1;
+            int counterNewBatch = 1;
             int batchItemCount = 0;
             int countHashList = newHashList.Count;
 
-            if (batchItem != null)
+            if (smallestBatchItem != null)
             {
-                expiresMatch = ExpiryDate == batchItem.Expires.Date;
-                batchItemCount = batchItem.Count;
+                expiryInThreeMonths = ExpiryDate == smallestBatchItem.Expires.Date;
+                batchItemCount = smallestBatchItem.Count;
             }
 
             foreach (var hash in newHashList.Select((value, index) => new { value, index }))
             {
-                if (hash.index < (_valueBatchOptions.BatchSize - batchItemCount) && expiresMatch)
+                if (hash.index < (_valueBatchOptions.BatchSize - batchItemCount) && expiryInThreeMonths)
                 {
-                    CreateHash(batchItem.BatchId, hash.value);
+                    AddHashToBatch(smallestBatchItem.BatchId, hash.value);
                 }
-                else if (counter < _valueBatchOptions.BatchSize)
+                else if (counterNewBatch < _valueBatchOptions.BatchSize)
                 {
                     if (firstIteration)
                     {
-                        CreateBatch(newGuid.ToString());
+                        AddBatch(newGuid.ToString());
                         firstIteration = false;
-                        counter = 0;
+                        counterNewBatch = 0;
                     }
-                    CreateHash(newGuid.ToString(), hash.value);
-                    counter++;
+                    AddHashToBatch(newGuid.ToString(), hash.value);
+                    counterNewBatch++;
                 }
                 else
                 {   
                     newGuid = Guid.NewGuid();
-                    counter = 1;
+                    counterNewBatch = 1;
                     
-                    CreateBatch(newGuid.ToString());
-                    CreateHash(newGuid.ToString(), hash.value);
+                    AddBatch(newGuid.ToString());
+                    AddHashToBatch(newGuid.ToString(), hash.value);
                 }
             }
             _coronapassContext.SaveChanges();
         }
 
-        private void CreateHash(string batchId, string hash)
+        private void AddHashToBatch(string batchId, string hash)
         {
             var hashDto = new RevocationHash
             {
@@ -124,7 +124,7 @@ namespace FHICORC.Application.Services
                 _logger.LogError($"Exception when trying to create a hash with BatchId: {batchId}, message: {ex.Message}");
             }
         }
-        private void CreateBatch(string batchId)
+        private void AddBatch(string batchId)
         {
             var newBatch = new RevocationBatch
             {
@@ -147,7 +147,7 @@ namespace FHICORC.Application.Services
         }
         private List<string> ReturnUniqueHashes(IEnumerable<string> hashList, IEnumerable<HashDto> revokedHashList) => hashList.Where(h => revokedHashList.All(rh => rh.HashInfo != h)).ToList();        
 
-        private List<HashDto> FetchHashes1() => _coronapassContext.RevocationHash.Select(x => new HashDto(x)).ToList();
+        private List<HashDto> FetchHashes() => _coronapassContext.RevocationHash.Select(x => new HashDto(x)).ToList();
 
         private BatchItem FetchSmallestBatchItem()
         {

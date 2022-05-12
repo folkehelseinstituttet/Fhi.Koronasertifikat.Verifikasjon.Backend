@@ -79,7 +79,7 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
         }
 
         [TestCase (2999, 1, 3, 3)]
-        public void UploadHashesTest(int amount, int hashCount1, int batchCount1, int batchCount2)
+        public void UploadHashesTest(int amount, int hashCount, int batchCountAfterFirstAct, int batchCountAfterThirdAct)
         {
             // Arrange
             (var list1, var list2) = GetRandomHashesInLists(amount);
@@ -88,14 +88,14 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
 
             // Act
             _revocationService.UploadHashes(list1);
-
-            // Assert
-            Assert.AreEqual(_coronapassContext.RevocationBatch.Count(), countBatchesBefore + batchCount1);
-            Assert.AreEqual(_coronapassContext.RevocationHash.Count(), countHashesBefore + amount);
-
-            // Arrange
             var countBatchesAfter = _coronapassContext.RevocationBatch.Count();
             var countHashesAfter = _coronapassContext.RevocationHash.Count();
+
+            // Assert
+            Assert.AreEqual(countBatchesAfter, countBatchesBefore + batchCountAfterFirstAct);
+            Assert.AreEqual(countHashesAfter, countHashesBefore + amount);
+
+            // Arrange
             list1.Add("abc");
 
             // Act
@@ -104,7 +104,7 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
             // Assert
             Assert.True(_coronapassContext.RevocationHash.Where(x => x.Hash.Equals("abc")).FirstOrDefault().Hash.Equals("abc"));
             Assert.AreEqual(_coronapassContext.RevocationBatch.Count(), countBatchesAfter);
-            Assert.AreEqual(_coronapassContext.RevocationHash.Count(), countHashesAfter + hashCount1);
+            Assert.AreEqual(_coronapassContext.RevocationHash.Count(), countHashesAfter + hashCount);
 
             // Arrange
             var countBatchesAfter2 = _coronapassContext.RevocationBatch.Count();
@@ -126,7 +126,7 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
             _revocationService.UploadHashes(list2);
 
             // Assert
-            Assert.AreEqual(_coronapassContext.RevocationBatch.Count(), countBatchesAfter3 + batchCount2);
+            Assert.AreEqual(_coronapassContext.RevocationBatch.Count(), countBatchesAfter3 + batchCountAfterThirdAct);
             Assert.AreEqual(_coronapassContext.RevocationHash.Count(), countHashesAfter3 + list2.Count);
         }
 
