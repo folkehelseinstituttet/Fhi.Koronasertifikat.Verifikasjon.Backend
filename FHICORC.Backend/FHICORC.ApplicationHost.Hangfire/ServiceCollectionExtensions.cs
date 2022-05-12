@@ -20,7 +20,6 @@ namespace FHICORC.ApplicationHost.Hangfire
                 .AddScoped<ICountriesReportRepositoryTask, CountriesReportRepositoryTask>()
                 .AddScoped<IDGCGRevocationService, DGCGRevocationService>()
                 .AddSingleton<IBloomBucketService, BloomBucketService>();
-                //.AddScoped<ISeedDbService, SeedDbService>();
         }
     }
 }
