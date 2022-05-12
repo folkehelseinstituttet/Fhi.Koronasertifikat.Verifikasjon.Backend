@@ -115,7 +115,14 @@ namespace FHICORC.Application.Services
                 BatchId = batchId,
                 Hash = hash,
             };
-            _coronapassContext.RevocationHash.Add(hashDto);
+            try
+            {
+                _coronapassContext.RevocationHash.Add(hashDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception when trying to create a hash with BatchId: {batchId}, message: {ex.Message}");
+            }
         }
         private void CreateBatch(string batchId)
         {
@@ -135,7 +142,7 @@ namespace FHICORC.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Exception with BatchId: {batchId}, message: {ex.Message}");
+                _logger.LogError($"Exception when trying to create a batch with BatchId: {batchId}, message: {ex.Message}");
             }
         }
         private List<string> ReturnUniqueHashes(IEnumerable<string> hashList, IEnumerable<HashDto> revokedHashList) => hashList.Where(h => revokedHashList.All(rh => rh.HashInfo != h)).ToList();        
