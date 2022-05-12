@@ -31,14 +31,14 @@ namespace FHICORC.Tests.ComponentTests
         public void Setup()
         {
             var bloomBucketOptions = FillInBucketOptions();
+            var featureToggles = new FeatureToggles() { SeedDbWithLocalData = true };
             ILogger<BloomBucketService> loggerBloomBucketService = new NullLoggerFactory().CreateLogger<BloomBucketService>();
             bloomBucketService = new BloomBucketService(loggerBloomBucketService, bloomBucketOptions);
 
             _coronapassContext = SeedDb.GetInMemoryContext();
-            _dgcgRevocationService = new DGCGRevocationService(loggerDGCGRevocationService, _coronapassContext, _dgcgService, bloomBucketOptions, bloomBucketService);
+            _dgcgRevocationService = new DGCGRevocationService(loggerDGCGRevocationService, _coronapassContext, _dgcgService, bloomBucketOptions, bloomBucketService, featureToggles);
 
             _revocationService = new RevocationService(loggerRevocationService, _coronapassContext, bloomBucketService);
-            SeedDatabase();
         }
 
         [TearDown]
@@ -59,41 +59,6 @@ namespace FHICORC.Tests.ComponentTests
                 Stepness = 2.5
             };
         }
-
-
-        public void SeedDatabase()
-        {
-
-            var revocationBatchList = JsonConvert.DeserializeObject<DgcgRevocationBatchListRespondDto>(File.ReadAllText("TestFiles/tst_revocation_batch_list.json"));
-
-            foreach (var rb in revocationBatchList.Batches)
-            {
-                var response = File.ReadAllText("TestFiles/BatchHashes/" + rb.BatchId + ".txt");
-
-                try
-                {
-                    var encodedMessage = Convert.FromBase64String(response);
-
-                    var signedCms = new SignedCms();
-                    signedCms.Decode(encodedMessage);
-                    signedCms.CheckSignature(true);
-
-                    var decodedMessage = Encoding.UTF8.GetString(signedCms.ContentInfo.Content);
-                    var parsedResponse = JsonConvert.DeserializeObject<DGCGRevocationBatchRespondDto>(decodedMessage);
-
-                    _dgcgRevocationService.AddToDatabase(rb, parsedResponse);
-
-
-                }
-                catch (Exception e) { }
-            }
-
-            _dgcgRevocationService.OrganizeBatches();
-
-        }
-
-
-
 
         public static CoronapassContext GetInMemoryContext()
         {

@@ -25,16 +25,27 @@ namespace FHICORC.Integrations.DGCGateway.Services
         private readonly IDgcgService _dgcgService;
         private readonly BloomBucketOptions _bloomBucketOptions; 
         private readonly IBloomBucketService _bloomBucketService;
+        private readonly FeatureToggles _featureToggles;
 
-        public DGCGRevocationService(ILogger<DGCGRevocationService> logger, CoronapassContext coronapassContext, IDgcgService dgcgService, BloomBucketOptions bloomBucketOptions, IBloomBucketService bloomBucketService)
+        public DGCGRevocationService(ILogger<DGCGRevocationService> logger, 
+            CoronapassContext coronapassContext, 
+            IDgcgService dgcgService, 
+            BloomBucketOptions bloomBucketOptions, 
+            IBloomBucketService bloomBucketService,
+            FeatureToggles featureToggles)
         {
             _logger = logger;
             _coronapassContext = coronapassContext;
             _dgcgService = dgcgService;
             _bloomBucketOptions = bloomBucketOptions;
             _bloomBucketService = bloomBucketService;
+            _featureToggles = featureToggles;
 
-            SeedDatabase();
+            if (_featureToggles.SeedDbWithLocalData){
+                _featureToggles.SeedDbWithLocalData = false;
+                SeedDatabase();
+            }
+
         }
 
         public async Task PopulateRevocationDatabase(DgcgRevocationBatchListRespondDto revocationBatchList) {
