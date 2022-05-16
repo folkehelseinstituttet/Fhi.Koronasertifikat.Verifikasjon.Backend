@@ -9,6 +9,8 @@ using FHICORC.Integrations.DGCGateway;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
 using FHICORC.Application.Models;
 using FHICORC.Integrations.DGCGateway.Services;
+using Hangfire.Storage;
+using System.Linq;
 
 namespace FHICORC.ApplicationHost.Hangfire.Tasks
 {
@@ -23,18 +25,23 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         private readonly IMetricLogService _metricLogService;
         private readonly IDGCGRevocationService _revocationService;
         //private readonly ISeedDbService _seedDbService;
+        private readonly HangfireContext _hangfireContext;
 
         public UpdateRevocationListTask(ILogger<UpdateCertificateRepositoryTask> logger, CronOptions cronOptions,
             IDgcgService dgcgService,
             IMetricLogService metricLogService,
-            IDGCGRevocationService revocationService)
+            IDGCGRevocationService revocationService,
+            HangfireContext hangfireContext)
         {
             _logger = logger;
             _cronOptions = cronOptions;
             _dgcgService = dgcgService;
             _metricLogService = metricLogService;
             _revocationService = revocationService;
+            _hangfireContext = hangfireContext;
+
             //_seedDbService = seedDbService;
+
         }
 
         public void SetupTask()
@@ -53,10 +60,14 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
             var failure = false;
             DgcgRevocationBatchListRespondDto revocationBatchList = new DgcgRevocationBatchListRespondDto();
 
-            //_revocationService.DeleteExpiredBatches();
+            var api = JobStorage.Current.GetMonitoringApi();
+            var succeededJobs = api.SucceededJobs(0, int.MaxValue);
+            var lastSucceedetDate = succeededJobs.FirstOrDefault(s => s.Value.Job.Type.Name == "UpdateRevocationListTask").Value?.SucceededAt;
+           
             try
             {
-                revocationBatchList = await _dgcgService.GetRevocationBatchListAsync();
+                var modifiedSince = lastSucceedetDate != null ? lastSucceedetDate.ToString() : "2021-06-01T00:00:00Z";
+                revocationBatchList = await _dgcgService.GetRevocationBatchListAsync(modifiedSince);
                 _metricLogService.AddMetric("RetrieveRevocationBatchList_Success", true);
             }
             catch (GeneralDgcgFaultException e)
