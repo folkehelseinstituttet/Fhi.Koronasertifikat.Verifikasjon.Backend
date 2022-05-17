@@ -1,16 +1,16 @@
-﻿using System.Text;
-using System.Collections;
-using System;
-using System.Linq;
-using Microsoft.Extensions.Logging;
-using FHICORC.Infrastructure.Database.Context;
-using Microsoft.EntityFrameworkCore;
-using FHICORC.Integrations.DGCGateway.Util;
-using FHICORC.Application.Models;
-using System.Collections.Generic;
-using FHICORC.Domain.Models;
-using MoreLinq;
+﻿using FHICORC.Application.Models;
 using FHICORC.Application.Models.Options;
+using FHICORC.Domain.Models;
+using FHICORC.Infrastructure.Database.Context;
+using FHICORC.Integrations.DGCGateway.Util;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using MoreLinq;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace FHICORC.Application.Services
 {
@@ -61,48 +61,23 @@ namespace FHICORC.Application.Services
             };           
         }
 
-        public void UploadHashes(IEnumerable<string> hashList)
+        public void UploadHashes(IEnumerable<string> newHashes)
         {
-            var revokedHashList = FetchHashes();
-            var newHashList = ReturnUniqueHashes(hashList, revokedHashList).ToList();
-            var smallestBatchItem = FetchSmallestBatchItem();
-            Guid newGuid = Guid.NewGuid();
-            bool isExpiredInThreeMonths = false;
-            bool firstIteration = true;
-            int hashesInBatch = 1;
-            int batchItemCount = 0;
-            int countHashList = newHashList.Count;
+            var hashesWithoutBatch = GetHashesWithoutRevocationbatch(newHashes).ToList();
+            var currentBatch = FetchExistingBatch() ?? AddBatch();
 
-            if (smallestBatchItem != null)
+            foreach (var hash in hashesWithoutBatch)
             {
-                isExpiredInThreeMonths = _expiryDateInThreeMonth == smallestBatchItem.Expires.Date;
-                batchItemCount = smallestBatchItem.Count;
-            }
-
-            foreach (var hash in newHashList.Select((value, index) => new { value, index }))
-            {
-                if (hash.index < (_valueBatchOptions.BatchSize - batchItemCount) && isExpiredInThreeMonths)
+                if (currentBatch.Count < 1000)
                 {
-                    AddHashToBatch(smallestBatchItem.BatchId, hash.value);
-                }
-                else if (hashesInBatch < _valueBatchOptions.BatchSize)
-                {
-                    if (firstIteration)
-                    {
-                        AddBatch(newGuid.ToString());
-                        firstIteration = false;
-                        hashesInBatch = 0;
-                    }
-                    AddHashToBatch(newGuid.ToString(), hash.value);
-                    hashesInBatch++;
+                    AddHashToBatch(currentBatch.BatchId, hash);
+                    currentBatch.Count++;
                 }
                 else
-                {   
-                    newGuid = Guid.NewGuid();
-                    hashesInBatch = 1;
-                    
-                    AddBatch(newGuid.ToString());
-                    AddHashToBatch(newGuid.ToString(), hash.value);
+                {
+                    currentBatch = AddBatch();
+                    AddHashToBatch(currentBatch.BatchId, hash);
+                    currentBatch.Count++;
                 }
             }
             _coronapassContext.SaveChanges();
@@ -124,12 +99,12 @@ namespace FHICORC.Application.Services
                 _logger.LogError($"Exception when trying to create a hash with BatchId: {batchId}, message: {ex.Message}");
             }
         }
-        private void AddBatch(string batchId)
+        private BatchItem AddBatch()
         {
             var newBatch = new RevocationBatch
             {
-                BatchId = batchId,
-                Expires = DateTime.Now.AddMonths(3),
+                BatchId = Guid.NewGuid().ToString(),
+                Expires = _expiryDateInThreeMonth,
                 Country = _valueBatchOptions.CountryCode,
                 HashType = _valueBatchOptions.HashType,
                 Deleted = false,
@@ -139,31 +114,30 @@ namespace FHICORC.Application.Services
             try
             {
                 _coronapassContext.SaveChanges();
+                
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Exception when trying to create a batch with BatchId: {batchId}, message: {ex.Message}");
+                _logger.LogError($"Exception when trying to create a batch with BatchId: {newBatch.BatchId}, message: {ex.Message}");
             }
+
+            return new BatchItem(newBatch.BatchId, 0, newBatch.Expires);
+
         }
-        private List<string> ReturnUniqueHashes(IEnumerable<string> hashList, IEnumerable<HashDto> revokedHashList) => hashList.Where(h => revokedHashList.All(rh => rh.HashInfo != h)).ToList();        
 
-        private List<HashDto> FetchHashes() => _coronapassContext.RevocationHash.Select(x => new HashDto(x)).ToList();
-
-        private BatchItem FetchSmallestBatchItem()
+        private List<string> GetHashesWithoutRevocationbatch(IEnumerable<string> hashList)
         {
-            return _coronapassContext.RevocationBatch.ToList()
-                .Join(_coronapassContext.RevocationHash,
-                    b => b.BatchId,
-                    h => h.BatchId, (b, h) => new { Batch = b, Hash = h })
-                .Where(x => x.Batch.Country != null && x.Batch.Country.Equals(_valueBatchOptions.CountryCode) && x.Batch.Expires.Date == _expiryDateInThreeMonth)
-                .GroupBy(y => new
-                {
-                    y.Batch.BatchId,
-                    y.Batch.Expires,
-                })
-                .Where(x => x.Count() < _valueBatchOptions.BatchSize)
-                .Select(y => new BatchItem(y.Key.BatchId, y.Count(), y.Key.Expires))
-                .OrderBy(x => x.Count)
+            var revokedHashList = _coronapassContext.RevocationHash.Select(x => new HashDto(x)).ToList();
+
+            return hashList.Where(h => revokedHashList.All(rh => rh.HashInfo != h)).ToList();
+        }
+        
+
+        private BatchItem FetchExistingBatch()
+        {
+            return _coronapassContext.RevocationBatch.Include(x => x.RevocationHashes)
+                .Where(x => x.Country != null && x.Country.Equals(_valueBatchOptions.CountryCode) && x.Expires.Date == _expiryDateInThreeMonth && x.RevocationHashes.Count!= 1000)
+                .Select(y => new BatchItem(y.BatchId, Convert.ToInt32(y.RevocationHashes.Count()), y.Expires))
                 .FirstOrDefault();
         }
 
@@ -175,6 +149,8 @@ namespace FHICORC.Application.Services
                 this.Count = Count;
                 this.Expires = Expires;
             }
+
+
             public string BatchId { get; set; }
             public int Count { get; set; }
             public DateTime Expires { get; set; }

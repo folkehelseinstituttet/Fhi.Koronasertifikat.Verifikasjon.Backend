@@ -66,11 +66,11 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
             }
         }
 
-        private (List<string> HashCollectionOne, List<string> HashCollectionTwo) GetRandomHashesInLists(int amount)
+        private (List<string> HashCollectionOne, List<string> HashCollectionTwo) GetRandomHashesInLists(int newHashAmount)
         {
             var hashList = new List<string>();
             var hashList2 = new List<string>();
-            for (int i = 0; i < amount; i++)
+            for (int i = 0; i < newHashAmount; i++)
             {
                 hashList.Add(i.ToString());
                 hashList2.Add((i+10000).ToString());
@@ -78,33 +78,35 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
             return (hashList, hashList2);
         }
 
-        [TestCase (2999, 1, 3, 3)]
-        public void UploadHashesTest(int amount, int hashCount, int batchCountAfterFirstAct, int batchCountAfterThirdAct)
+        [TestCase (2999, 3)]
+        public void UploadHashesTest(int newHashAmount, int addedBatches)
         {
             // Arrange
-            (var list1, var list2) = GetRandomHashesInLists(amount);
-            var countBatchesBefore = _coronapassContext.RevocationBatch.Count();
-            var countHashesBefore = _coronapassContext.RevocationHash.Count();
+            (var list1, var list2) = GetRandomHashesInLists(newHashAmount);
+            var batchCountBefore = _coronapassContext.RevocationBatch.Count();
+            var hashCountBefore = _coronapassContext.RevocationHash.Count();
 
             // Act
             _revocationService.UploadHashes(list1);
-            var countBatchesAfter = _coronapassContext.RevocationBatch.Count();
-            var countHashesAfter = _coronapassContext.RevocationHash.Count();
+            var batchCountAfterFirstUpload = _coronapassContext.RevocationBatch.Count();
+            var hashCountAfterFirstUpload = _coronapassContext.RevocationHash.Count();
 
             // Assert
-            Assert.AreEqual(countBatchesAfter, countBatchesBefore + batchCountAfterFirstAct);
-            Assert.AreEqual(countHashesAfter, countHashesBefore + amount);
+            Assert.AreEqual(batchCountBefore + addedBatches, batchCountAfterFirstUpload);
+            Assert.AreEqual(hashCountBefore + newHashAmount, hashCountAfterFirstUpload );
 
             // Arrange
             list1.Add("abc");
 
             // Act
             _revocationService.UploadHashes(list1);
+            var batchCountAfterSecond = _coronapassContext.RevocationBatch.Count();
+            var hashCountAfterSecond = _coronapassContext.RevocationHash.Count();
 
             // Assert
             Assert.True(_coronapassContext.RevocationHash.Where(x => x.Hash.Equals("abc")).FirstOrDefault().Hash.Equals("abc"));
-            Assert.AreEqual(_coronapassContext.RevocationBatch.Count(), countBatchesAfter);
-            Assert.AreEqual(_coronapassContext.RevocationHash.Count(), countHashesAfter + hashCount);
+            Assert.AreEqual(batchCountAfterFirstUpload, batchCountAfterSecond);
+            Assert.AreEqual(hashCountAfterFirstUpload + newHashAmount + 1, hashCountAfterSecond);
 
             // Arrange
             var countBatchesAfter2 = _coronapassContext.RevocationBatch.Count();
@@ -126,7 +128,7 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
             _revocationService.UploadHashes(list2);
 
             // Assert
-            Assert.AreEqual(_coronapassContext.RevocationBatch.Count(), countBatchesAfter3 + batchCountAfterThirdAct);
+            Assert.AreEqual(_coronapassContext.RevocationBatch.Count(), countBatchesAfter3 + addedBatches);
             Assert.AreEqual(_coronapassContext.RevocationHash.Count(), countHashesAfter3 + list2.Count);
         }
 

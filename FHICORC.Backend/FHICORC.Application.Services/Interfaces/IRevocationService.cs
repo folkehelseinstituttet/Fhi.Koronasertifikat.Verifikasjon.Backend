@@ -15,6 +15,6 @@ namespace FHICORC.Application.Services
     {
         public bool ContainsCertificate(string dcc);
         public SuperBatchesDto FetchSuperBatches(DateTime dateTime);
-        public void UploadHashes(IEnumerable<string> hashList);
+        public void UploadHashes(IEnumerable<string> newHashes);
     }
 }
