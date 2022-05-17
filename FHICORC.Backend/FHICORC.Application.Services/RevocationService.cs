@@ -68,7 +68,7 @@ namespace FHICORC.Application.Services
 
             foreach (var hash in hashesWithoutBatch)
             {
-                if (currentBatch.Count < 1000)
+                if (currentBatch.Count < _valueBatchOptions.BatchSize)
                 {
                     AddHashToBatch(currentBatch.BatchId, hash);
                     currentBatch.Count++;
@@ -80,7 +80,16 @@ namespace FHICORC.Application.Services
                     currentBatch.Count++;
                 }
             }
-            _coronapassContext.SaveChanges();
+
+            try
+            {
+                _coronapassContext.SaveChanges();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception when trying to update Database, message: {ex.Message}");
+            }
         }
 
         private void AddHashToBatch(string batchId, string hash)
@@ -90,15 +99,9 @@ namespace FHICORC.Application.Services
                 BatchId = batchId,
                 Hash = hash,
             };
-            try
-            {
                 _coronapassContext.RevocationHash.Add(hashDto);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Exception when trying to create a hash with BatchId: {batchId}, message: {ex.Message}");
-            }
         }
+
         private BatchItem AddBatch()
         {
             var newBatch = new RevocationBatch
@@ -111,6 +114,7 @@ namespace FHICORC.Application.Services
                 Upload = true,
             };
             _coronapassContext.RevocationBatch.Add(newBatch);
+
             try
             {
                 _coronapassContext.SaveChanges();
@@ -132,11 +136,10 @@ namespace FHICORC.Application.Services
             return hashList.Where(h => revokedHashList.All(rh => rh.HashInfo != h)).ToList();
         }
         
-
         private BatchItem FetchExistingBatch()
         {
             return _coronapassContext.RevocationBatch.Include(x => x.RevocationHashes)
-                .Where(x => x.Country != null && x.Country.Equals(_valueBatchOptions.CountryCode) && x.Expires.Date == _expiryDateInThreeMonth && x.RevocationHashes.Count!= 1000)
+                .Where(x => x.Country != null && x.Country.Equals(_valueBatchOptions.CountryCode) && x.Expires.Date == _expiryDateInThreeMonth && x.RevocationHashes.Count!= _valueBatchOptions.BatchSize)
                 .Select(y => new BatchItem(y.BatchId, Convert.ToInt32(y.RevocationHashes.Count()), y.Expires))
                 .FirstOrDefault();
         }
@@ -149,7 +152,6 @@ namespace FHICORC.Application.Services
                 this.Count = Count;
                 this.Expires = Expires;
             }
-
 
             public string BatchId { get; set; }
             public int Count { get; set; }
