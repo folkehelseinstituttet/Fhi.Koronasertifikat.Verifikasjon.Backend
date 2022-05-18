@@ -28,11 +28,13 @@ namespace FHICORC.Application.Services
             _valueBatchOptions = batchOptions;
         }
 
-        public bool ContainsCertificate(string dcc) {
+        public bool ContainsCertificate(string dcc)
+        {
             return ContainsCertificateFilter(dcc);
         }
 
-        public bool ContainsCertificateFilter(string str) {
+        public bool ContainsCertificateFilter(string str)
+        {
             var hashData = BloomFilterUtils.HashData(Encoding.UTF8.GetBytes(str), 47936, 32);
 
             foreach (var bf in _coronapassContext.RevocationSuperFilter)
@@ -45,7 +47,8 @@ namespace FHICORC.Application.Services
             return false;
         }
 
-        public SuperBatchesDto FetchSuperBatches(DateTime dateTime) {
+        public SuperBatchesDto FetchSuperBatches(DateTime dateTime)
+        {
             var superBatchList = _coronapassContext.RevocationSuperFilter
                 .Where(s => s.Modified <= dateTime)
                 .Select(x => new SuperBatch()
@@ -58,7 +61,7 @@ namespace FHICORC.Application.Services
             return new SuperBatchesDto()
             {
                 SuperBatches = superBatchList
-            };           
+            };
         }
 
         public void UploadHashes(IEnumerable<string> newHashes)
@@ -99,7 +102,7 @@ namespace FHICORC.Application.Services
                 BatchId = batchId,
                 Hash = hash,
             };
-                _coronapassContext.RevocationHash.Add(hashDto);
+            _coronapassContext.RevocationHash.Add(hashDto);
         }
 
         private BatchItem AddBatch()
@@ -118,7 +121,7 @@ namespace FHICORC.Application.Services
             try
             {
                 _coronapassContext.SaveChanges();
-                
+
             }
             catch (Exception ex)
             {
@@ -135,11 +138,11 @@ namespace FHICORC.Application.Services
 
             return hashList.Where(h => revokedHashList.All(rh => rh.HashInfo != h)).ToList();
         }
-        
+
         private BatchItem FetchExistingBatch()
         {
             return _coronapassContext.RevocationBatch.Include(x => x.RevocationHashes)
-                .Where(x => x.Country != null && x.Country.Equals(_valueBatchOptions.CountryCode) && x.Expires.Date == _expiryDateInThreeMonth && x.RevocationHashes.Count!= _valueBatchOptions.BatchSize)
+                .Where(x => x.Country != null && x.Country.Equals(_valueBatchOptions.CountryCode) && x.Expires.Date == _expiryDateInThreeMonth && x.RevocationHashes.Count != _valueBatchOptions.BatchSize)
                 .Select(y => new BatchItem(y.BatchId, Convert.ToInt32(y.RevocationHashes.Count()), y.Expires))
                 .FirstOrDefault();
         }
