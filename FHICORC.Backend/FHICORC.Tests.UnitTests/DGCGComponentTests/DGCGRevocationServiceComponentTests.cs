@@ -37,9 +37,10 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
             _dgcgRevocationService = new DGCGRevocationService(loggerDGCGRevocationService, _coronapassContext, _dgcgService);
             _revocationService = new RevocationService(loggerRevocationService, _coronapassContext, FillBatchOptions());
             SeedDatabase();
-    }
+        }
 
-        public void SeedDatabase() {
+        public void SeedDatabase()
+        {
 
             var revocationBatchList = JsonConvert.DeserializeObject<DgcgRevocationBatchListRespondDto>(File.ReadAllText("TestFiles/tst_revocation_batch_list.json"));
 
@@ -72,12 +73,12 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
 
             for (int i = 0; i < newHashAmount; i++)
             {
-                    hashList.Add(i.ToString());
+                hashList.Add(i.ToString());
             }
-        return hashList;
+            return hashList;
         }
 
-        [TestCase (999, 1), Order(1)]
+        [TestCase(999, 1), Order(1)]
         public void UploadHashesTestAddOneBatch(int newHashAmount, int addedBatches)
         {
             // Arrange
@@ -139,7 +140,8 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
         }
 
         [Test]
-        public void AddToDatabaseTest() {
+        public void AddToDatabaseTest()
+        {
 
             Assert.AreEqual(_coronapassContext.RevocationBatch.Count(), 102);
             Assert.AreEqual(_coronapassContext.RevocationFilter.Count(), 102);
@@ -158,7 +160,8 @@ namespace FHICORC.Tests.UnitTests.DGCGComponentTests
 
 
         [Test]
-        public void DeleteExpiredBatchesTest() {
+        public void DeleteExpiredBatchesTest()
+        {
 
             //Assume
             var batchId = "699978cf-d2d4-4093-8b54-ab2cf695d76d";
