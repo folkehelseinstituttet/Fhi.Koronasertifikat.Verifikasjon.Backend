@@ -74,13 +74,13 @@ namespace FHICORC.Application.Services
                 if (currentBatch.Count < _valueBatchOptions.BatchSize)
                 {
                     AddHashToBatch(currentBatch.BatchId, hash);
-                    currentBatch.Count++;
+                    currentBatch.IncrementCount();
                 }
                 else
                 {
                     currentBatch = AddBatch();
                     AddHashToBatch(currentBatch.BatchId, hash);
-                    currentBatch.Count++;
+                    currentBatch.IncrementCount();
                 }
             }
 
@@ -97,25 +97,15 @@ namespace FHICORC.Application.Services
 
         private void AddHashToBatch(string batchId, string hash)
         {
-            var hashDto = new RevocationHash
-            {
-                BatchId = batchId,
-                Hash = hash,
-            };
-            _coronapassContext.RevocationHash.Add(hashDto);
+            var newHash = new RevocationHash(batchId, hash);
+
+            _coronapassContext.RevocationHash.Add(newHash);
         }
 
         private BatchItem AddBatch()
         {
-            var newBatch = new RevocationBatch
-            {
-                BatchId = Guid.NewGuid().ToString(),
-                Expires = _expiryDateInThreeMonth,
-                Country = _valueBatchOptions.CountryCode,
-                HashType = _valueBatchOptions.HashType,
-                Deleted = false,
-                Upload = true,
-            };
+            var newBatch = new RevocationBatch(Guid.NewGuid().ToString(), _expiryDateInThreeMonth, _valueBatchOptions.CountryCode, false, _valueBatchOptions.HashType, true);
+          
             _coronapassContext.RevocationBatch.Add(newBatch);
 
             try
@@ -132,11 +122,11 @@ namespace FHICORC.Application.Services
 
         }
 
-        private List<string> GetHashesWithoutRevocationbatch(IEnumerable<string> hashList)
+        private IEnumerable<string> GetHashesWithoutRevocationbatch(IEnumerable<string> hashList)
         {
             var revokedHashList = _coronapassContext.RevocationHash.Select(x => new HashDto(x)).ToList();
 
-            return hashList.Where(h => revokedHashList.All(rh => rh.HashInfo != h)).ToList();
+            return hashList.Where(h => revokedHashList.All(rh => rh.HashInfo != h));
         }
 
         private BatchItem FetchExistingBatch()
@@ -149,16 +139,21 @@ namespace FHICORC.Application.Services
 
         private class BatchItem
         {
-            public BatchItem(string BatchId, int Count, DateTime Expires)
+            public BatchItem(string batchId, int count, DateTime expires)
             {
-                this.BatchId = BatchId;
-                this.Count = Count;
-                this.Expires = Expires;
+                this.BatchId = batchId;
+                this.Count = count;
+                this.Expires = expires;
             }
 
-            public string BatchId { get; set; }
-            public int Count { get; set; }
-            public DateTime Expires { get; set; }
+            public string BatchId { get; private set; }
+            public int Count { get; private set; }
+            public DateTime Expires { get; private set; }
+
+            public void IncrementCount()
+            {
+                this.Count++;
+            }
         }
 
     }

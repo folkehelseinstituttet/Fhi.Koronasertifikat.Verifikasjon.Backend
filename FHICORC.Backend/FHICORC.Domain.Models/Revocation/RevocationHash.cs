@@ -15,5 +15,11 @@ namespace FHICORC.Domain.Models
         public string Hash { get; set; }
 
         public virtual RevocationBatch RevocationBatch { get; set; }
+
+        public RevocationHash(string batchId, string hash)
+        {
+            this.BatchId = batchId;
+            this.Hash = hash;
+        } 
     }
 }

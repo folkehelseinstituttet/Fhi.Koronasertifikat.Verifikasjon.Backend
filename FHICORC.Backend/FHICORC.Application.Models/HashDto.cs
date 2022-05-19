@@ -15,9 +15,9 @@ namespace FHICORC.Application.Models
             this.BatchId = hash.BatchId;
             this.HashInfo = hash.Hash;
         }
-        public int Id { get; set; }
-        public string BatchId { get; set; }
-        public string HashInfo { get; set; }
+        public int Id { get; private set; }
+        public string BatchId { get; private set; }
+        public string HashInfo { get; private set; }
 
     }
 }

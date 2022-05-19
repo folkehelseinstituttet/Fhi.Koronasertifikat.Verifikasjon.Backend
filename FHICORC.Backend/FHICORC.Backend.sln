@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31105.61
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FHICORC.ApplicationHost.Api", "FHICORC.ApplicationHost.Api\FHICORC.ApplicationHost.Api.csproj", "{B0D7C141-FDC4-4156-B24D-D4FB0411FEA1}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -30,7 +30,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FHICORC.ApplicationHost.DbM
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FHICORC.Integrations.DGCGateway", "FHICORC.Integrations.DGCGateway\FHICORC.Integrations.DGCGateway.csproj", "{754CE616-AFE5-4F2A-8A28-89FE833773B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FHICORC.Integrations.UkGateway", "FHICORC.Integrations.UKGateway\FHICORC.Integrations.UkGateway.csproj", "{1F0F6334-3575-4A14-8955-0F98E56C44C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FHICORC.Integrations.UkGateway", "FHICORC.Integrations.UKGateway\FHICORC.Integrations.UkGateway.csproj", "{1F0F6334-3575-4A14-8955-0F98E56C44C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
