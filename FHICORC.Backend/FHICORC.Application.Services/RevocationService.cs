@@ -44,6 +44,9 @@ namespace FHICORC.Application.Services
                     }
                     ).ToList();
 
+                if (!superBatchList.Any())
+                    return null;
+
                 return new SuperBatchesDto()
                 {
                     SuperBatches = superBatchList
@@ -51,7 +54,7 @@ namespace FHICORC.Application.Services
             }
             catch (Exception e)
             {
-                return new SuperBatchesDto();
+                return null;
             }
         }
 

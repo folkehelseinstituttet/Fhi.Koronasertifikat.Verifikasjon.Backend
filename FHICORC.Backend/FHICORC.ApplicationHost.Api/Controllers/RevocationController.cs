@@ -9,6 +9,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
     [AllowAnonymous]
     [ApiController]
     [ApiVersion("1")]
+    [ApiVersion("2")]
     [Route("v{version:apiVersion}/[controller]")]
     public class RevocationController : ControllerBase
     {
@@ -28,14 +29,18 @@ namespace FHICORC.ApplicationHost.Api.Controllers
 
 
         [HttpGet("download")]
-        public SuperBatchesDto DownloadRevocationSuperBatches([FromHeader] DateTime lastDownloaded) {
-            return _revocationService.FetchSuperBatches(lastDownloaded);
+        public IActionResult DownloadRevocationSuperBatches([FromHeader] DateTime lastDownloaded) {
+            var superBatch = _revocationService.FetchSuperBatches(lastDownloaded);
+            if (superBatch == null) {
+                return NoContent(); 
+            }
+            return Ok(superBatch);
         }
 
         [HttpGet("bucketinfo")]
-        public BloomFilterBuckets BucketInfo()
+        public IActionResult BucketInfo()
         {
-            return _revocationService.FetchBucketInfo();
+            return Ok(_revocationService.FetchBucketInfo());
         }
 
     }
