@@ -29,7 +29,7 @@ namespace FHICORC.Application.Services
             return BloomFilterUtils.IsHashRevocated(dcc, country, _coronapassContext, _bloomBucketService.GetBloomFilterBucket());
         }
 
-        public SuperBatchesDto FetchSuperBatches(DateTime dateTime)
+        public List<SuperBatch> FetchSuperBatches(DateTime dateTime)
         {
             try
             {
@@ -39,18 +39,15 @@ namespace FHICORC.Application.Services
                     {
                         Id = x.Id,
                         Country = x.SuperCountry,
-                        BucketId = x.Bucket,
-                        SuperFilter = x.SuperFilter,
+                        BucketType = x.Bucket,
+                        BloomFilter = x.SuperFilter,
                     }
                     ).ToList();
 
                 if (!superBatchList.Any())
                     return null;
 
-                return new SuperBatchesDto()
-                {
-                    SuperBatches = superBatchList
-                };
+                return superBatchList;
             }
             catch (Exception e)
             {
