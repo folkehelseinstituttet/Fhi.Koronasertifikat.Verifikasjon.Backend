@@ -33,14 +33,13 @@ namespace FHICORC.Application.Services
         {
             try
             {
-
                 var superBatchList = _coronapassContext.RevocationSuperFilter
-                    .Where(s => s.Modified <= dateTime)
+                    .Where(s => s.Modified >= dateTime)
                     .Select(x => new SuperBatch()
                     {
                         Id = x.Id,
                         Country = x.SuperCountry,
-                        Bucket = x.Bucket,
+                        BucketId = x.Bucket,
                         SuperFilter = x.SuperFilter,
                     }
                     ).ToList();
