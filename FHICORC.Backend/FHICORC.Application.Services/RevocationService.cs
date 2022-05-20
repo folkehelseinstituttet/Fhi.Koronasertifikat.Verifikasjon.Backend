@@ -38,7 +38,7 @@ namespace FHICORC.Application.Services
                     .Select(x => new SuperBatch()
                     {
                         Id = x.Id,
-                        Country = x.SuperCountry,
+                        CountryISO3166 = x.SuperCountry,
                         BucketType = x.Bucket,
                         BloomFilter = x.SuperFilter,
                     }

@@ -14,11 +14,11 @@ namespace FHICORC.Tests.ComponentTests.Api
             var sut = new RevocationController(_revocationService);
             var result = sut.DownloadRevocationSuperBatches(DateTime.UtcNow);
 
-            foreach (var superBatch in result.SuperBatches) {
-                var revocationSuperFilter = _coronapassContext.RevocationSuperFilter.Find(superBatch.Id);
-                //Assert.That(revocationSuperFilter.SuperFilter.Equals(superBatch.SuperFilter));
-                //Assert.That(revocationSuperFilter.Bucket.Equals(superBatch.Bucket));
-            }
+            //foreach (var superBatch in result.SuperBatches) {
+            //    var revocationSuperFilter = _coronapassContext.RevocationSuperFilter.Find(superBatch.Id);
+            //    //Assert.That(revocationSuperFilter.SuperFilter.Equals(superBatch.SuperFilter));
+            //    //Assert.That(revocationSuperFilter.Bucket.Equals(superBatch.Bucket));
+            //}
         }
 
 
