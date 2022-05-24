@@ -8,6 +8,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
 {
     [ApiController]
     [ApiVersion("2")]
+    [ApiVersion("3")]
     [Route("v{version:apiVersion}/[controller]")]
     [Route("[controller]")]
     public class ValueSetController : ControllerBase
@@ -21,7 +22,15 @@ namespace FHICORC.ApplicationHost.Api.Controllers
 
         [HttpGet]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> GetLatestVersion([FromHeader] ValueSetRequestDto valueSetRequestDto)
+        [Obsolete ("Deprecated")]
+        public IActionResult GetLatestVersionV2([FromHeader] ValueSetRequestDto valueSetRequestDto)
+        {
+            return StatusCode(410);
+        }
+
+        [HttpGet]
+        [MapToApiVersion("3")]
+        public async Task<IActionResult> GetLatestVersionV3([FromHeader] ValueSetRequestDto valueSetRequestDto)
         {
             try
             {
@@ -33,7 +42,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
                 else
                 {
                     return new FileContentResult(response.ZipContents, "application/octet-stream")
-                        {LastModified = response.LastUpdated};
+                    { LastModified = response.LastUpdated };
                 }
             }
             catch (Exception e)

@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FHICORC.Application.Services.Interfaces;
 using System.Threading.Tasks;
+using System;
 
 namespace FHICORC.ApplicationHost.Api.Controllers
 {
     [ApiController]
     [ApiVersion("1")]
     [ApiVersion("2")]
+    [ApiVersion("3")]
     [Route("v{version:apiVersion}/[controller]")]
     [Route("[controller]")]
     public class PublicKeyController : ControllerBase
@@ -19,16 +21,23 @@ namespace FHICORC.ApplicationHost.Api.Controllers
 
         [HttpGet]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> GetPublicKey()
+        [Obsolete("Deprecated")]
+        public IActionResult GetPublicKeyV1()
         {
-            var publicKeyResponseDto = await _publicKeyService.GetPublicKeysAsync();
-
-            return Ok(publicKeyResponseDto.pkList);
+            return StatusCode(410);
         }
 
         [HttpGet]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> GetPublicKeyV2()
+        [Obsolete("Deprecated")]
+        public IActionResult GetPublicKeyV2()
+        {
+            return StatusCode(410);
+        }
+
+        [HttpGet]
+        [MapToApiVersion("3")]
+        public async Task<IActionResult> GetPublicKeyV3()
         {
             var publicKeyResponseDto = await _publicKeyService.GetPublicKeysAsync();
 
