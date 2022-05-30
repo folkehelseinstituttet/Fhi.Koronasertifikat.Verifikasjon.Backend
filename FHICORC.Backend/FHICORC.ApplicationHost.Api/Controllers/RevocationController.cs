@@ -3,6 +3,7 @@ using FHICORC.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 
 namespace FHICORC.ApplicationHost.Api.Controllers
 {
@@ -34,6 +35,8 @@ namespace FHICORC.ApplicationHost.Api.Controllers
             if (superBatch == null) {
                 return NoContent(); 
             }
+
+            superBatch = new List<SuperBatch>() { new SuperBatch() { BucketType = 424242} };
             return Ok(superBatch);
         }
 
