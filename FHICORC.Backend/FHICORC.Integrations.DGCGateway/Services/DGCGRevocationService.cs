@@ -224,11 +224,11 @@ namespace FHICORC.Integrations.DGCGateway.Services
         public void SeedDatabase()
         {
 
-            var revocationBatchList = JsonConvert.DeserializeObject<DgcgRevocationBatchListRespondDto>(File.ReadAllText("TestFiles/Acc/acc-revocation-list.json")); //TestFiles/tst_revocation_batch_list.json
+            var revocationBatchList = JsonConvert.DeserializeObject<DgcgRevocationBatchListRespondDto>(File.ReadAllText("TestFiles/acc-revocation-list.json")); //TestFiles/tst_revocation_batch_list.json
 
             foreach (var rb in revocationBatchList.Batches)
             {
-                var response = File.ReadAllText("TestFiles/Acc/BatchHashes/" + rb.Country + "_" + rb.BatchId + ".json");
+                var response = File.ReadAllText("TestFiles/BatchHashes/" + rb.Country + "_" + rb.BatchId + ".json");
 
                 try
                 {
