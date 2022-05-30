@@ -14,7 +14,7 @@ namespace FHICORC.Domain.Models
         public string Country { get; set; }
         public bool Deleted { get; set; }
         public string Kid { get; set; }
-        public string HashType { get; set; }
+        public int HashType { get; set; }
         public bool Upload { get; set; }
 
         [ForeignKey(nameof(RevocationSuperFilter))]

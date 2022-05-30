@@ -1,4 +1,7 @@
+using System;
 using System.Linq;
+using FHICORC.Core.Services.Enum;
+using FHICORC.Integrations.DGCGateway.Util;
 using NUnit.Framework;
 
 namespace FHICORC.Tests.ComponentTests.DGCGComponentTests
@@ -35,9 +38,18 @@ namespace FHICORC.Tests.ComponentTests.DGCGComponentTests
         [Test]
         public void AddToDatabaseTest()
         {
-            Assert.AreEqual(_coronapassContext.RevocationBatch.Count(), 102);
-            Assert.AreEqual(_coronapassContext.RevocationHash.Count(), 1638);
-            Assert.AreEqual(_coronapassContext.RevocationSuperFilter.Count(), 12);
+
+
+            var str = "UCICountry";
+            //Enum.TryParse("Active", out myHashType);
+            var a = (int)(Enum.TryParse(str.ToUpper(), out HashType myHashType) ? myHashType : 0);
+
+
+
+
+            //Assert.AreEqual(_coronapassContext.RevocationBatch.Count(), 102);
+            //Assert.AreEqual(_coronapassContext.RevocationHash.Count(), 1638);
+            //Assert.AreEqual(_coronapassContext.RevocationSuperFilter.Count(), 12);
 
         }
 

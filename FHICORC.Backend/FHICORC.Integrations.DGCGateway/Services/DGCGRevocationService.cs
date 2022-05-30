@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using System.Text;
 using System.Security.Cryptography.Pkcs;
 using System.IO;
+using FHICORC.Core.Services.Enum;
 
 namespace FHICORC.Integrations.DGCGateway.Services
 {
@@ -124,12 +125,15 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 Country = batchRoot.Country,
                 Deleted = batchRoot.Deleted,
                 Kid = batch.Kid,
-                HashType = batch.HashType,
+                HashType = batch.HashType.ParseHashTypeToEnum(),
                 Upload = false,
             };
+
+
             return revocationBatch;
         }
 
+     
         private void AddHashRevoc(string batchId, DGCGRevocationBatchRespondDto batch) {
             foreach (var b in batch.Entries)
             {
@@ -150,7 +154,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
             var currenBatchCount = batch.Entries.Count;
             foreach (var su in _coronapassContext.RevocationSuperFilter)
             {
-                if (su.SuperCountry == batch.Country) {
+                if (su.SuperCountry == batch.Country && su.HashType == batch.HashType.ParseHashTypeToEnum()) {
                     if (su.SuperExpires >= batch.Expires && batch.Expires >= su.SuperExpires.AddDays(-_bloomBucketOptions.ExpieryDateLeewayInDays)) {
                         foreach (var bucket in _bloomBucketService.GetBloomFilterBucket().Buckets) {
                             if (su.BatchCount + currenBatchCount <= bucket.MaxValue)

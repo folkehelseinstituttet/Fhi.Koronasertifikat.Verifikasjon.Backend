@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FHICORC.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(CoronapassContext))]
-    [Migration("20220511101150_RevocationTables")]
-    partial class RevocationTables
+    [Migration("20220530072647_AddRevocationTables")]
+    partial class AddRevocationTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -120,8 +120,8 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.Property<DateTime>("Expires")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("HashType")
-                        .HasColumnType("text");
+                    b.Property<int>("HashType")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Kid")
                         .HasColumnType("text");
@@ -170,6 +170,9 @@ namespace FHICORC.Infrastructure.Database.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("Bucket")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("HashType")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Modified")

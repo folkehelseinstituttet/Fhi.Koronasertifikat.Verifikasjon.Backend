@@ -4,10 +4,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace FHICORC.Infrastructure.Database.Migrations
 {
-    public partial class RevocationTables : Migration
+    public partial class AddRevocationTables : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddPrimaryKey(
+                name: "PK_CountriesReportModels",
+                table: "CountriesReportModels",
+                column: "Id");
+
             migrationBuilder.CreateTable(
                 name: "RevocationSuperFilter",
                 columns: table => new
@@ -19,7 +24,8 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     SuperFilter = table.Column<byte[]>(type: "bytea", maxLength: 5992, nullable: true),
                     BatchCount = table.Column<int>(type: "integer", nullable: false),
                     Bucket = table.Column<int>(type: "integer", nullable: false),
-                    Modified = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    Modified = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    HashType = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -36,7 +42,7 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     Country = table.Column<string>(type: "text", nullable: true),
                     Deleted = table.Column<bool>(type: "boolean", nullable: false),
                     Kid = table.Column<string>(type: "text", nullable: true),
-                    HashType = table.Column<string>(type: "text", nullable: true),
+                    HashType = table.Column<int>(type: "integer", nullable: false),
                     Upload = table.Column<bool>(type: "boolean", nullable: false),
                     SuperId = table.Column<int>(type: "integer", nullable: true)
                 },
@@ -92,6 +98,10 @@ namespace FHICORC.Infrastructure.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "RevocationSuperFilter");
+
+            migrationBuilder.DropPrimaryKey(
+                name: "PK_CountriesReportModels",
+                table: "CountriesReportModels");
         }
     }
 }

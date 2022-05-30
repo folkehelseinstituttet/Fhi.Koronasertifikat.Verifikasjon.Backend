@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using FHICORC.Infrastructure.Database.Context;
 using FHICORC.Application.Models;
 using System.Linq;
+using FHICORC.Core.Services.Enum;
 
 namespace FHICORC.Integrations.DGCGateway.Util
 {
@@ -116,7 +117,24 @@ namespace FHICORC.Integrations.DGCGateway.Util
                 k = hashes
             };
         }
+
+        public static string ToTitleCase(this string str)
+        {
+            if (str.Length == 0)
+                return str;
+            else if (str.Length == 1)
+                return char.ToUpper(str[0]) + "";
+            else
+                return char.ToUpper(str[0]) + str[1..].ToLower();
+        }
+
+        public static int ParseHashTypeToEnum(this string hashType) {
+            return (int)(Enum.TryParse(hashType, out HashType myHashType) ? myHashType : 0);
+        }
+
+
     }
+
 
     public class BloomStats
     {

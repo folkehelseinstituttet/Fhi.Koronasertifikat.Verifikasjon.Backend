@@ -6,9 +6,9 @@ namespace FHICORC.Core.Services.Enum
 {
     public enum HashType
     {
-        None = 0,
-        Signature = 1,
+        NONE = 0,
+        SIGNATURE = 1,
         UCI = 2,
-        UCICountry = 3
+        COUNTRYCODEUCI = 3
     }
 }
