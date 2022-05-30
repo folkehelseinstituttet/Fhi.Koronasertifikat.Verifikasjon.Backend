@@ -36,7 +36,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
                 return NoContent(); 
             }
 
-            superBatch = new List<SuperBatch>() { new SuperBatch() { BucketType = 424242} };
+            //superBatch = new List<SuperBatch>() { new SuperBatch() { BucketType = 424242} };
             return Ok(superBatch);
         }
 
