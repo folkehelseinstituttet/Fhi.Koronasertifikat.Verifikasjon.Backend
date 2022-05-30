@@ -162,7 +162,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
                                 su.BatchCount += currenBatchCount;
                                 su.Modified = DateTime.UtcNow;
                                 su.Bucket = bucket.BucketId;
-
+                                su.HashType = batch.HashType.ParseHashTypeToEnum();
                                 _coronapassContext.Entry(su).State = EntityState.Modified;
                                 return su.Id;
                             }
@@ -171,13 +171,17 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 }
             }
 
+            //su.HashType == batch.HashType.ParseHashTypeToEnum()
+
             var revocationSuperFilter = new RevocationSuperFilter()
             {
                 SuperCountry = batch.Country,
                 SuperExpires = batch.Expires.AddDays(_bloomBucketOptions.ExpieryDateLeewayInDays).Date,
                 BatchCount = currenBatchCount,
                 Modified = DateTime.UtcNow,
-                Bucket = _bloomBucketService.GetBucketItemByBatchCount(currenBatchCount).BucketId
+                Bucket = _bloomBucketService.GetBucketItemByBatchCount(currenBatchCount).BucketId,
+                HashType = batch.HashType.ParseHashTypeToEnum(),
+
             };
 
             _coronapassContext.RevocationSuperFilter.Add(revocationSuperFilter);
