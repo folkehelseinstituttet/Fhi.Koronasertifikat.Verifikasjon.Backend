@@ -8,9 +8,10 @@ namespace FHICORC.Tests.ComponentTests.DGCGComponentTests
     {
       
 
-        [Test]
-        public void IsSingleHashInSuperFilter() {
-            var result = MobileUtil.ContainsCertificateFilterMobile("RO", "p8dtvN0/9YKtwgGAxvsvBg==", _coronapassContext, bloomBucketService.GetBloomFilterBucket());
+        [TestCase("J4PCK4sFs63kH/EeP7+C3A==")]
+        //[TestCase("p8dtvN0/9YKtwgGAxvsvBg==")]
+        public void IsSingleHashInSuperFilter(string str) {
+            var result = MobileUtil.ContainsCertificateFilterMobile("RO", str, _coronapassContext, bloomBucketService.GetBloomFilterBucket());
 
             Assert.True(result);
         }
@@ -18,8 +19,13 @@ namespace FHICORC.Tests.ComponentTests.DGCGComponentTests
         [Test]
         public void AreAllHashesInSuperFilter()
         {
+            var cnt = 0;
             foreach (var hash in _coronapassContext.RevocationHash) {
                 var country = _coronapassContext.RevocationBatch.Find(hash.BatchId).Country;
+                cnt += 1;
+                if (hash.Hash == "J4PCK4sFs63kH/EeP7+C3A==") {
+                    var a = 0;
+                }
                 var result = MobileUtil.ContainsCertificateFilterMobile(country, hash.Hash, _coronapassContext, bloomBucketService.GetBloomFilterBucket());
                 Assert.True(result);
             }

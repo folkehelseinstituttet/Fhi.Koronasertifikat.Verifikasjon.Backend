@@ -49,7 +49,8 @@ namespace FHICORC.Integrations.DGCGateway.Services
         }
 
         public async Task PopulateRevocationDatabase(DgcgRevocationBatchListRespondDto revocationBatchList) {
-            if (revocationBatchList is null) {
+            if (revocationBatchList is null || revocationBatchList.Batches is null) {
+                //NB this can be reached when the DCCG has gotten to many requests
                 _logger.LogInformation("RevocationBatchList is empty");
                 return;
             }
@@ -132,6 +133,9 @@ namespace FHICORC.Integrations.DGCGateway.Services
         private void AddHashRevoc(string batchId, DGCGRevocationBatchRespondDto batch) {
             foreach (var b in batch.Entries)
             {
+                if (b.Hash == null)
+                    continue;
+
                 var _revocationHash = new RevocationHash()
                 {
                     BatchId = batchId,
@@ -212,11 +216,11 @@ namespace FHICORC.Integrations.DGCGateway.Services
         public void SeedDatabase()
         {
 
-            var revocationBatchList = JsonConvert.DeserializeObject<DgcgRevocationBatchListRespondDto>(File.ReadAllText("TestFiles/tst_revocation_batch_list.json"));
+            var revocationBatchList = JsonConvert.DeserializeObject<DgcgRevocationBatchListRespondDto>(File.ReadAllText("TestFiles/Acc/acc-revocation-list.json")); //TestFiles/tst_revocation_batch_list.json
 
             foreach (var rb in revocationBatchList.Batches)
             {
-                var response = File.ReadAllText("TestFiles/BatchHashes/" + rb.BatchId + ".txt");
+                var response = File.ReadAllText("TestFiles/Acc/BatchHashes/" + rb.Country + "_" + rb.BatchId + ".json");
 
                 try
                 {
