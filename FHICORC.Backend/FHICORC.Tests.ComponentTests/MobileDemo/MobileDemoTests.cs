@@ -43,7 +43,7 @@ namespace FHICORC.Tests.ComponentTests.DGCGComponentTests
 
             var str = "UCICountry";
             //Enum.TryParse("Active", out myHashType);
-            var a = (int)(Enum.TryParse(str.ToUpper(), out HashType myHashType) ? myHashType : 0);
+            var a = (int)(Enum.TryParse(str.ToUpper(), out HashTypeEnum myHashType) ? myHashType : 0);
 
 
 

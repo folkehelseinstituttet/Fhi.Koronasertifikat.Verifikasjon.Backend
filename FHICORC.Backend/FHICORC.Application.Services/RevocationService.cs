@@ -42,7 +42,7 @@ namespace FHICORC.Application.Services
                         CountryISO3166 = x.SuperCountry,
                         BucketType = x.Bucket,
                         BloomFilter = x.SuperFilter,
-                        HashMethod = (HashType)x.HashType,
+                        HashType = (HashTypeEnum)x.HashType,
                         ExpirationDate = x.SuperExpires
                     }
                     ).ToList();

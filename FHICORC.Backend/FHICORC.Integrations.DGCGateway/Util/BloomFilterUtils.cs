@@ -129,7 +129,7 @@ namespace FHICORC.Integrations.DGCGateway.Util
         }
 
         public static int ParseHashTypeToEnum(this string hashType) {
-            return (int)(Enum.TryParse(hashType, out HashType myHashType) ? myHashType : 0);
+            return (int)(Enum.TryParse(hashType, out HashTypeEnum myHashType) ? myHashType : 0);
         }
 
 
