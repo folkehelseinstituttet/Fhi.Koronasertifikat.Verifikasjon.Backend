@@ -40,5 +40,14 @@
 	<ItemGroup>
 	  <Folder Include="TestFiles\Acc\" />
 	</ItemGroup>
+	
+	<ItemGroup>
+	  <Content Update="TestFiles\BatchHashes\RO_7c351d64-b31f-45a1-b0d9-c3f793342d1a.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="TestFiles\BatchHashes\RO_85a25288-ca3f-46e0-9590-097dd647b7d9.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
 
 </Project>
