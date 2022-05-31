@@ -69,46 +69,6 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
         }
 
 
-        /// <summary>
-        /// Tests if BloomFilters for a <c>Batch</c> are generated and contain the right information
-        /// Checks that strings that are not encoded in the filter are rejected
-        /// (This test has a <c>e-10</c> chance tho fail).
-        /// </summary>
-        [Test]
-        public void GenerateBatchFilterTest() {
-            //Assume
-            var m = 47936;
-            var k = 32;
-
-            batch.Entries = new List<DgcgHashItem>();
-            GenerateRandomStrings(1000).ForEach(s => batch.Entries.Add(new DgcgHashItem() { Hash = s }));
-
-            //Act
-            var filter = DGCGRevocationService.GenerateBatchFilter(batch.Entries, m, k);
-
-            //Assert
-            batch.Entries.ForEach(e => Assert.True(filter.Contains(e.Hash, m, k)));
-            GenerateRandomStrings(1000).ForEach(s => Assert.False(filter.Contains(s, m, k)));
-            Assert.False(filter.Contains("thisShouldNotExist", m, k));
-        }
-
-        private List<string> GenerateRandomStrings(int numberOfStrings)
-        {
-            var listOfStrings = new List<string>();
-
-            for (var i = 0; i < numberOfStrings; i++)
-            {
-                var g = Guid.NewGuid();
-                var GuidString = Convert.ToBase64String(g.ToByteArray());
-                listOfStrings.Add(GuidString);
-            }
-
-            return listOfStrings;
-        }
-
-
-        
-
 
     }
 }

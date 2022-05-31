@@ -136,6 +136,12 @@ namespace FHICORC.Integrations.DGCGateway.Services
             DGCGRevocationBatchRespondDto parsedResponse;
             try
             {
+
+                //using (StreamWriter writer = System.IO.File.AppendText(batchId + ".txt"))
+                //{
+                //    writer.WriteLine(response.Content);
+                //}
+
                 var encodedMessage = Convert.FromBase64String(response.Content);
 
                 var signedCms = new SignedCms();
