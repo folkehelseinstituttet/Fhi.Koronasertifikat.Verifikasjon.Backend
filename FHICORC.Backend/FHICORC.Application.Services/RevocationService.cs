@@ -9,6 +9,7 @@ using FHICORC.Integrations.DGCGateway.Util;
 using FHICORC.Application.Models;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
 using System.Collections.Generic;
+using FHICORC.Core.Services.Enum;
 
 namespace FHICORC.Application.Services
 {
@@ -41,6 +42,8 @@ namespace FHICORC.Application.Services
                         CountryISO3166 = x.SuperCountry,
                         BucketType = x.Bucket,
                         BloomFilter = x.SuperFilter,
+                        HashMethod = (HashType)x.HashType,
+                        ExpirationDate = x.SuperExpires
                     }
                     ).ToList();
 

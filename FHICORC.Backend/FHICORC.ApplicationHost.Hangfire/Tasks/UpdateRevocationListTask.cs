@@ -87,8 +87,6 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
             try
             {
                 await _revocationService.PopulateRevocationDatabase(revocationBatchList);
-
-                //TRUNCATE public."RevocationBatch", public."RevocationSuperFilter" CASCADE;
                 _metricLogService.AddMetric("RetrieveRevocationBatch_Success", true);
             }
             catch (GeneralDgcgFaultException e)

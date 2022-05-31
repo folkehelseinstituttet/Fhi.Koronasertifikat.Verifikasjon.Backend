@@ -1,4 +1,5 @@
 ﻿using FHICORC.Core.Services.Enum;
+using System;
 
 namespace FHICORC.Application.Models
 {
@@ -8,6 +9,7 @@ namespace FHICORC.Application.Models
         public int BucketType { get; set; }
         public byte[] BloomFilter { get; set; }
         public HashType HashMethod { get; set; }
+        public DateTime ExpirationDate { get; set; }
 
     }
 }
