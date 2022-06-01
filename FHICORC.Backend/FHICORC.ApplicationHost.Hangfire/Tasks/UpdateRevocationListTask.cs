@@ -24,7 +24,6 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         private readonly IDgcgService _dgcgService;
         private readonly IMetricLogService _metricLogService;
         private readonly IDGCGRevocationService _revocationService;
-        //private readonly ISeedDbService _seedDbService;
         private readonly HangfireContext _hangfireContext;
 
         public UpdateRevocationListTask(ILogger<UpdateCertificateRepositoryTask> logger, CronOptions cronOptions,
@@ -39,9 +38,6 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
             _metricLogService = metricLogService;
             _revocationService = revocationService;
             _hangfireContext = hangfireContext;
-
-            //_seedDbService = seedDbService;
-
         }
 
         public void SetupTask()
@@ -66,7 +62,7 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
            
             try
             {
-                var modifiedSince = lastSucceedetDate != null ? lastSucceedetDate.ToString() : "2021-06-01T00:00:00Z";
+                var modifiedSince = lastSucceedetDate.GetValueOrDefault(new DateTime(2021, 6, 1, 0, 0, 0, DateTimeKind.Utc));
                 revocationBatchList = await _dgcgService.GetRevocationBatchListAsync(modifiedSince);
                 _metricLogService.AddMetric("RetrieveRevocationBatchList_Success", true);
             }

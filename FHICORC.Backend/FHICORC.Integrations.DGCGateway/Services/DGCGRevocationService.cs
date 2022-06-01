@@ -16,6 +16,7 @@ using System.Text;
 using System.Security.Cryptography.Pkcs;
 using System.IO;
 using FHICORC.Core.Services.Enum;
+using System.IO.Compression;
 
 namespace FHICORC.Integrations.DGCGateway.Services
 {
@@ -117,17 +118,15 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
 
         public static RevocationBatch FillInBatchRevoc(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch) {
-            var revocationBatch = new RevocationBatch()
-            {
-                BatchId = batchRoot.BatchId,
-                Expires = batch.Expires,
-                Date = batchRoot.Date,
-                Country = batchRoot.Country,
-                Deleted = batchRoot.Deleted,
-                Kid = batch.Kid,
-                HashType = batch.HashType.ParseHashTypeToEnum(),
-                Upload = false,
-            };
+            var revocationBatch = new RevocationBatch(
+                batchRoot.BatchId,
+                batch.Expires,
+                batchRoot.Date,
+                batchRoot.Country,
+                batchRoot.Deleted,
+                batch.Kid,
+                batch.HashType.ParseHashTypeToEnum(),
+                false);
 
 
             return revocationBatch;
@@ -140,11 +139,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 if (b.Hash == null)
                     continue;
 
-                var _revocationHash = new RevocationHash()
-                {
-                    BatchId = batchId,
-                    Hash = b.Hash
-                };
+                var _revocationHash = new RevocationHash(batchId, b.Hash);
                 _coronapassContext.RevocationHash.Add(_revocationHash);
             }
         }
@@ -156,7 +151,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
             {
                 if (su.SuperCountry == batch.Country && su.HashType == batch.HashType.ParseHashTypeToEnum()) {
                     if (su.SuperExpires >= batch.Expires && batch.Expires >= su.SuperExpires.AddDays(-_bloomBucketOptions.ExpieryDateLeewayInDays)) {
-                        foreach (var bucket in _bloomBucketService.GetBloomFilterBucket().Buckets) {
+                        foreach (var bucket in _bloomBucketService.GetBloomFilterBucket()) {
                             if (su.BatchCount + currenBatchCount <= bucket.MaxValue)
                             {
                                 su.BatchCount += currenBatchCount;
@@ -170,8 +165,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     }
                 }
             }
-
-            //su.HashType == batch.HashType.ParseHashTypeToEnum()
 
             var revocationSuperFilter = new RevocationSuperFilter()
             {
@@ -225,27 +218,38 @@ namespace FHICORC.Integrations.DGCGateway.Services
         {
 
             var revocationBatchList = JsonConvert.DeserializeObject<DgcgRevocationBatchListRespondDto>(File.ReadAllText("TestFiles/acc-revocation-list.json")); //TestFiles/tst_revocation_batch_list.json
-
             foreach (var rb in revocationBatchList.Batches)
             {
-                var response = File.ReadAllText("TestFiles/BatchHashes/" + rb.Country + "_" + rb.BatchId + ".json");
 
-                try
-                {
-                    var encodedMessage = Convert.FromBase64String(response);
+                var fileName = rb.Country + "_" + rb.BatchId + ".json";
 
-                    var signedCms = new SignedCms();
-                    signedCms.Decode(encodedMessage);
-                    signedCms.CheckSignature(true);
+                using (ZipArchive zip = ZipFile.Open("TestFiles/BatchHashes.zip", ZipArchiveMode.Read))
+                    foreach (ZipArchiveEntry entry in zip.Entries)
+                        if (entry.Name == fileName)
+                        {
+                            //entry.ExtractToFile(entry.Name);
+                            Stream s = entry.Open();
+                            var sr = new StreamReader(s);
+                            var response = sr.ReadToEnd();
 
-                    var decodedMessage = Encoding.UTF8.GetString(signedCms.ContentInfo.Content);
-                    var parsedResponse = JsonConvert.DeserializeObject<DGCGRevocationBatchRespondDto>(decodedMessage);
+                            try
+                            {
+                                var encodedMessage = Convert.FromBase64String(response);
 
-                    AddToDatabase(rb, parsedResponse);
+                                var signedCms = new SignedCms();
+                                signedCms.Decode(encodedMessage);
+                                signedCms.CheckSignature(true);
+
+                                var decodedMessage = Encoding.UTF8.GetString(signedCms.ContentInfo.Content);
+                                var parsedResponse = JsonConvert.DeserializeObject<DGCGRevocationBatchRespondDto>(decodedMessage);
+
+                                AddToDatabase(rb, parsedResponse);
 
 
-                }
-                catch (Exception e) { }
+                            }
+                            catch (Exception e) { }
+                            break;
+                        }
             }
 
             OrganizeBatches();

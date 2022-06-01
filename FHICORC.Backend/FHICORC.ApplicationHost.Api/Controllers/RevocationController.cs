@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FHICORC.ApplicationHost.Api.Controllers
 {
@@ -14,40 +15,41 @@ namespace FHICORC.ApplicationHost.Api.Controllers
     [Route("v{version:apiVersion}/[controller]")]
     public class RevocationController : ControllerBase
     {
-        private readonly IRevocationService _revocationService;
+        private readonly IRevocationFetchService _revocationFetchService;
+        private readonly IRevocationUploadService _revocationUploadService;
 
-        public RevocationController(IRevocationService revocationService)
+        public RevocationController(IRevocationFetchService revocationService)
         {
-            _revocationService = revocationService;
+            _revocationFetchService = revocationService;
         }
 
         [HttpGet("certificate")]
         public IActionResult CheckCertificateRevocated([FromHeader] string dcc, [FromHeader] string country)
         {
-            return Ok(_revocationService.ContainsCertificate(dcc, country));
+            return Ok(_revocationFetchService.ContainsCertificate(dcc, country));
         }
 
         [HttpGet("download")]
         public IActionResult DownloadRevocationSuperBatches([FromHeader] DateTime lastDownloaded) {
-            var superBatch = _revocationService.FetchSuperBatches(lastDownloaded);
-            if (superBatch == null) {
+            var superBatch = _revocationFetchService.FetchSuperBatches(lastDownloaded);
+
+            if (superBatch is null || !superBatch.Any()) {
                 return NoContent(); 
             }
 
-            //superBatch = new List<SuperBatch>() { new SuperBatch() { BucketType = 424242} };
             return Ok(superBatch);
         }
 
         [HttpGet("bucketinfo")]
         public IActionResult BucketInfo()
         {
-            return Ok(_revocationService.FetchBucketInfo());
+            return Ok(_revocationFetchService.FetchBucketInfo());
         }
 
         [HttpPost("upload")]
-        public void SendRevocationHashes([FromBody] IEnumerable<string> hashList)
+        public IActionResult SendRevocationHashes([FromBody] IEnumerable<string> hashList)
         {
-            _revocationService.UploadHashes(hashList);
+            return Ok(_revocationUploadService.UploadHashes(hashList));
         }
 
     }

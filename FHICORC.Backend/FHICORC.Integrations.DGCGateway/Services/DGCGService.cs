@@ -45,11 +45,9 @@ namespace FHICORC.Integrations.DGCGateway.Services
             }
         }
 
-        public async Task<DgcgRevocationBatchListRespondDto> GetRevocationBatchListAsync(string modifiedSince) 
+        public async Task<DgcgRevocationBatchListRespondDto> GetRevocationBatchListAsync(DateTime modifiedSince) 
         {
-
-            var d = "2022-05-23T00:00:00Z";
-            var fullResponse = await _dgcgClient.FetchRevocationBatchListAsync(d);
+            var fullResponse = await _dgcgClient.FetchRevocationBatchListAsync(modifiedSince);
 
             return fullResponse;
 

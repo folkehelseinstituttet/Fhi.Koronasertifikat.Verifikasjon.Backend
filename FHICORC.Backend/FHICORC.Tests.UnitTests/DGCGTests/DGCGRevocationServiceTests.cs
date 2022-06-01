@@ -62,13 +62,10 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
             Assert.That(revocationBatch.Date.Equals(batchRoot.Date));
             Assert.That(revocationBatch.Deleted.Equals(batchRoot.Deleted));
 
-            Assert.That(revocationBatch.HashType.Equals(batch.HashType));
+            Assert.That(revocationBatch.HashType.Equals(batch.HashType.ParseHashTypeToEnum()));
             Assert.That(revocationBatch.Expires.Equals(batch.Expires));
             Assert.That(revocationBatch.Kid.Equals(batch.Kid));
             Assert.IsFalse(revocationBatch.Upload);
         }
-
-
-
     }
 }
