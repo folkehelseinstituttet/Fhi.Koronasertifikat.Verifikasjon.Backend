@@ -118,8 +118,8 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.Property<DateTime>("Expires")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("HashType")
-                        .HasColumnType("text");
+                    b.Property<int>("HashType")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Kid")
                         .HasColumnType("text");
@@ -135,20 +135,6 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.HasIndex("SuperId");
 
                     b.ToTable("RevocationBatch");
-                });
-
-            modelBuilder.Entity("FHICORC.Domain.Models.RevocationFilter", b =>
-                {
-                    b.Property<string>("BatchId")
-                        .HasColumnType("text");
-
-                    b.Property<byte[]>("Filter")
-                        .HasMaxLength(5992)
-                        .HasColumnType("bytea");
-
-                    b.HasKey("BatchId");
-
-                    b.ToTable("RevocationFilter");
                 });
 
             modelBuilder.Entity("FHICORC.Domain.Models.RevocationHash", b =>
@@ -181,8 +167,17 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.Property<int>("BatchCount")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Bucket")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("HashType")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("Modified")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("SuperCountry")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("SuperExpires")
                         .HasColumnType("timestamp without time zone");
@@ -205,17 +200,6 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.Navigation("RevocationSuperFilter");
                 });
 
-            modelBuilder.Entity("FHICORC.Domain.Models.RevocationFilter", b =>
-                {
-                    b.HasOne("FHICORC.Domain.Models.RevocationBatch", "RevocationBatch")
-                        .WithOne("RevocationFilter")
-                        .HasForeignKey("FHICORC.Domain.Models.RevocationFilter", "BatchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("RevocationBatch");
-                });
-
             modelBuilder.Entity("FHICORC.Domain.Models.RevocationHash", b =>
                 {
                     b.HasOne("FHICORC.Domain.Models.RevocationBatch", "RevocationBatch")
@@ -227,8 +211,6 @@ namespace FHICORC.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("FHICORC.Domain.Models.RevocationBatch", b =>
                 {
-                    b.Navigation("RevocationFilter");
-
                     b.Navigation("RevocationHashes");
                 });
 
