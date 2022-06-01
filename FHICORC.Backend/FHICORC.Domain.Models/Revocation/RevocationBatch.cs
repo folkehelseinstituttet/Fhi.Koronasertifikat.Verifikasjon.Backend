@@ -26,6 +26,27 @@ namespace FHICORC.Domain.Models
 
         public virtual ICollection<RevocationHash> RevocationHashes { get; set; }
 
+        public RevocationBatch(string batchId, DateTime expires, string country, bool deleted, string hashType, bool upload)
+        {
+            this.BatchId = batchId;
+            this.Expires = expires;
+            this.Country = country;
+            this.Deleted = deleted;
+            this.HashType = hashType;
+            this.Upload = upload;
+        }
+
+        public RevocationBatch(string batchId, DateTime expires, DateTime date, string country, bool deleted, string kid, string hashType, bool upload)
+        {
+            this.BatchId = batchId;
+            this.Expires = expires;
+            this.Date = date;
+            this.Country = country;
+            this.Deleted = deleted;
+            this.Kid = kid;
+            this.HashType = hashType;
+            this.Upload = upload;
+        }
 
     }
 }
