@@ -117,17 +117,15 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
 
         public static RevocationBatch FillInBatchRevoc(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch) {
-            var revocationBatch = new RevocationBatch()
-            {
-                BatchId = batchRoot.BatchId,
-                Expires = batch.Expires,
-                Date = batchRoot.Date,
-                Country = batchRoot.Country,
-                Deleted = batchRoot.Deleted,
-                Kid = batch.Kid,
-                HashType = batch.HashType.ParseHashTypeToEnum(),
-                Upload = false,
-            };
+            var revocationBatch = new RevocationBatch(
+                batchRoot.BatchId,
+                batch.Expires,
+                batchRoot.Date,
+                batchRoot.Country,
+                batchRoot.Deleted,
+                batch.Kid,
+                batch.HashType.ParseHashTypeToEnum(),
+                false);
 
 
             return revocationBatch;
@@ -140,11 +138,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 if (b.Hash == null)
                     continue;
 
-                var _revocationHash = new RevocationHash()
-                {
-                    BatchId = batchId,
-                    Hash = b.Hash
-                };
+                var _revocationHash = new RevocationHash(batchId, b.Hash);
                 _coronapassContext.RevocationHash.Add(_revocationHash);
             }
         }

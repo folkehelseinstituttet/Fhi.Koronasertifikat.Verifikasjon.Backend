@@ -7,6 +7,9 @@ using FHICORC.Application.Models;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
 using System.Collections.Generic;
 using FHICORC.Core.Services.Enum;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
 
 namespace FHICORC.Application.Services
 {
