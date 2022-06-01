@@ -11,10 +11,8 @@ using FHICORC.Application.Models;
 
 namespace FHICORC.Application.Services
 {
-    public interface IRevocationService
+    public interface IRevocationUploadService
     {
-        public bool ContainsCertificate(string dcc, string country);
-        public List<SuperBatch> FetchSuperBatches(DateTime dateTime);
-        public BloomFilterBuckets FetchBucketInfo();
+        public bool UploadHashes(IEnumerable<string> newHashes);
     }
 }

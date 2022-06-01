@@ -20,10 +20,10 @@ namespace FHICORC.Tests.ComponentTests
     public class SeedDb
     {
         protected ILogger<DGCGRevocationService> loggerDGCGRevocationService = new NullLoggerFactory().CreateLogger<DGCGRevocationService>();
-        protected ILogger<RevocationService> loggerRevocationService = new NullLoggerFactory().CreateLogger<RevocationService>();
+        protected ILogger<RevocationFetchService> loggerRevocationService = new NullLoggerFactory().CreateLogger<RevocationFetchService>();
         protected CoronapassContext _coronapassContext;
         protected DGCGRevocationService _dgcgRevocationService;
-        protected RevocationService _revocationService;
+        protected RevocationFetchService _revocationService;
         protected readonly IDgcgService _dgcgService = Substitute.For<IDgcgService>();
         protected IBloomBucketService bloomBucketService;
 
@@ -38,7 +38,7 @@ namespace FHICORC.Tests.ComponentTests
             _coronapassContext = SeedDb.GetInMemoryContext();
             _dgcgRevocationService = new DGCGRevocationService(loggerDGCGRevocationService, _coronapassContext, _dgcgService, bloomBucketOptions, bloomBucketService, featureToggles);
 
-            _revocationService = new RevocationService(loggerRevocationService, _coronapassContext, bloomBucketService);
+            _revocationService = new RevocationFetchService(loggerRevocationService, _coronapassContext, bloomBucketService);
         }
 
         [TearDown]

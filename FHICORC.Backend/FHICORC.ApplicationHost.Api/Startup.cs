@@ -45,6 +45,7 @@ namespace FHICORC.ApplicationHost.Api
                 .AddValidatedOptions<TextOptions>(Configuration)
                 .AddValidatedOptions<ValueSetCacheOptions>(Configuration)
                 .AddValidatedOptions<ValueSetOptions>(Configuration)
+                .AddValidatedOptions<BatchOptions>(Configuration)
                 .AddValidatedOptions<BloomBucketOptions>(Configuration);
 
             services

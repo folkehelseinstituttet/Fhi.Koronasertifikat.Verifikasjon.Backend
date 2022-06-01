@@ -12,7 +12,8 @@ namespace FHICORC.Application.Services
             serviceCollection
                 .AddScoped<ITextService, TextService>()
                 .AddScoped<IRuleService, RuleService>()
-                .AddScoped<IRevocationService, RevocationService>()
+                .AddScoped<IRevocationFetchService, RevocationFetchService>()
+                .AddScoped<IRevocationUploadService, RevocationUploadService>()
                 .AddScoped<IValueSetService, ValueSetService>()
                 .AddSingleton<IBloomBucketService, BloomBucketService>();
                 

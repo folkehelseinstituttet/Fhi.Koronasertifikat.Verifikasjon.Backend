@@ -13,13 +13,13 @@ using System.Linq;
 
 namespace FHICORC.Application.Services
 {
-    public class RevocationService : IRevocationService
+    public class RevocationFetchService : IRevocationFetchService
     {
-        private readonly ILogger<RevocationService> _logger;
+        private readonly ILogger<RevocationFetchService> _logger;
         private readonly CoronapassContext _coronapassContext;
         private readonly IBloomBucketService _bloomBucketService;
 
-        public RevocationService(ILogger<RevocationService> logger, CoronapassContext coronapassContext, IBloomBucketService bloomBucketService)
+        public RevocationFetchService(ILogger<RevocationFetchService> logger, CoronapassContext coronapassContext, IBloomBucketService bloomBucketService)
         {
             _logger = logger;
             _coronapassContext = coronapassContext;
