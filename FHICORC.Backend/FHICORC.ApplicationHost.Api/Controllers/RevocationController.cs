@@ -21,13 +21,11 @@ namespace FHICORC.ApplicationHost.Api.Controllers
             _revocationService = revocationService;
         }
 
-
         [HttpGet("certificate")]
         public IActionResult CheckCertificateRevocated([FromHeader] string dcc, [FromHeader] string country)
         {
             return Ok(_revocationService.ContainsCertificate(dcc, country));
         }
-
 
         [HttpGet("download")]
         public IActionResult DownloadRevocationSuperBatches([FromHeader] DateTime lastDownloaded) {
@@ -44,6 +42,12 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         public IActionResult BucketInfo()
         {
             return Ok(_revocationService.FetchBucketInfo());
+        }
+
+        [HttpPost("upload")]
+        public void SendRevocationHashes([FromBody] IEnumerable<string> hashList)
+        {
+            _revocationService.UploadHashes(hashList);
         }
 
     }

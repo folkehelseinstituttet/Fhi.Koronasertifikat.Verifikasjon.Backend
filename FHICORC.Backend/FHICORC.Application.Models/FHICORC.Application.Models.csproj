@@ -10,4 +10,8 @@
       <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="5.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\FHICORC.Domain.Models\FHICORC.Domain.Models.csproj" />
+    </ItemGroup>
+
 </Project>

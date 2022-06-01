@@ -1,10 +1,7 @@
-﻿using System.Text;
-using System.Collections;
-using System;
-using System.Linq;
-using Microsoft.Extensions.Logging;
+﻿using FHICORC.Application.Models;
+using FHICORC.Application.Models.Options;
+using FHICORC.Domain.Models;
 using FHICORC.Infrastructure.Database.Context;
-using Microsoft.EntityFrameworkCore;
 using FHICORC.Integrations.DGCGateway.Util;
 using FHICORC.Application.Models;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
