@@ -16,6 +16,7 @@ using System.Text;
 using System.Security.Cryptography.Pkcs;
 using System.IO;
 using FHICORC.Core.Services.Enum;
+using System.IO.Compression;
 
 namespace FHICORC.Integrations.DGCGateway.Services
 {
@@ -165,8 +166,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 }
             }
 
-            //su.HashType == batch.HashType.ParseHashTypeToEnum()
-
             var revocationSuperFilter = new RevocationSuperFilter()
             {
                 SuperCountry = batch.Country,
@@ -219,27 +218,38 @@ namespace FHICORC.Integrations.DGCGateway.Services
         {
 
             var revocationBatchList = JsonConvert.DeserializeObject<DgcgRevocationBatchListRespondDto>(File.ReadAllText("TestFiles/acc-revocation-list.json")); //TestFiles/tst_revocation_batch_list.json
-
             foreach (var rb in revocationBatchList.Batches)
             {
-                var response = File.ReadAllText("TestFiles/BatchHashes/" + rb.Country + "_" + rb.BatchId + ".json");
 
-                try
-                {
-                    var encodedMessage = Convert.FromBase64String(response);
+                var fileName = rb.Country + "_" + rb.BatchId + ".json";
 
-                    var signedCms = new SignedCms();
-                    signedCms.Decode(encodedMessage);
-                    signedCms.CheckSignature(true);
+                using (ZipArchive zip = ZipFile.Open("TestFiles/BatchHashes.zip", ZipArchiveMode.Read))
+                    foreach (ZipArchiveEntry entry in zip.Entries)
+                        if (entry.Name == fileName)
+                        {
+                            //entry.ExtractToFile(entry.Name);
+                            Stream s = entry.Open();
+                            var sr = new StreamReader(s);
+                            var response = sr.ReadToEnd();
 
-                    var decodedMessage = Encoding.UTF8.GetString(signedCms.ContentInfo.Content);
-                    var parsedResponse = JsonConvert.DeserializeObject<DGCGRevocationBatchRespondDto>(decodedMessage);
+                            try
+                            {
+                                var encodedMessage = Convert.FromBase64String(response);
 
-                    AddToDatabase(rb, parsedResponse);
+                                var signedCms = new SignedCms();
+                                signedCms.Decode(encodedMessage);
+                                signedCms.CheckSignature(true);
+
+                                var decodedMessage = Encoding.UTF8.GetString(signedCms.ContentInfo.Content);
+                                var parsedResponse = JsonConvert.DeserializeObject<DGCGRevocationBatchRespondDto>(decodedMessage);
+
+                                AddToDatabase(rb, parsedResponse);
 
 
-                }
-                catch (Exception e) { }
+                            }
+                            catch (Exception e) { }
+                            break;
+                        }
             }
 
             OrganizeBatches();

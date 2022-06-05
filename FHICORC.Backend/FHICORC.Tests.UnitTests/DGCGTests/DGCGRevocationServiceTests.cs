@@ -67,8 +67,5 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
             Assert.That(revocationBatch.Kid.Equals(batch.Kid));
             Assert.IsFalse(revocationBatch.Upload);
         }
-
-
-
     }
 }
