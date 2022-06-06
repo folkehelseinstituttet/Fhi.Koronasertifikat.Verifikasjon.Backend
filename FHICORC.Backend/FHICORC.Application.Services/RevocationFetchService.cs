@@ -36,15 +36,7 @@ namespace FHICORC.Application.Services
             {
                 var superBatchList = _coronapassContext.RevocationSuperFilter
                     .Where(s => s.Modified >= dateTime)
-                    .Select(x => new SuperBatch()
-                    {
-                        Id = x.Id,
-                        CountryISO3166 = x.SuperCountry,
-                        BucketType = x.Bucket,
-                        BloomFilter = x.SuperFilter,
-                        HashType = (HashTypeEnum)x.HashType,
-                        ExpirationDate = x.SuperExpires
-                    }
+                    .Select(x => new SuperBatch(x.Id, x.SuperCountry, x.Bucket, x.SuperFilter, (HashTypeEnum)x.HashType, x.SuperExpires)
                     ).ToList();
 
                 if (!superBatchList.Any())
