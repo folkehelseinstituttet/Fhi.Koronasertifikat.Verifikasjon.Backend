@@ -151,7 +151,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
             {
                 if (su.SuperCountry == batch.Country && su.HashType == batch.HashType.ParseHashTypeToEnum()) {
                     if (su.SuperExpires >= batch.Expires && batch.Expires >= su.SuperExpires.AddDays(-_bloomBucketOptions.ExpieryDateLeewayInDays)) {
-                        foreach (var bucket in _bloomBucketService.GetBloomFilterBucket().Buckets) {
+                        foreach (var bucket in _bloomBucketService.GetBloomFilterBucket()) {
                             if (su.BatchCount + currenBatchCount <= bucket.MaxValue)
                             {
                                 su.BatchCount += currenBatchCount;

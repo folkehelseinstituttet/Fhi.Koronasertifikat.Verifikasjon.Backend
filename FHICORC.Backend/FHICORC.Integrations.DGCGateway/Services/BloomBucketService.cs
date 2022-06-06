@@ -13,7 +13,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
     {
         private readonly ILogger<BloomBucketService> _logger;
         private readonly BloomBucketOptions _bloomBucketOptions;
-        private readonly BloomFilterBuckets bloomFilterBuckets;
+        private readonly List<BucketItem> bloomFilterBuckets;
 
         public BloomBucketService(ILogger<BloomBucketService> logger, BloomBucketOptions bloomBucketOptions)
         {
@@ -24,7 +24,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
         }
 
 
-        public BloomFilterBuckets CalculateBloomFilterBuckets() {
+        public List<BucketItem> CalculateBloomFilterBuckets() {
 
             //var _l = new List<int>() { 5, 10, 100, 250, 500, 1000 };
             var bloomFilterBucketsList = new List<BucketItem>();
@@ -35,32 +35,26 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     * Math.Pow(i, _bloomBucketOptions.Stepness) + _bloomBucketOptions.MinValue);
 
                 var bloomStats = BloomFilterUtils.CalcOptimalMK(bucketValue, _bloomBucketOptions.FalsePositiveProbability);
-                var bucketItem = new BucketItem()
-                {
-                    BucketId = i,
-                    MaxValue = bucketValue,
-                    BitVectorLength_m = bloomStats.m,
-                    NumberOfHashFunctions_k = bloomStats.k,
-                };
+                var bucketItem = new BucketItem(i, bucketValue, bloomStats.m, bloomStats.k);
                 bloomFilterBucketsList.Add(bucketItem);
 
             }
 
-            return new BloomFilterBuckets() { Buckets = bloomFilterBucketsList };
+            return bloomFilterBucketsList;
 
         }
 
 
-        public BloomFilterBuckets GetBloomFilterBucket() {
+        public List<BucketItem> GetBloomFilterBucket() {
             return bloomFilterBuckets;
         }
 
         public BucketItem GetBucketItemByBatchCount(int superBatchCount) {
-            return bloomFilterBuckets.Buckets.Where(b => superBatchCount <= b.MaxValue ).FirstOrDefault();
+            return bloomFilterBuckets.Where(b => superBatchCount <= b.MaxValue ).FirstOrDefault();
         }
 
         public int GetBucketIdx(int superBatchCount) { 
-            return bloomFilterBuckets.Buckets.Where(b => superBatchCount <= b.MaxValue).FirstOrDefault().BucketId;
+            return bloomFilterBuckets.Where(b => superBatchCount <= b.MaxValue).FirstOrDefault().BucketId;
 
         }
     }

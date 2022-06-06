@@ -11,7 +11,7 @@ namespace FHICORC.Tests.ComponentTests.DGCGComponentTests
     public static class MobileUtil
     {
 
-        public static bool ContainsCertificateFilterMobile(string country, string hashString, CoronapassContext _coronapassContext, BloomFilterBuckets bloomFilterBuckets)
+        public static bool ContainsCertificateFilterMobile(string country, string hashString, CoronapassContext _coronapassContext, List<BucketItem> bloomFilterBuckets)
         {
             var allHashFunctionIndicies_k = CalculateAllIndicies(hashString, bloomFilterBuckets);
             return CheckFilterByCountry(country, _coronapassContext, allHashFunctionIndicies_k);
@@ -56,10 +56,10 @@ namespace FHICORC.Tests.ComponentTests.DGCGComponentTests
         }
 
 
-        public static List<int[]> CalculateAllIndicies(string hashString, BloomFilterBuckets bloomFilterBuckets)
+        public static List<int[]> CalculateAllIndicies(string hashString, List<BucketItem> bloomFilterBuckets)
         {
             var allHashFunctionIndicies_k = new List<int[]>();
-            foreach (var bucketItem in bloomFilterBuckets.Buckets)
+            foreach (var bucketItem in bloomFilterBuckets)
             {
                 var hashedIndicies = HashData(Encoding.UTF8.GetBytes(hashString), bucketItem.BitVectorLength_m, bucketItem.NumberOfHashFunctions_k);
                 allHashFunctionIndicies_k.Add(hashedIndicies);
