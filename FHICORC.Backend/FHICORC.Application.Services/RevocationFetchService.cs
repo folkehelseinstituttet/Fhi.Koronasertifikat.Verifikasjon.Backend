@@ -1,9 +1,6 @@
 ﻿using FHICORC.Application.Models;
-using FHICORC.Application.Models.Options;
-using FHICORC.Domain.Models;
 using FHICORC.Infrastructure.Database.Context;
 using FHICORC.Integrations.DGCGateway.Util;
-using FHICORC.Application.Models;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
 using System.Collections.Generic;
 using FHICORC.Core.Services.Enum;
@@ -36,13 +33,12 @@ namespace FHICORC.Application.Services
                     .Where(s => s.Modified >= dateTime)
                     .Select(x => new SuperBatch(x.Id, x.SuperCountry, x.Bucket, x.SuperFilter, (HashTypeEnum)x.HashType, x.SuperExpires));
 
-                if (!superBatchList.Any())
-                    return null;
-
                 return superBatchList;
             }
             catch (Exception e)
             {
+
+                _logger.LogError("Unable to fetch SuperBatches for last modified date {dateTime}", dateTime);
                 return null;
             }
         }

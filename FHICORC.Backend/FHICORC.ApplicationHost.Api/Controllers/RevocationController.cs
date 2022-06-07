@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FHICORC.ApplicationHost.Api.Controllers
 {
@@ -31,7 +32,8 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         [HttpGet("download")]
         public IActionResult DownloadRevocationSuperBatches([FromHeader] DateTime lastDownloaded) {
             var superBatch = _revocationFetchService.FetchSuperBatches(lastDownloaded);
-            if (superBatch == null) {
+
+            if (superBatch is null || !superBatch.Any()) {
                 return NoContent(); 
             }
 
