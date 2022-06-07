@@ -13,7 +13,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
     {
         private readonly ILogger<BloomBucketService> _logger;
         private readonly BloomBucketOptions _bloomBucketOptions;
-        private readonly List<BucketItem> bloomFilterBuckets;
+        private readonly IEnumerable<BucketItem> bloomFilterBuckets;
 
         public BloomBucketService(ILogger<BloomBucketService> logger, BloomBucketOptions bloomBucketOptions)
         {
@@ -24,7 +24,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
         }
 
 
-        public List<BucketItem> CalculateBloomFilterBuckets() {
+        public IEnumerable<BucketItem> CalculateBloomFilterBuckets() {
 
             //var _l = new List<int>() { 5, 10, 100, 250, 500, 1000 };
             var bloomFilterBucketsList = new List<BucketItem>();
@@ -45,9 +45,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
         }
 
 
-        public List<BucketItem> GetBloomFilterBucket() {
-            return bloomFilterBuckets;
-        }
+        public IEnumerable<BucketItem> GetBloomFilterBucket() => bloomFilterBuckets;
 
         public BucketItem GetBucketItemByBatchCount(int superBatchCount) {
             return bloomFilterBuckets.Where(b => superBatchCount <= b.MaxValue ).FirstOrDefault();

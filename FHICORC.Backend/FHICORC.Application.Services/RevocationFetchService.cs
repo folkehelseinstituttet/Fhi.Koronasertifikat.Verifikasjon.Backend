@@ -26,18 +26,15 @@ namespace FHICORC.Application.Services
             _bloomBucketService = bloomBucketService;
         }
 
-        public bool ContainsCertificate(string dcc, string country) {
-            return BloomFilterUtils.IsHashRevocated(dcc, country, _coronapassContext, _bloomBucketService.GetBloomFilterBucket());
-        }
+        public bool ContainsCertificate(string dcc, string country) => BloomFilterUtils.IsHashRevocated(dcc, country, _coronapassContext, _bloomBucketService.GetBloomFilterBucket());
 
-        public List<SuperBatch> FetchSuperBatches(DateTime dateTime)
+        public IEnumerable<SuperBatch> FetchSuperBatches(DateTime dateTime)
         {
             try
             {
                 var superBatchList = _coronapassContext.RevocationSuperFilter
                     .Where(s => s.Modified >= dateTime)
-                    .Select(x => new SuperBatch(x.Id, x.SuperCountry, x.Bucket, x.SuperFilter, (HashTypeEnum)x.HashType, x.SuperExpires)
-                    ).ToList();
+                    .Select(x => new SuperBatch(x.Id, x.SuperCountry, x.Bucket, x.SuperFilter, (HashTypeEnum)x.HashType, x.SuperExpires));
 
                 if (!superBatchList.Any())
                     return null;
@@ -50,8 +47,6 @@ namespace FHICORC.Application.Services
             }
         }
 
-        public List<BucketItem> FetchBucketInfo() {
-            return _bloomBucketService.GetBloomFilterBucket();
-        }
+        public IEnumerable<BucketItem> FetchBucketInfo() => _bloomBucketService.GetBloomFilterBucket();
     }
 }

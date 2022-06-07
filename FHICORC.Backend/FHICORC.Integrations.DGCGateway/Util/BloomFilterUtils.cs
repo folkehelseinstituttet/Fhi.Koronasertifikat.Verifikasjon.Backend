@@ -13,7 +13,7 @@ namespace FHICORC.Integrations.DGCGateway.Util
     public static class BloomFilterUtils
     {
 
-        public static bool IsHashRevocated(string hashString, string country, CoronapassContext _coronapassContext, List<BucketItem> bloomFilterBuckets)
+        public static bool IsHashRevocated(string hashString, string country, CoronapassContext _coronapassContext, IEnumerable<BucketItem> bloomFilterBuckets)
         {
             var allHashFunctionIndicies_k = CalculateAllHashIndiciesByBucket(hashString, bloomFilterBuckets);
             return SuperFilterContains(allHashFunctionIndicies_k, country, _coronapassContext);
@@ -51,7 +51,7 @@ namespace FHICORC.Integrations.DGCGateway.Util
         }
 
 
-        public static List<int[]> CalculateAllHashIndiciesByBucket(string hashString, List<BucketItem> bloomFilterBuckets)
+        public static List<int[]> CalculateAllHashIndiciesByBucket(string hashString, IEnumerable<BucketItem> bloomFilterBuckets)
         {
             var allHashFunctionIndicies_k = new List<int[]>();
             foreach (var bucketItem in bloomFilterBuckets)
