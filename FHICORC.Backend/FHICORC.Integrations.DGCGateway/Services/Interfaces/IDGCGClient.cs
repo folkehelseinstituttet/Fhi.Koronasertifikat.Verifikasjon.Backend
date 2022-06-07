@@ -6,11 +6,8 @@ namespace FHICORC.Integrations.DGCGateway.Services.Interfaces
 {
     public interface IDgcgClient
     {
-        public Task<DgcgTrustListResponseDto> FetchTrustListAsync(string certificateType);
-        public Task<DgcgRevocationBatchListRespondDto> FetchRevocationBatchListAsync(DateTime date);
-        public Task<DGCGRevocationBatchRespondDto> FetchRevocationBatchAsync(string batchId);
-
-
-
+        Task<DgcgTrustListResponseDto> FetchTrustListAsync(string certificateType);
+        Task<DgcgRevocationBatchListRespondDto> FetchRevocationBatchListAsync(DateTime date);
+        Task<DGCGRevocationBatchRespondDto> FetchRevocationBatchAsync(string batchId);
     }
 }
