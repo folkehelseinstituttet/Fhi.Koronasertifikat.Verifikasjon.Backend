@@ -10,6 +10,7 @@ namespace FHICORC.Application.Models.Options
         public int MinValue { get; set; }
         [Required]
         public int MaxValue { get; set; }
+        [Required]
         public double Stepness { get; set; }
         [Required]
         public double FalsePositiveProbability { get; set; }

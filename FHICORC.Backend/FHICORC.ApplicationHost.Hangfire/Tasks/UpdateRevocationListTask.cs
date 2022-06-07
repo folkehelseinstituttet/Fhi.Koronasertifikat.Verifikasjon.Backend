@@ -24,7 +24,6 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         private readonly IDgcgService _dgcgService;
         private readonly IMetricLogService _metricLogService;
         private readonly IDGCGRevocationService _revocationService;
-        //private readonly ISeedDbService _seedDbService;
         private readonly HangfireContext _hangfireContext;
 
         public UpdateRevocationListTask(ILogger<UpdateCertificateRepositoryTask> logger, CronOptions cronOptions,
@@ -39,9 +38,6 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
             _metricLogService = metricLogService;
             _revocationService = revocationService;
             _hangfireContext = hangfireContext;
-
-            //_seedDbService = seedDbService;
-
         }
 
         public void SetupTask()
