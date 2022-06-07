@@ -5,10 +5,10 @@ namespace FHICORC.Integrations.DGCGateway.Services.Interfaces
 {
     public interface IBloomBucketService
     {
-        public IEnumerable<BucketItem> CalculateBloomFilterBuckets();
-        public IEnumerable<BucketItem> GetBloomFilterBucket();
-        public BucketItem GetBucketItemByBatchCount(int superBatchCount);
-        public int GetBucketIdx(int superBatchCount);
+        IEnumerable<BucketItem> CalculateBloomFilterBuckets();
+        IEnumerable<BucketItem> GetBloomFilterBucket();
+        BucketItem GetBucketItemByBatchCount(int superBatchCount);
+        int GetBucketIdx(int superBatchCount);
     }
 
 }
