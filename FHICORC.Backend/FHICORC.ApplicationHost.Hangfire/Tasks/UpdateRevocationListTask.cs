@@ -62,7 +62,7 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
            
             try
             {
-                var modifiedSince = lastSucceedetDate.GetValueOrDefault(new DateTime(2021, 6, 1, 0, 0, 0, DateTimeKind.Utc)).ToString();
+                var modifiedSince = lastSucceedetDate.GetValueOrDefault(new DateTime(2021, 6, 1, 0, 0, 0, DateTimeKind.Utc));
                 revocationBatchList = await _dgcgService.GetRevocationBatchListAsync(modifiedSince);
                 _metricLogService.AddMetric("RetrieveRevocationBatchList_Success", true);
             }
