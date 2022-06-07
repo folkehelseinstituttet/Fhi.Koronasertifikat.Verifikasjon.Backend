@@ -6,8 +6,8 @@ namespace FHICORC.Application.Services
 {
     public interface IRevocationFetchService
     {
-        public bool ContainsCertificate(string dcc, string country);
-        public IEnumerable<SuperBatch> FetchSuperBatches(DateTime dateTime);
-        public IEnumerable<BucketItem> FetchBucketInfo();
+        bool ContainsCertificate(string dcc, string country);
+        IEnumerable<SuperBatch> FetchSuperBatches(DateTime dateTime);
+        IEnumerable<BucketItem> FetchBucketInfo();
     }
 }
