@@ -47,7 +47,8 @@ namespace FHICORC.ApplicationHost.Hangfire
                 .AddValidatedOptions<ServiceEndpoints>(Configuration)
                 .AddValidatedOptions<FeatureToggles>(Configuration)
                 .AddValidatedOptions<HangfireHealthOptions>(Configuration)
-                .AddValidatedOptions<MailOptions>(Configuration);
+                .AddValidatedOptions<MailOptions>(Configuration)
+                .AddValidatedOptions<BloomBucketOptions>(Configuration);
 
             services
                 .AddControllers()

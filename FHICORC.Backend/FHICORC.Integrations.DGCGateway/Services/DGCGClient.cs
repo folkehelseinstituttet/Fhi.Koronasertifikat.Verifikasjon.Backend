@@ -77,7 +77,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
         }
 
 
-        public async Task<DgcgRevocationBatchListRespondDto> FetchRevocationBatchListAsync(string date)
+        public async Task<DgcgRevocationBatchListRespondDto> FetchRevocationBatchListAsync(DateTime date)
         {
             var client = new RestClient(_serviceEndpoints.DGCGRevocationEndpoint);
             await AddTls(client);
@@ -93,7 +93,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
             {
                 var methodInfo = request.Headers.GetType().GetMethod("AddWithoutValidate",
                   BindingFlags.Instance | BindingFlags.NonPublic);
-                methodInfo?.Invoke(request.Headers, new[] { "If-Modified-Since", date });
+                methodInfo?.Invoke(request.Headers, new[] { "If-Modified-Since", date.ToString() });
             });
 
 
@@ -136,6 +136,12 @@ namespace FHICORC.Integrations.DGCGateway.Services
             DGCGRevocationBatchRespondDto parsedResponse;
             try
             {
+
+                //using (StreamWriter writer = System.IO.File.AppendText(batchId + ".txt"))
+                //{
+                //    writer.WriteLine(response.Content);
+                //}
+
                 var encodedMessage = Convert.FromBase64String(response.Content);
 
                 var signedCms = new SignedCms();
