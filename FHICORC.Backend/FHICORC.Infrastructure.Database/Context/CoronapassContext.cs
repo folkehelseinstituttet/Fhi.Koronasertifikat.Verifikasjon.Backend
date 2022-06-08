@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using FHICORC.Domain.Models;
+using FHICORC.Domain.Models.Revocation;
 
 namespace FHICORC.Infrastructure.Database.Context
 {
@@ -16,6 +17,7 @@ namespace FHICORC.Infrastructure.Database.Context
         public DbSet<RevocationBatch> RevocationBatch { get; set; }
         public DbSet<RevocationHash> RevocationHash { get; set; }
         public DbSet<RevocationSuperFilter> RevocationSuperFilter { get; set; }
+        public DbSet<RevocationDownloadJobSucceeded> RevocationDownloadJobSucceeded { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
