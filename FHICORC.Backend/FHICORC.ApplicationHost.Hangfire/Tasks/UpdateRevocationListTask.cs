@@ -14,6 +14,7 @@ using System.Linq;
 using FHICORC.Infrastructure.Database.Context;
 using FHICORC.Domain.Models.Revocation;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace FHICORC.ApplicationHost.Hangfire.Tasks
 {
@@ -57,7 +58,7 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         public async Task UpdateRevocationList()
         {
             var failure = false;
-            DgcgRevocationBatchListRespondDto revocationBatchList = new DgcgRevocationBatchListRespondDto();
+            DgcgRevocationBatchListRespondDto revocationBatchList = new DgcgRevocationBatchListRespondDto(false, new List<DgcgRevocationListBatchItem>());
            
             try
             {

@@ -7,6 +7,11 @@ namespace FHICORC.Application.Models
     {
         public bool More { get; set; }
         public List<DgcgRevocationListBatchItem> Batches { get; set; }
+
+        public DgcgRevocationBatchListRespondDto(bool more, List<DgcgRevocationListBatchItem> batches) { 
+            More = more;
+            Batches = batches;
+        }
     }
 
     public class DgcgRevocationListBatchItem

@@ -20,6 +20,7 @@ using Org.BouncyCastle.X509;
 using System.IO;
 using System.Security.Cryptography.Pkcs;
 using Org.BouncyCastle.Cms;
+using System.Collections.Generic;
 
 namespace FHICORC.Integrations.DGCGateway.Services
 {
@@ -82,36 +83,46 @@ namespace FHICORC.Integrations.DGCGateway.Services
             var client = new RestClient(_serviceEndpoints.DGCGRevocationEndpoint);
             await AddTls(client);
 
-            var restRequest = new RestRequest(Method.GET);
-            if (_certificateOptions.DisableDGCGServerCertValidation)
+            var parsedResponse = new DgcgRevocationBatchListRespondDto(false, new List<DgcgRevocationListBatchItem>());
+            var more = false;
+            
+
+            do
             {
-                _logger.LogWarning("DGCG server certificate validation is disabled.");
-                client.RemoteCertificateValidationCallback += (sender, cert, chain, error) => { return true; };
-            }
+                var restRequest = new RestRequest(Method.GET);
+                if (_certificateOptions.DisableDGCGServerCertValidation)
+                {
+                    _logger.LogWarning("DGCG server certificate validation is disabled.");
+                    client.RemoteCertificateValidationCallback += (sender, cert, chain, error) => { return true; };
+                }
 
-            client.ConfigureWebRequest(request =>
-            {
-                var methodInfo = request.Headers.GetType().GetMethod("AddWithoutValidate",
-                  BindingFlags.Instance | BindingFlags.NonPublic);
-                methodInfo?.Invoke(request.Headers, new[] { "If-Modified-Since", date.ToString() });
-            });
+                client.ConfigureWebRequest(request =>
+                {
+                    var methodInfo = request.Headers.GetType().GetMethod("AddWithoutValidate",
+                      BindingFlags.Instance | BindingFlags.NonPublic);
+                    methodInfo?.Invoke(request.Headers, new[] { "If-Modified-Since", date.ToString() });
+                });
 
 
-            var response = await client.ExecuteGetAsync(restRequest);
+                var response = await client.ExecuteGetAsync(restRequest);
 
-            DgcgRevocationBatchListRespondDto parsedResponse;
-            try
-            {
-                parsedResponse = JsonConvert.DeserializeObject<DgcgRevocationBatchListRespondDto>(response.Content);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError("Response parse failed (status code {StatusCode}): {Content} - {Exception}", response.StatusCode, response.Content, e);
-                throw;
-            }
+          
+                try
+                {
+                    var _tmpParsedResponse = JsonConvert.DeserializeObject<DgcgRevocationBatchListRespondDto>(response.Content);
+                    parsedResponse.Batches.AddRange(_tmpParsedResponse.Batches);
+                    more = _tmpParsedResponse.More;
+                    date = _tmpParsedResponse.Batches[-1].Date;
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError("Response parse failed (status code {StatusCode}): {Content} - {Exception}", response.StatusCode, response.Content, e);
+                    throw;
+                }
 
-            _logger.LogDebug("DGCG Response {StatusCode} {Content}", response.StatusCode, response.Content);
-            _logger.LogDebug("DGCG ParsedResponse {ItemCount}", parsedResponse == null ? "empty" : parsedResponse.Batches.Count);
+                _logger.LogDebug("DGCG Response {StatusCode} {Content}", response.StatusCode, response.Content);
+                _logger.LogDebug("DGCG ParsedResponse {ItemCount}", parsedResponse == null ? "empty" : parsedResponse.Batches.Count);
+            } while (more);
 
             return parsedResponse;
         }
@@ -136,12 +147,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
             DGCGRevocationBatchRespondDto parsedResponse;
             try
             {
-
-                //using (StreamWriter writer = System.IO.File.AppendText(batchId + ".txt"))
-                //{
-                //    writer.WriteLine(response.Content);
-                //}
-
                 var encodedMessage = Convert.FromBase64String(response.Content);
 
                 var signedCms = new SignedCms();
