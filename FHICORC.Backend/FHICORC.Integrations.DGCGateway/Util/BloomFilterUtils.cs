@@ -1,12 +1,70 @@
 ﻿using System.Text;
 using System.Collections;
-using System.Security.Cryptography;
 using System;
+using BloomFilter;
+using System.Collections.Generic;
+using FHICORC.Infrastructure.Database.Context;
+using FHICORC.Application.Models;
+using System.Linq;
+using FHICORC.Core.Services.Enum;
 
 namespace FHICORC.Integrations.DGCGateway.Util
 {
     public static class BloomFilterUtils
     {
+
+        public static bool IsHashRevocated(string hashString, string country, CoronapassContext _coronapassContext, IEnumerable<BucketItem> bloomFilterBuckets)
+        {
+            var allHashFunctionIndicies_k = CalculateAllHashIndiciesByBucket(hashString, bloomFilterBuckets);
+            return SuperFilterContains(allHashFunctionIndicies_k, country, _coronapassContext);
+        }
+
+
+        public static bool SuperFilterContains(List<int[]> allHashFunctionIndicies_k, string country, CoronapassContext _coronapassContext)
+        {
+
+            var superFilter = _coronapassContext.RevocationSuperFilter
+                .Where(s => s.SuperCountry.Equals(country));
+
+            foreach (var s in superFilter)
+            {
+                var bitVector = new BitArray(s.SuperFilter);
+                var contains = bitVector.BitVectorContains(allHashFunctionIndicies_k[s.Bucket]);
+
+                if (contains)
+                    return true;
+            }
+
+            return false;
+        }
+
+
+
+        public static bool BitVectorContains(this BitArray filter, int[] indicies)
+        {
+            foreach (int i in indicies)
+            {
+                if (!filter[i])
+                    return false;
+            }
+            return true;
+        }
+
+
+        public static List<int[]> CalculateAllHashIndiciesByBucket(string hashString, IEnumerable<BucketItem> bloomFilterBuckets)
+        {
+            var allHashFunctionIndicies_k = new List<int[]>();
+            foreach (var bucketItem in bloomFilterBuckets)
+            {
+                var hashedIndicies = HashData(Encoding.UTF8.GetBytes(hashString), bucketItem.BitVectorLength_m, bucketItem.NumberOfHashFunctions_k);
+                allHashFunctionIndicies_k.Add(hashedIndicies);
+            };
+
+            return allHashFunctionIndicies_k;
+        }
+
+
+
         public static BitArray AddToFilter(this BitArray filter, string str, int m, int k)
         {
             var hash = HashData(Encoding.UTF8.GetBytes(str), m, k);
@@ -18,128 +76,12 @@ namespace FHICORC.Integrations.DGCGateway.Util
 
         }
 
-        public static bool Contains(this BitArray filter, string str, int m, int k)
-        {
-            var hash = HashData(Encoding.UTF8.GetBytes(str), m, k);
 
-            foreach (int i in hash) {
-                if (!filter[i])
-                    return false;
-            }
-            return true;
-        }
-
-        public static bool Contains(this BitArray filter, int[] hashData)
-        {
-            foreach (int i in hashData)
-            {
-                var value = filter[i];
-                if (!value)
-                    return false;
-            }
-            return true;
-        }
 
         public static int[] HashData(byte[] data, int m, int k)
         {
-
-            var hashAlgorithm = SHA256.Create();
-
-            int[] array = new int[k];
-            int num = 0;
-            byte[] array2 = new byte[0];
-            byte[] outputBuffer = new byte[hashAlgorithm.HashSize / 8];
-
-            while (num < k)
-            {
-                hashAlgorithm.TransformBlock(array2, 0, array2.Length, outputBuffer, 0);
-                array2 = hashAlgorithm.ComputeHash(data, 0, data.Length);
-                BitArray bit = new BitArray(array2);
-                int num2 = (int)(32 - NumberOfLeadingZeros((uint)m));
-                int num3 = array2.Length * 8;
-                for (int i = 0; i < num3 / num2; i++)
-                {
-                    if (num >= k)
-                    {
-                        break;
-                    }
-
-                    int from = i * num2;
-                    int to = (i + 1) * num2;
-                    int num4 = BitToIntOne(bit, from, to);
-                    if (num4 < m)
-                    {
-                        array[num] = num4;
-                        num++;
-                    }
-                }
-            }
-
-            return array;
-
-        }
-
-        public static uint NumberOfLeadingZeros(uint i)
-        {
-            if (i == 0)
-            {
-                return 32u;
-            }
-
-            uint num = 1u;
-            if (i >> 16 == 0)
-            {
-                num += 16;
-                i <<= 16;
-            }
-
-            if (i >> 24 == 0)
-            {
-                num += 8;
-                i <<= 8;
-            }
-
-            if (i >> 28 == 0)
-            {
-                num += 4;
-                i <<= 4;
-            }
-
-            if (i >> 30 == 0)
-            {
-                num += 2;
-                i <<= 2;
-            }
-
-            return num - (i >> 31);
-        }
-
-        public static int BitToIntOne(BitArray bit, int from, int to)
-        {
-            int num = to - from;
-            int count = bit.Count;
-            int num2 = 0;
-            for (int i = 0; i < num && i < count && i < 32; i++)
-            {
-                num2 = (bit[i + from] ? (num2 + (1 << i)) : num2);
-            }
-
-            return num2;
-        }
-
-        public static BitArray Reverse(this BitArray array)
-        {
-            int length = array.Length;
-            int mid = (length / 2);
-
-            for (int i = 0; i < mid; i++)
-            {
-                bool bit = array[i];
-                array[i] = array[length - i - 1];
-                array[length - i - 1] = bit;
-            }
-
-            return new BitArray(array);
+            var hashFunction = HashFunction.Functions[HashMethod.Murmur3KirschMitzenmacher];
+            return hashFunction.ComputeHash(data, m, k);
         }
 
         public static byte[] BitToByteArray(BitArray bitArray) {
@@ -163,9 +105,8 @@ namespace FHICORC.Integrations.DGCGateway.Util
                 throw new ArgumentOutOfRangeException("errorRate", errorRate, $"errorRate must be between 0 and 1, exclusive. Was {errorRate}");
             }
 
-
-            var capacity = BestM(expectedElements, errorRate);
-            var hashes = BestK(expectedElements, capacity);
+            var capacity = BloomFilter.Filter.BestM(expectedElements, errorRate);
+            var hashes = BloomFilter.Filter.BestK(expectedElements, capacity);
 
 
             return new BloomStats()
@@ -177,81 +118,23 @@ namespace FHICORC.Integrations.DGCGateway.Util
             };
         }
 
-        public static BloomStats CalcOptimalNP(int m, int k)
+        public static string ToTitleCase(this string str)
         {
-            if (m < 1)
-            {
-                throw new ArgumentOutOfRangeException("capacity", m, "capacity must be > 0");
-            }
-
-            if (k < 1)
-            {
-                throw new ArgumentOutOfRangeException("hashes", k, "hashes must be > 0");
-            }
-
-            var expectedElements = BestN(k, m);
-            var errorRate = BestP(k, m, expectedElements);
-
-            return new BloomStats()
-            {
-                ExpectedElements = expectedElements,
-                ErrorRate = errorRate,
-                m = m,
-                k = k
-            };
+            if (str.Length == 0)
+                return str;
+            else if (str.Length == 1)
+                return char.ToUpper(str[0]) + "";
+            else
+                return char.ToUpper(str[0]) + str[1..].ToLower();
         }
 
-        /// <summary>
-        /// Calculates the optimal size of the bloom filter in bits given expectedElements
-        /// (expected number of elements in bloom filter) and falsePositiveProbability (tolerable
-        /// false positive rate).
-        /// </summary>
-        /// <param name="n">Expected number of elements inserted in the bloom filter</param>
-        /// <param name="p">Tolerable false positive rate.</param>
-        /// <returns>the optimal size of the bloom filter in bits</returns>
-        public static int BestM(long n, double p)
-        {
-            return (int)Math.Ceiling(-1.0 * ((double)n * Math.Log(p)) / Math.Pow(Math.Log(2.0), 2.0));
+        public static int ParseHashTypeToEnum(this string hashType) {
+            return (int)(Enum.TryParse(hashType, true, out HashTypeEnum myHashType) ? myHashType : 0);
         }
 
 
-        /// <summary>
-        /// Calculates the optimal hashes(number of hash function) given expectedElements
-        /// (expected number of elements in bloom filter) and size(size of bloom filter
-        /// in bits).
-        /// </summary>
-        /// <param name="n">Expected number of elements inserted in the bloom filter</param>
-        /// <param name="m">The size of the bloom filter in bits.</param>
-        /// <returns>the optimal amount of hash functions hashes</returns>
-        public static int BestK(long n, long m)
-        {
-            return (int)Math.Ceiling(Math.Log(2.0) * (double)m / (double)n);
-        }
-
-        /// <summary>
-        /// Calculates the amount of elements a Bloom filter for which the given configuration
-        /// of size and hashes is optimal.
-        /// </summary>
-        /// <param name="k">number of hashes</param>
-        /// <param name="m">The size of the bloom filter in bits.</param>
-        /// <returns>mount of elements a Bloom filter for which the given configuration of size and 
-        /// hashes is optimal</returns>
-        public static int BestN(long k, long m)
-        {
-            return (int)Math.Ceiling(Math.Log(2.0) * (double)m / (double)k);
-        }
-
-        /// <summary>
-        /// Calculates the best-case (uniform hash function) false positive probability.
-        /// </summary>
-        /// <param name="k">number of hashes</param>
-        /// <param name="m">The size of the bloom filter in bits.</param>
-        /// <returns>The calculated false positive probability</returns>
-        public static double BestP(long k, long m, double insertedElements)
-        {
-            return Math.Pow(1.0 - Math.Exp((double)(-k) * insertedElements / (double)m), k);
-        }
     }
+
 
     public class BloomStats
     {
