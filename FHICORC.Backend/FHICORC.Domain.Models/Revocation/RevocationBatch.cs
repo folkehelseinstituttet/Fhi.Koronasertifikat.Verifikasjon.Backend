@@ -14,7 +14,7 @@ namespace FHICORC.Domain.Models
         public string Country { get; set; }
         public bool Deleted { get; set; }
         public string Kid { get; set; }
-        public string HashType { get; set; }
+        public int HashType { get; set; }
         public bool Upload { get; set; }
 
         [ForeignKey(nameof(RevocationSuperFilter))]
@@ -22,11 +22,10 @@ namespace FHICORC.Domain.Models
 
      
         public virtual RevocationSuperFilter RevocationSuperFilter { get; set; }
-        public virtual RevocationFilter RevocationFilter { get; set; }
 
         public virtual ICollection<RevocationHash> RevocationHashes { get; set; }
 
-        public RevocationBatch(string batchId, DateTime expires, string country, bool deleted, string hashType, bool upload)
+        public RevocationBatch(string batchId, DateTime expires, string country, bool deleted, int hashType, bool upload)
         {
             this.BatchId = batchId;
             this.Expires = expires;
@@ -36,7 +35,7 @@ namespace FHICORC.Domain.Models
             this.Upload = upload;
         }
 
-        public RevocationBatch(string batchId, DateTime expires, DateTime date, string country, bool deleted, string kid, string hashType, bool upload)
+        public RevocationBatch(string batchId, DateTime expires, DateTime date, string country, bool deleted, string kid, int hashType, bool upload)
         {
             this.BatchId = batchId;
             this.Expires = expires;

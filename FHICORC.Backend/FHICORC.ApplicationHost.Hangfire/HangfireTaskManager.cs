@@ -1,6 +1,7 @@
 using Hangfire;
 using Hangfire.Storage;
 using FHICORC.ApplicationHost.Hangfire.Interfaces;
+using System.Linq;
 
 namespace FHICORC.ApplicationHost.Hangfire
 {

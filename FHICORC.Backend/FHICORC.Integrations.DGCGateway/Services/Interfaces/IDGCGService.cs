@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using FHICORC.Application.Models;
 
 namespace FHICORC.Integrations.DGCGateway.Services.Interfaces
@@ -6,7 +7,7 @@ namespace FHICORC.Integrations.DGCGateway.Services.Interfaces
     public interface IDgcgService
     {
         public Task<DgcgTrustListResponseDto> GetTrustListAsync(string certificateType = "");
-        public Task<DgcgRevocationBatchListRespondDto> GetRevocationBatchListAsync();
+        public Task<DgcgRevocationBatchListRespondDto> GetRevocationBatchListAsync(DateTime modifiedSince);
         public Task<DGCGRevocationBatchRespondDto> GetRevocationBatchAsync(string batchId);
     }
 }

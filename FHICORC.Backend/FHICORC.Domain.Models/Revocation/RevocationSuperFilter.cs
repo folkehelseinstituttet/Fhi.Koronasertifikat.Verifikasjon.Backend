@@ -11,6 +11,8 @@ namespace FHICORC.Domain.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        public string SuperCountry { get; set; }
+
         public DateTime SuperExpires { get; set; }
 
         [MaxLength(5992)]
@@ -18,7 +20,11 @@ namespace FHICORC.Domain.Models
 
         public int BatchCount { get; set; }
 
+        public int Bucket { get; set; }
+
         public DateTime Modified { get; set; }
+
+        public int HashType { get; set; }
 
 
 
