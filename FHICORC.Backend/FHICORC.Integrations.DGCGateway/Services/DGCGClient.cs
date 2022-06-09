@@ -100,7 +100,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 {
                     var methodInfo = request.Headers.GetType().GetMethod("AddWithoutValidate",
                       BindingFlags.Instance | BindingFlags.NonPublic);
-                    methodInfo?.Invoke(request.Headers, new[] { "If-Modified-Since", date.ToString() });
+                    methodInfo?.Invoke(request.Headers, new[] { "If-Modified-Since", date.ToString("yyyy-MM-ddTHH:mm:ssZ") });
                 });
 
 
@@ -112,11 +112,16 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     var _tmpParsedResponse = JsonConvert.DeserializeObject<DgcgRevocationBatchListRespondDto>(response.Content);
                     parsedResponse.Batches.AddRange(_tmpParsedResponse.Batches);
                     more = _tmpParsedResponse.More;
-                    date = _tmpParsedResponse.Batches[-1].Date;
+                    date = _tmpParsedResponse.Batches.LastOrDefault().Date;
+                }
+                catch (NullReferenceException e)
+                {
+                    _logger.LogInformation("No content in response data", response.StatusCode, response.Content, e);
+                    return parsedResponse;
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError("Response parse failed (status code {StatusCode}): {Content} - {Exception}", response.StatusCode, response.Content, e);
+                    _logger.LogError(" failed (status code {StatusCode}): {Content} - {Exception}", response.StatusCode, response.Content, e);
                     throw;
                 }
 
