@@ -11,6 +11,10 @@ using FHICORC.Application.Models;
 using FHICORC.Integrations.DGCGateway.Services;
 using Hangfire.Storage;
 using System.Linq;
+using FHICORC.Infrastructure.Database.Context;
+using FHICORC.Domain.Models.Revocation;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace FHICORC.ApplicationHost.Hangfire.Tasks
 {
@@ -24,20 +28,20 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         private readonly IDgcgService _dgcgService;
         private readonly IMetricLogService _metricLogService;
         private readonly IDGCGRevocationService _revocationService;
-        private readonly HangfireContext _hangfireContext;
+        private readonly CoronapassContext _coronapassContext;
 
         public UpdateRevocationListTask(ILogger<UpdateCertificateRepositoryTask> logger, CronOptions cronOptions,
             IDgcgService dgcgService,
             IMetricLogService metricLogService,
             IDGCGRevocationService revocationService,
-            HangfireContext hangfireContext)
+            CoronapassContext coronapassContext)
         {
             _logger = logger;
             _cronOptions = cronOptions;
             _dgcgService = dgcgService;
             _metricLogService = metricLogService;
             _revocationService = revocationService;
-            _hangfireContext = hangfireContext;
+            _coronapassContext = coronapassContext;
         }
 
         public void SetupTask()
@@ -54,16 +58,32 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         public async Task UpdateRevocationList()
         {
             var failure = false;
-            DgcgRevocationBatchListRespondDto revocationBatchList = new DgcgRevocationBatchListRespondDto();
-
-            var api = JobStorage.Current.GetMonitoringApi();
-            var succeededJobs = api.SucceededJobs(0, int.MaxValue);
-            var lastSucceedetDate = succeededJobs.FirstOrDefault(s => s.Value.Job.Type.Name == "UpdateRevocationListTask").Value?.SucceededAt;
+            DgcgRevocationBatchListRespondDto revocationBatchList = new DgcgRevocationBatchListRespondDto(false, new List<DgcgRevocationListBatchItem>());
            
             try
             {
-                var modifiedSince = lastSucceedetDate.GetValueOrDefault(new DateTime(2021, 6, 1, 0, 0, 0, DateTimeKind.Utc));
+                var revocationDownloadJobSucceeded = _coronapassContext.RevocationDownloadJobSucceeded.FirstOrDefault();
+
+                DateTime modifiedSince;
+
+                if (revocationDownloadJobSucceeded is null)
+                    modifiedSince = new DateTime(2021, 6, 1, 0, 0, 0, DateTimeKind.Utc);
+                else
+                    modifiedSince = revocationDownloadJobSucceeded.LastDownloadJobSucceeded;
+
+
                 revocationBatchList = await _dgcgService.GetRevocationBatchListAsync(modifiedSince);
+
+                if (revocationDownloadJobSucceeded is null)
+                    _coronapassContext.Add(new RevocationDownloadJobSucceeded(DateTime.UtcNow));
+                else
+                {
+                    revocationDownloadJobSucceeded.LastDownloadJobSucceeded = DateTime.UtcNow;
+                    _coronapassContext.Entry(revocationDownloadJobSucceeded).State = EntityState.Modified;
+                }
+
+                _coronapassContext.SaveChanges();
+                
                 _metricLogService.AddMetric("RetrieveRevocationBatchList_Success", true);
             }
             catch (GeneralDgcgFaultException e)
