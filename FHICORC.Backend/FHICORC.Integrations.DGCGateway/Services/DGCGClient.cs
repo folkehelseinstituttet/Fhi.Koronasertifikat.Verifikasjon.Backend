@@ -106,6 +106,10 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
                 var response = await client.ExecuteGetAsync(restRequest);
 
+                if (response.StatusCode == HttpStatusCode.NoContent) {
+                    _logger.LogInformation("DCCG returned {StatusCode}", response.StatusCode);
+                    return parsedResponse;
+                }
           
                 try
                 {
@@ -113,11 +117,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
                     parsedResponse.Batches.AddRange(_tmpParsedResponse.Batches);
                     more = _tmpParsedResponse.More;
                     date = _tmpParsedResponse.Batches.LastOrDefault().Date;
-                }
-                catch (NullReferenceException e)
-                {
-                    _logger.LogInformation("No content in response data", response.StatusCode, response.Content, e);
-                    return parsedResponse;
                 }
                 catch (Exception e)
                 {

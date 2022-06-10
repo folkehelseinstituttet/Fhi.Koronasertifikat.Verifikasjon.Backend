@@ -192,14 +192,9 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 var batchesToDelete = _coronapassContext.RevocationBatch
                     .Where(b => !b.Deleted && b.Expires <= DateTime.UtcNow);
 
-                var superBatchIdsToRecalculate = new HashSet<int>();
                 foreach (var b in batchesToDelete)
                 {
                     b.Deleted = true;
-
-                    if (b.SuperId is not null)
-                        superBatchIdsToRecalculate.Add((int)b.SuperId);
-
                     b.SuperId = null;
                     _coronapassContext.Entry(b).State = EntityState.Modified;
                 }
@@ -210,6 +205,23 @@ namespace FHICORC.Integrations.DGCGateway.Services
             {
 
             }
+        }
+
+        public void DeleteExpiredSuperFilter()
+        {
+            try
+            {
+                var superFiltersToDelete = _coronapassContext.RevocationSuperFilter
+                    .Where(b => b.SuperExpires <= DateTime.UtcNow).ToList();
+
+                foreach (var superFilter in superFiltersToDelete)
+                {
+                    _coronapassContext.RevocationSuperFilter.Remove(superFilter);
+                }
+
+                _coronapassContext.SaveChanges();
+            }
+            catch (Exception ex) { }
         }
 
 
