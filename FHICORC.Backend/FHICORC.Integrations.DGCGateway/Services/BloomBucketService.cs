@@ -6,6 +6,7 @@ using FHICORC.Integrations.DGCGateway.Util;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using System.IO;
 
 namespace FHICORC.Integrations.DGCGateway.Services
 {
@@ -40,6 +41,19 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
             }
 
+            //using (StreamWriter writetext = new StreamWriter("write.txt"))
+            //{
+                
+     
+            //    foreach (var b in bloomFilterBucketsList) {
+
+            //        var _tmp = string.Format("BucketId = {0}, BitVectorLength_m = {1}, MaxValue = {2}, NumberOfHashFunctions_k = {3}", b.BucketId.ToString(), b.BitVectorLength_m.ToString(), b.MaxValue.ToString(), b.NumberOfHashFunctions_k.ToString());
+            //        var message = "new BucketItem(){ " + _tmp + " },";
+
+            //        writetext.WriteLine(message);
+            //    }
+
+            //}
             return bloomFilterBucketsList;
 
         }
