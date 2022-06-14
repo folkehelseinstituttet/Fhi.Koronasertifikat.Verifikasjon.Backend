@@ -27,9 +27,6 @@ namespace FHICORC.Tests.ComponentTests.DGCGComponentTests
             foreach (var hash in _coronapassContext.RevocationHash) {
                 var country = _coronapassContext.RevocationBatch.Find(hash.BatchId).Country;
                 cnt += 1;
-                if (hash.Hash == "YWFhYWFhYWFhYWFhYWFhYQ==") {
-                    var a = 0;
-                }
                 var result = MobileUtil.ContainsCertificateFilterMobile(country, hash.Hash, _coronapassContext, bloomBucketService.GetBloomFilterBucket());
                 Assert.True(result);
             }
