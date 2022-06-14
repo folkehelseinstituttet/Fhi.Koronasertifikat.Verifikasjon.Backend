@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace FHICORC.Application.Models
+﻿namespace FHICORC.Application.Models
 {
     public class BucketItem
     {

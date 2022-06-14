@@ -1,5 +1,6 @@
 ﻿using FHICORC.Application.Models;
 using FHICORC.Application.Services;
+using FHICORC.Infrastructure.Database.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -17,10 +18,12 @@ namespace FHICORC.ApplicationHost.Api.Controllers
     {
         private readonly IRevocationFetchService _revocationFetchService;
         private readonly IRevocationUploadService _revocationUploadService;
+        private readonly CoronapassContext _coronapassContext;
 
-        public RevocationController(IRevocationFetchService revocationService)
+        public RevocationController(IRevocationFetchService revocationService, CoronapassContext coronapassContext)
         {
             _revocationFetchService = revocationService;
+            _coronapassContext = coronapassContext;
         }
 
         [HttpGet("certificate")]
@@ -40,17 +43,13 @@ namespace FHICORC.ApplicationHost.Api.Controllers
             return Ok(superBatch);
         }
 
-        [HttpGet("bucketinfo")]
-        public IActionResult BucketInfo()
-        {
-            return Ok(_revocationFetchService.FetchBucketInfo());
-        }
 
-        [HttpPost("upload")]
-        public IActionResult SendRevocationHashes([FromBody] IEnumerable<string> hashList)
+        [HttpGet("hashes")]
+        public IActionResult DownloadHashes()
         {
-            return Ok(_revocationUploadService.UploadHashes(hashList));
-        }
+            var superBatch = _coronapassContext.RevocationHash.Select(x => x.Hash).ToList();
 
+            return Ok(superBatch);
+        }
     }
 }
