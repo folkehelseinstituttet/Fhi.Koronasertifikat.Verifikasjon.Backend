@@ -51,13 +51,6 @@ namespace FHICORC.Tests.ComponentTests
         {
             return new BloomBucketOptions()
             {
-                //ExpieryDateLeewayInDays = 100,
-                //FalsePositiveProbability = 1e-10,
-                //MaxValue = 1000,
-                //MinValue = 5,
-                //NumberOfBuckets = 10,
-                //Stepness = 2.5
-
                 ExpieryDateLeewayInDays = 100,
                 FalsePositiveProbability = 1e-10,
                 MaxValue = 1000,

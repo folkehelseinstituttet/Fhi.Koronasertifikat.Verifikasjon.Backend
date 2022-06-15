@@ -17,13 +17,10 @@ namespace FHICORC.ApplicationHost.Api.Controllers
     public class RevocationController : ControllerBase
     {
         private readonly IRevocationFetchService _revocationFetchService;
-        private readonly IRevocationUploadService _revocationUploadService;
-        private readonly CoronapassContext _coronapassContext;
 
-        public RevocationController(IRevocationFetchService revocationService, CoronapassContext coronapassContext)
+        public RevocationController(IRevocationFetchService revocationService)
         {
             _revocationFetchService = revocationService;
-            _coronapassContext = coronapassContext;
         }
 
         [HttpGet("certificate")]
@@ -39,15 +36,6 @@ namespace FHICORC.ApplicationHost.Api.Controllers
             if (superBatch is null || !superBatch.Any()) {
                 return NoContent(); 
             }
-
-            return Ok(superBatch);
-        }
-
-
-        [HttpGet("hashes")]
-        public IActionResult DownloadHashes()
-        {
-            var superBatch = _coronapassContext.RevocationHash.Select(x => x.Hash).ToList();
 
             return Ok(superBatch);
         }
