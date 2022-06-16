@@ -6,6 +6,7 @@ using FHICORC.Integrations.DGCGateway.Util;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using System.IO;
 
 namespace FHICORC.Integrations.DGCGateway.Services
 {
@@ -26,7 +27,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
         public IEnumerable<BucketItem> CalculateBloomFilterBuckets() {
 
-            //var _l = new List<int>() { 5, 10, 100, 250, 500, 1000 };
             var bloomFilterBucketsList = new List<BucketItem>();
 
             for (var i = 0; i < _bloomBucketOptions.NumberOfBuckets; i++) {
@@ -39,11 +39,8 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 bloomFilterBucketsList.Add(bucketItem);
 
             }
-
             return bloomFilterBucketsList;
-
         }
-
 
         public IEnumerable<BucketItem> GetBloomFilterBucket() => bloomFilterBuckets;
 

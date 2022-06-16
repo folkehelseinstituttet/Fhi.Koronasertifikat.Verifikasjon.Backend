@@ -8,6 +8,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
         Task PopulateRevocationDatabase(DgcgRevocationBatchListRespondDto revocationBatchList);
         void AddToDatabase(DgcgRevocationListBatchItem batchRoot, DGCGRevocationBatchRespondDto batch);
         void DeleteExpiredBatches();
+        void DeleteExpiredSuperFilter();
 
     }
 }

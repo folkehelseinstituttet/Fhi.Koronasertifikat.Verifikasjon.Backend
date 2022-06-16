@@ -55,8 +55,8 @@ namespace FHICORC.Tests.ComponentTests
                 FalsePositiveProbability = 1e-10,
                 MaxValue = 1000,
                 MinValue = 5,
-                NumberOfBuckets = 10,
-                Stepness = 2.5
+                NumberOfBuckets = 200,
+                Stepness = 1
             };
         }
 

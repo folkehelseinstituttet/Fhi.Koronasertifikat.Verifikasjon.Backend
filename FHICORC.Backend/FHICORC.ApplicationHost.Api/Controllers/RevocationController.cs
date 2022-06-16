@@ -1,5 +1,6 @@
 ﻿using FHICORC.Application.Models;
 using FHICORC.Application.Services;
+using FHICORC.Infrastructure.Database.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -16,7 +17,6 @@ namespace FHICORC.ApplicationHost.Api.Controllers
     public class RevocationController : ControllerBase
     {
         private readonly IRevocationFetchService _revocationFetchService;
-        private readonly IRevocationUploadService _revocationUploadService;
 
         public RevocationController(IRevocationFetchService revocationService)
         {
@@ -39,18 +39,5 @@ namespace FHICORC.ApplicationHost.Api.Controllers
 
             return Ok(superBatch);
         }
-
-        [HttpGet("bucketinfo")]
-        public IActionResult BucketInfo()
-        {
-            return Ok(_revocationFetchService.FetchBucketInfo());
-        }
-
-        [HttpPost("upload")]
-        public IActionResult SendRevocationHashes([FromBody] IEnumerable<string> hashList)
-        {
-            return Ok(_revocationUploadService.UploadHashes(hashList));
-        }
-
     }
 }

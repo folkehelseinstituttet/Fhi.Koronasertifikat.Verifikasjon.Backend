@@ -66,10 +66,10 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 }
                 catch (System.Security.Cryptography.CryptographicException e)
                 {
-                    _logger.LogInformation(e, "No/Invalid data recevied from the DCCG for batch {batchId}", rb.BatchId);
+                    _logger.LogError(e, "No/Invalid data recevied from the DCCG for batch {batchId}", rb.BatchId);
                 }
                 catch (Exception e) {
-                    _logger.LogInformation(e, "Failed to Add Batch {BatchId} to the database", rb.BatchId);
+                    _logger.LogError(e, "Failed to Add Batch {BatchId} to the database", rb.BatchId);
                 }
             }
 
@@ -85,7 +85,6 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
             foreach (var revocationSuperFilter in revocationSuperFilters)
             {
-                //var bitVector = GenerateBitVectorForSingleSuperBatch(revocationSuperFilter.RevocationBatches, revocationSuperFilter.BatchCount);
                 var bucket = _bloomBucketService.GetBucketItemByBatchCount(revocationSuperFilter.BatchCount);
                 var bitVector = new BitArray(bucket.BitVectorLength_m);
 
@@ -192,23 +191,37 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 var batchesToDelete = _coronapassContext.RevocationBatch
                     .Where(b => !b.Deleted && b.Expires <= DateTime.UtcNow);
 
-                var superBatchIdsToRecalculate = new HashSet<int>();
                 foreach (var b in batchesToDelete)
                 {
                     b.Deleted = true;
-
-                    if (b.SuperId is not null)
-                        superBatchIdsToRecalculate.Add((int)b.SuperId);
-
                     b.SuperId = null;
                     _coronapassContext.Entry(b).State = EntityState.Modified;
                 }
                 _coronapassContext.SaveChanges();
 
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Failed to Delete Expired Batches");
+            }
+        }
 
+        public void DeleteExpiredSuperFilter()
+        {
+            try
+            {
+                var superFiltersToDelete = _coronapassContext.RevocationSuperFilter
+                    .Where(b => b.SuperExpires <= DateTime.UtcNow).ToList();
+
+                foreach (var superFilter in superFiltersToDelete)
+                {
+                    _coronapassContext.RevocationSuperFilter.Remove(superFilter);
+                }
+
+                _coronapassContext.SaveChanges();
+            }
+            catch (Exception e) {
+                _logger.LogError(e, "Failed to Delete Expired Super Batches");
             }
         }
 
@@ -218,10 +231,10 @@ namespace FHICORC.Integrations.DGCGateway.Services
         {
 
             var revocationBatchList = JsonConvert.DeserializeObject<DgcgRevocationBatchListRespondDto>(File.ReadAllText("TestFiles/acc-revocation-list.json")); //TestFiles/tst_revocation_batch_list.json
-            foreach (var rb in revocationBatchList.Batches)
+            foreach (var revocationBatchItem in revocationBatchList.Batches)
             {
 
-                var fileName = rb.Country + "_" + rb.BatchId + ".json";
+                var fileName = revocationBatchItem.Country + "_" + revocationBatchItem.BatchId + ".json";
 
                 using (ZipArchive zip = ZipFile.Open("TestFiles/BatchHashes.zip", ZipArchiveMode.Read))
                     foreach (ZipArchiveEntry entry in zip.Entries)
@@ -243,11 +256,13 @@ namespace FHICORC.Integrations.DGCGateway.Services
                                 var decodedMessage = Encoding.UTF8.GetString(signedCms.ContentInfo.Content);
                                 var parsedResponse = JsonConvert.DeserializeObject<DGCGRevocationBatchRespondDto>(decodedMessage);
 
-                                AddToDatabase(rb, parsedResponse);
+                                AddToDatabase(revocationBatchItem, parsedResponse);
 
 
                             }
-                            catch (Exception e) { }
+                            catch (Exception e) {
+                                _logger.LogError(e, "Failed to check signature for {revocationBatchId}", revocationBatchItem.BatchId);
+                            }
                             break;
                         }
             }

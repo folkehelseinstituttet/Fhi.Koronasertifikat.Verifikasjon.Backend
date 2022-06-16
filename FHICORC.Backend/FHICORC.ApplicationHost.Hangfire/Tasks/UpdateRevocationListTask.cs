@@ -47,7 +47,7 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         public void SetupTask()
         {
             _logger.LogInformation("Adding task 'UpdateRevocationList' {CronString}", _cronOptions.UpdateRevocationListTaskCron);
-            RecurringJob.AddOrUpdate("update-revocation-list", () => UpdateRevocationList(), _cronOptions.UpdateEuCertificateRepositoryCron);
+            RecurringJob.AddOrUpdate("update-revocation-list", () => UpdateRevocationList(), _cronOptions.UpdateRevocationListTaskCron);
             _logger.LogInformation($"Scheduling update-revocation-list on startup after {_cronOptions.ScheduleUpdateRevocationListTaskOnStartupAfterSeconds} seconds");
             BackgroundJob.Schedule(() => UpdateRevocationList(),
                 TimeSpan.FromSeconds(_cronOptions.ScheduleUpdateRevocationListTaskOnStartupAfterSeconds));
@@ -114,8 +114,35 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
             catch (Exception e)
             {
                 failure = true;
-                _logger.LogError(e, "UpdateRevocationList fails");
+                _logger.LogError(e, "PopulateRevocationDatabase fails");
                 _metricLogService.AddMetric("RetrieveRevocationBatch_Success", false);
+            }
+
+
+
+            try
+            {
+                _revocationService.DeleteExpiredBatches();
+                _metricLogService.AddMetric("DeleteRevocationBatches_Success", true);
+            }
+            catch (Exception e)
+            {
+                failure = true;
+                _logger.LogError(e, "DeleteRevocationBatches fails");
+                _metricLogService.AddMetric("DeleteRevocationBatches_Succes", false);
+            }
+
+
+            try
+            {
+                _revocationService.DeleteExpiredSuperFilter();
+                _metricLogService.AddMetric("DeleteExpiredSuperFilter_Success", true);
+            }
+            catch (Exception e)
+            {
+                failure = true;
+                _logger.LogError(e, "DeleteExpiredSuperFilter fails");
+                _metricLogService.AddMetric("DeleteExpiredSuperFilter_Succes", false);
             }
 
 

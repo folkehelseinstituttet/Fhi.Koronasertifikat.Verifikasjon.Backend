@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using BloomFilter;
 using FHICORC.Application.Models;
+using FHICORC.Domain.Models;
 using FHICORC.Infrastructure.Database.Context;
 
 namespace FHICORC.Tests.ComponentTests.DGCGComponentTests
@@ -11,28 +12,61 @@ namespace FHICORC.Tests.ComponentTests.DGCGComponentTests
     public static class MobileUtil
     {
 
-        public static bool ContainsCertificateFilterMobile(string country, string hashString, CoronapassContext _coronapassContext, IEnumerable<BucketItem> bloomFilterBuckets)
+        public static bool ContainsCertificateFilterMobile(string certificateIdentifierHash, string signatureHash, IEnumerable<RevocationSuperFilter> revocationBatches, List<BucketItem> bloomFilterBuckets)
         {
-            var allHashFunctionIndicies_k = CalculateAllIndicies(hashString, bloomFilterBuckets);
-            return CheckFilterByCountry(country, _coronapassContext, allHashFunctionIndicies_k);
+            var allHashFunctionCertificateIdentifierIndicies_k = CalculateAllIndicies(certificateIdentifierHash, bloomFilterBuckets);
+            var allHashFunctionSignatureIndicies_k = CalculateAllIndicies(signatureHash, bloomFilterBuckets);
+            return CheckFilterByCountry(allHashFunctionCertificateIdentifierIndicies_k, allHashFunctionSignatureIndicies_k, revocationBatches);
         }
 
+        public static bool CheckFilterByCountryParallel(List<int[]> allHashFunctionCertificateIdentifierIndicies_k, List<int[]> allHashFunctionSignatureIndicies_k, IEnumerable<RevocationSuperFilter> revocationBatches)
+        {
 
-        public static bool CheckFilterByCountry(string country, CoronapassContext _coronapassContext, List<int[]> allHashFunctionIndicies_k) {
+            bool contains = revocationBatches.AsParallel()
+                .Any(r => BatchContains(r, allHashFunctionCertificateIdentifierIndicies_k, allHashFunctionSignatureIndicies_k));
+            return contains;
+        }
 
-            var superFilter = _coronapassContext.RevocationSuperFilter
-                .Where(s => s.SuperCountry.Equals(country));
-
-            foreach (var s in superFilter)
+        public static bool CheckFilterByCountry(List<int[]> allHashFunctionCertificateIdentifierIndicies_k, List<int[]> allHashFunctionSignatureIndicies_k, IEnumerable<RevocationSuperFilter> revocationBatches)
+        {
+            foreach (var r in revocationBatches)
             {
-                var bitVector = new BitArray(s.SuperFilter);
-                var contains = bitVector.Contains(allHashFunctionIndicies_k[s.Bucket]);
+                var bitVector = new BitArray(r.SuperFilter);
+
+                bool contains;
+                if (r.HashType == 1)
+                {
+                    contains = bitVector.Contains(allHashFunctionSignatureIndicies_k[r.Bucket]);
+                }
+                else
+                {
+                    contains = bitVector.Contains(allHashFunctionCertificateIdentifierIndicies_k[r.Bucket]);
+                }
 
                 if (contains)
                     return true;
             }
 
             return false;
+        }
+
+
+        public static bool BatchContains(RevocationSuperFilter revocationBatch, List<int[]> allHashFunctionCertificateIdentifierIndicies_k, List<int[]> allHashFunctionSignatureIndicies_k)
+        {
+
+            var bitVector = new BitArray(revocationBatch.SuperFilter);
+
+            bool contains;
+            if (revocationBatch.HashType == 1)
+            {
+                contains = bitVector.Contains(allHashFunctionSignatureIndicies_k[revocationBatch.Bucket]);
+            }
+            else
+            {
+                contains = bitVector.Contains(allHashFunctionCertificateIdentifierIndicies_k[revocationBatch.Bucket]);
+            }
+
+            return contains;
         }
 
 
