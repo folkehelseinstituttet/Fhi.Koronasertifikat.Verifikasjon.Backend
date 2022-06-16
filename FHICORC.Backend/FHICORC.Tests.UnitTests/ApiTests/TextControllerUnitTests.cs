@@ -31,7 +31,7 @@ namespace FHICORC.Tests.UnitTests.ApiTests
             textServiceMock.Setup(x => x.GetLatestVersionAsync(textRequestDto)).ReturnsAsync(textResponseDto);
             var _TextController = new TextController(textServiceMock.Object, logger.Object);
 
-            var response = await _TextController.GetLatestVersion(textRequestDto);
+            var response = await _TextController.GetLatestVersionV3(textRequestDto);
 
             var sampleResponse = new StatusCodeResult(204);
             Assert.IsInstanceOf<StatusCodeResult>(response);
@@ -50,7 +50,7 @@ namespace FHICORC.Tests.UnitTests.ApiTests
             textServiceMock.Setup(x => x.GetLatestVersionAsync(textRequestDto)).ReturnsAsync(textResponseDto);
             var _TextController = new TextController(textServiceMock.Object, logger.Object);
 
-            var response = await _TextController.GetLatestVersion(textRequestDto);
+            var response = await _TextController.GetLatestVersionV3(textRequestDto);
 
             Assert.IsInstanceOf<FileContentResult>(response);
             Assert.AreEqual(((FileContentResult)response).FileContents, sampleResponse.FileContents);

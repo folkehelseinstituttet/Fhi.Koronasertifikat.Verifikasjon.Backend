@@ -51,7 +51,7 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
         }
         
         [Test]
-        [Ignore ("Skip because Unit test is invalid - Inconsistent on different machines")]
+        [Ignore("Skip because Unit test is invalid - Inconsistent on different machines")]
         public void All_Returned_Countries_Are_Verified()
         {
             _certificateVerification.Setup(x => x.VerifyDscSignedByCsca(It.IsAny<DgcgTrustListItem>(), It.IsAny<List<X509Certificate2>>())).Returns(true);
@@ -64,7 +64,7 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
 
             Assert.NotNull(response);
             Assert.NotNull(countries.Count);
-            //Assert.AreEqual(countries.Count, responseCountries.Count);
+            Assert.AreEqual(countries.Count, responseCountries.Count);
         }
 
         [Test]

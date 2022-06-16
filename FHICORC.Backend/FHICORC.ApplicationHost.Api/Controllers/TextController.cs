@@ -10,6 +10,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
     [ApiController]
     [ApiVersion("1")]
     [ApiVersion("2")]
+    [ApiVersion("3")]
     [Route("v{version:apiVersion}/[controller]")]
     [Route("[controller]")]
     public class TextController : ControllerBase
@@ -25,17 +26,27 @@ namespace FHICORC.ApplicationHost.Api.Controllers
 
         [HttpGet]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> GetLatestVersion([FromHeader] TextRequestDto textRequestDto)
+        [Obsolete("Deprecated")]
+        public IActionResult GetLatestVersionV1([FromHeader] TextRequestDto textRequestDto)
         {
-            return await GetTextVersionResponse(textRequestDto);
+            return StatusCode(410);
         }
 
         [HttpGet]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> GetLatestVersionV2([FromHeader] TextRequestDto textRequestDto)
+        [Obsolete("Deprecated")]
+        public IActionResult GetLatestVersionV2([FromHeader] TextRequestDto textRequestDto)
+        {
+            return StatusCode(410);
+        }
+
+        [HttpGet]
+        [MapToApiVersion("3")]
+        public async Task<IActionResult> GetLatestVersionV3([FromHeader] TextRequestDto textRequestDto)
         {
             return await GetTextVersionResponse(textRequestDto);
         }
+
 
         private async Task<IActionResult> GetTextVersionResponse(TextRequestDto textRequestDto)
         {
