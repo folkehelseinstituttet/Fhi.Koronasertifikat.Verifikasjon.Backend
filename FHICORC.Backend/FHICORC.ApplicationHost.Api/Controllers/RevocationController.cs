@@ -1,10 +1,7 @@
-﻿using FHICORC.Application.Models;
-using FHICORC.Application.Services;
-using FHICORC.Infrastructure.Database.Context;
+﻿using FHICORC.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace FHICORC.ApplicationHost.Api.Controllers
@@ -13,6 +10,7 @@ namespace FHICORC.ApplicationHost.Api.Controllers
     [ApiController]
     [ApiVersion("1")]
     [ApiVersion("2")]
+    [ApiVersion("3")]
     [Route("v{version:apiVersion}/[controller]")]
     public class RevocationController : ControllerBase
     {
@@ -21,12 +19,6 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         public RevocationController(IRevocationFetchService revocationService)
         {
             _revocationFetchService = revocationService;
-        }
-
-        [HttpGet("certificate")]
-        public IActionResult CheckCertificateRevocated([FromHeader] string dcc, [FromHeader] string country)
-        {
-            return Ok(_revocationFetchService.ContainsCertificate(dcc, country));
         }
 
         [HttpGet("download")]
