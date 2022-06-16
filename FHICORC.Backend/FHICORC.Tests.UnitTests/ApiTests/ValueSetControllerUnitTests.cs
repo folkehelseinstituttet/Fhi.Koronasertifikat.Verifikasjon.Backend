@@ -24,7 +24,7 @@ namespace FHICORC.Tests.UnitTests.ApiTests
             _valueSetServiceMock.Setup(x => x.GetLatestVersionAsync(_valueSetRequestDto)).ReturnsAsync(valueSetResponseDto);
             var valueSetController = new ValueSetController(_valueSetServiceMock.Object);
 
-            var response = await valueSetController.GetLatestVersion(_valueSetRequestDto);
+            var response = await valueSetController.GetLatestVersionV3(_valueSetRequestDto);
 
             var sampleResponse = new StatusCodeResult(204);
             Assert.IsInstanceOf<StatusCodeResult>(response);
@@ -43,7 +43,7 @@ namespace FHICORC.Tests.UnitTests.ApiTests
             _valueSetServiceMock.Setup(x => x.GetLatestVersionAsync(_valueSetRequestDto)).ReturnsAsync(valueSetResponseDto);
             var valueSetController = new ValueSetController(_valueSetServiceMock.Object);
 
-            var response = await valueSetController.GetLatestVersion(_valueSetRequestDto);
+            var response = await valueSetController.GetLatestVersionV3(_valueSetRequestDto);
 
             Assert.IsInstanceOf<FileContentResult>(response);
             Assert.AreEqual(((FileContentResult)response).FileContents, sampleResponse.FileContents);

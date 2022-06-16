@@ -27,7 +27,7 @@ namespace FHICORC.Tests.UnitTests.ApiTests
             var rulesDto = new RuleResponseDto {RuleListJson = jsonString};
             _ruleServiceMock.Setup(x => x.GetRulesAsync()).ReturnsAsync(rulesDto);
 
-            var result = await _ruleController.GetRules();
+            var result = await _ruleController.GetRulesV3();
             var contentResult = result as ContentResult;
             
             Assert.NotNull(contentResult);
