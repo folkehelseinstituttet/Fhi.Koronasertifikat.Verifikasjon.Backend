@@ -79,7 +79,7 @@ namespace FHICORC.Integrations.DGCGateway.Services
 
         public void OrganizeBatches() {
             var revocationSuperFilters = _coronapassContext.RevocationSuperFilter
-            .Where(s => s.Modified >= DateTime.UtcNow.AddHours(-10))
+            .Where(s => s.Modified >= DateTime.UtcNow.AddHours(-5))
             .Include(r => r.RevocationBatches)
                 .ThenInclude(h => h.RevocationHashes);
 
