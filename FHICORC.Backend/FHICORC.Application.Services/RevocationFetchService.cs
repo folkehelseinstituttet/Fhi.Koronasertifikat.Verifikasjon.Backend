@@ -1,7 +1,6 @@
 ﻿using FHICORC.Application.Models;
 using FHICORC.Infrastructure.Database.Context;
 using FHICORC.Integrations.DGCGateway.Util;
-using FHICORC.Integrations.DGCGateway.Services.Interfaces;
 using System.Collections.Generic;
 using FHICORC.Core.Services.Enum;
 using Microsoft.Extensions.Logging;
@@ -14,16 +13,12 @@ namespace FHICORC.Application.Services
     {
         private readonly ILogger<RevocationFetchService> _logger;
         private readonly CoronapassContext _coronapassContext;
-        private readonly IBloomBucketService _bloomBucketService;
 
-        public RevocationFetchService(ILogger<RevocationFetchService> logger, CoronapassContext coronapassContext, IBloomBucketService bloomBucketService)
+        public RevocationFetchService(ILogger<RevocationFetchService> logger, CoronapassContext coronapassContext)
         {
             _logger = logger;
             _coronapassContext = coronapassContext;
-            _bloomBucketService = bloomBucketService;
         }
-
-        public bool ContainsCertificate(string dcc, string country) => BloomFilterUtils.IsHashRevocated(dcc, country, _coronapassContext, _bloomBucketService.GetBloomFilterBucket());
 
         public IEnumerable<SuperBatch> FetchSuperBatches(DateTime dateTime)
         {
@@ -42,7 +37,5 @@ namespace FHICORC.Application.Services
                 return null;
             }
         }
-
-        public IEnumerable<BucketItem> FetchBucketInfo() => _bloomBucketService.GetBloomFilterBucket();
     }
 }

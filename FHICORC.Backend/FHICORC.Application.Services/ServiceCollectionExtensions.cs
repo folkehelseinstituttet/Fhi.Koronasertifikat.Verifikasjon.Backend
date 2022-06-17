@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using FHICORC.Application.Services.Interfaces;
-using FHICORC.Integrations.DGCGateway.Services.Interfaces;
-using FHICORC.Integrations.DGCGateway.Services;
 
 namespace FHICORC.Application.Services
 {
@@ -14,8 +12,7 @@ namespace FHICORC.Application.Services
                 .AddScoped<IRuleService, RuleService>()
                 .AddScoped<IRevocationFetchService, RevocationFetchService>()
                 .AddScoped<IRevocationUploadService, RevocationUploadService>()
-                .AddScoped<IValueSetService, ValueSetService>()
-                .AddSingleton<IBloomBucketService, BloomBucketService>();
+                .AddScoped<IValueSetService, ValueSetService>();
                 
 
             if (useEuDgcg)

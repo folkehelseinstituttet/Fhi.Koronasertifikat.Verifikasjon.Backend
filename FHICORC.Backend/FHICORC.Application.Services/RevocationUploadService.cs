@@ -18,7 +18,6 @@ namespace FHICORC.Application.Services
     {
         private readonly ILogger<RevocationUploadService> _logger;
         private readonly CoronapassContext _coronapassContext;
-        private readonly IBloomBucketService _bloomBucketService;
         private readonly BatchOptions _valueBatchOptions;
         private readonly DateTime _expiryDateInThreeMonth = DateTime.Now.AddMonths(3).Date;
 
