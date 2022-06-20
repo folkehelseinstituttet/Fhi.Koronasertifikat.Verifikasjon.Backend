@@ -8,18 +8,14 @@ namespace FHICORC.Tests.ComponentTests.Api
     [Category("Component")]
     public class RevocationControllerTests : SeedDb
     {
-
-
-
         [Test]
         public void AddToDatabaseTest()
         {
-            Assert.AreEqual(_coronapassContext.RevocationBatch.Count(), 102);
-            Assert.AreEqual(_coronapassContext.RevocationHash.Count(), 1638);
-            Assert.AreEqual(_coronapassContext.RevocationSuperFilter.Count(), 12);
+            Assert.AreEqual(_coronapassContext.RevocationBatch.Count(), 812);
+            Assert.AreEqual(_coronapassContext.RevocationHash.Count(), 15904);
+            Assert.AreEqual(_coronapassContext.RevocationSuperFilter.Count(), 56);
 
         }
-
     }
 
 }
