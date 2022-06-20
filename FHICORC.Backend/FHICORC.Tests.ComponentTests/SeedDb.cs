@@ -38,7 +38,7 @@ namespace FHICORC.Tests.ComponentTests
             _coronapassContext = SeedDb.GetInMemoryContext();
             _dgcgRevocationService = new DGCGRevocationService(loggerDGCGRevocationService, _coronapassContext, _dgcgService, bloomBucketOptions, bloomBucketService, featureToggles);
 
-            _revocationService = new RevocationFetchService(loggerRevocationService, _coronapassContext, bloomBucketService);
+            _revocationService = new RevocationFetchService(loggerRevocationService, _coronapassContext);
         }
 
         [TearDown]

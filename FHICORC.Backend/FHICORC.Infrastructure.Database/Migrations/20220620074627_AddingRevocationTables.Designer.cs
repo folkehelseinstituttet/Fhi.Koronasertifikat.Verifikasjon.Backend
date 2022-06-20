@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FHICORC.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(CoronapassContext))]
-    [Migration("20220530072647_AddRevocationTables")]
-    partial class AddRevocationTables
+    [Migration("20220620074627_AddingRevocationTables")]
+    partial class AddingRevocationTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -101,6 +101,21 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.HasKey("EuDocSignerCertificateId");
 
                     b.ToTable("EuDocSignerCertificates");
+                });
+
+            modelBuilder.Entity("FHICORC.Domain.Models.Revocation.RevocationDownloadJobSucceeded", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("LastDownloadJobSucceeded")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RevocationDownloadJobSucceeded");
                 });
 
             modelBuilder.Entity("FHICORC.Domain.Models.RevocationBatch", b =>
