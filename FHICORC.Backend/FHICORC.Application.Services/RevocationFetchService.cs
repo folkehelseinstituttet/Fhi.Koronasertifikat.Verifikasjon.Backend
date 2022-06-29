@@ -37,5 +37,44 @@ namespace FHICORC.Application.Services
                 return null;
             }
         }
+
+        public IEnumerable<int> FetchSuperBatchRevocationList(DateTime dateTime)
+        {
+            try
+            {
+                var superBatchList = _coronapassContext.RevocationSuperFilter
+                    .Where(s => s.Modified >= dateTime)
+                    .Select(x => x.Id);
+
+                return superBatchList;
+            }
+            catch (Exception e)
+            {
+
+                _logger.LogError("Unable to fetch SuperBatches for last modified date {dateTime}", dateTime);
+                return null;
+            }
+        }
+
+        public SuperBatch FetchSuperBatch(int id)
+        {
+            try
+            {
+                var superBatch = _coronapassContext.RevocationSuperFilter
+                    .Where(s => s.Id == id)
+                    .Select(x => new SuperBatch(x.Id, x.SuperCountry, x.Bucket, x.SuperFilter, (HashTypeEnum)x.HashType, x.SuperExpires))
+                    .FirstOrDefault();
+
+                return superBatch;
+
+            }
+
+            catch (Exception e)
+            {
+                _logger.LogError("Unable to fetch SuperBatche for id {id}", id);
+                return null;
+            }
+
+        }
     }
 }
