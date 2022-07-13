@@ -6,6 +6,7 @@ using FHICORC.Core.Services.Enum;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
+using FHICORC.Application.Models.Revocation;
 
 namespace FHICORC.Application.Services
 {
@@ -76,5 +77,39 @@ namespace FHICORC.Application.Services
             }
 
         }
+
+
+        //public SuperBatchChunkDto FetchSuperBatchesChunk(DateTime dateTime)
+        //{
+
+        //    var amountOfBatchesToTransfer = 10;
+
+        //    DateTime modifiedOfLastSuperBatch;
+
+        //    try
+        //    {
+        //        var superBatchList = _coronapassContext.RevocationSuperFilter
+        //            .OrderBy(s => s.Modified)
+        //            .Where(s => s.Modified >= dateTime)
+        //            .Take(amountOfBatchesToTransfer + 1);
+
+        //        if (superBatchList.Count() > amountOfBatchesToTransfer) {
+        //            modifiedOfLastSuperBatch = superBatchList.Last().Modified;
+
+        //        }
+
+
+        //        var superBatchChunkDto = new SuperBatchChunkDto();
+                
+
+
+        //    }
+        //    catch (Exception e)
+        //    { 
+            
+        //    }
+
+        //}
+      
     }
 }
