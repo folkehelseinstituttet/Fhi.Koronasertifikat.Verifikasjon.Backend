@@ -62,12 +62,16 @@ namespace FHICORC.ApplicationHost.Api.Controllers
         }
 
 
-        //[HttpGet("download/revocation-list-limit")]
-        //public IActionResult DownloadRevocationListLimit() { 
-        //    var revocation = 
-        
-        //}
+        [HttpGet("download/revocation-list-limit")]
+        public IActionResult DownloadRevocationListLimit([FromHeader] DateTime lastDownloaded) { 
+            var revocation = _revocationFetchService.FetchSuperBatchesChunk(lastDownloaded);
+            if (revocation is null)
+            {
+                return NoContent();
+            }
 
+            return Ok(revocation);
+        }
 
     }
 }

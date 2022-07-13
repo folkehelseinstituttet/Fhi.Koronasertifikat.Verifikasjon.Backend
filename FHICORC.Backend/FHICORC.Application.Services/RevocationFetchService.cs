@@ -72,44 +72,42 @@ namespace FHICORC.Application.Services
 
             catch (Exception e)
             {
-                _logger.LogError("Unable to fetch SuperBatche for id {id}", id);
+                _logger.LogError("Unable to fetch SuperBatche for id {id}: {e}", id, e);
                 return null;
             }
 
         }
 
+        public SuperBatchChunkDto FetchSuperBatchesChunk(DateTime dateTime)
+        {
+            var amountOfBatchesToTransfer = 10;
+            DateTime modifiedOfLastSuperBatch = default;
 
-        //public SuperBatchChunkDto FetchSuperBatchesChunk(DateTime dateTime)
-        //{
+            try
+            {
+                var revocationSuperFilterList = _coronapassContext.RevocationSuperFilter
+                    .OrderBy(s => s.Modified)
+                    .Where(s => s.Modified >= dateTime)
+                    .Take(amountOfBatchesToTransfer + 1);
 
-        //    var amountOfBatchesToTransfer = 10;
+                var superBatchList = revocationSuperFilterList
+                    .Select(x => new SuperBatch(x.Id, x.SuperCountry, x.Bucket, x.SuperFilter, (HashTypeEnum)x.HashType, x.SuperExpires));
 
-        //    DateTime modifiedOfLastSuperBatch;
+                if (revocationSuperFilterList.Count() > amountOfBatchesToTransfer)
+                {
+                    modifiedOfLastSuperBatch = revocationSuperFilterList.Last().Modified;
+                    return new SuperBatchChunkDto(modifiedOfLastSuperBatch, superBatchList.Take(amountOfBatchesToTransfer), true);
+                }
 
-        //    try
-        //    {
-        //        var superBatchList = _coronapassContext.RevocationSuperFilter
-        //            .OrderBy(s => s.Modified)
-        //            .Where(s => s.Modified >= dateTime)
-        //            .Take(amountOfBatchesToTransfer + 1);
+                return new SuperBatchChunkDto(modifiedOfLastSuperBatch, superBatchList);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Error: {e}", e);
+            }
+            return null;
 
-        //        if (superBatchList.Count() > amountOfBatchesToTransfer) {
-        //            modifiedOfLastSuperBatch = superBatchList.Last().Modified;
+        }
 
-        //        }
-
-
-        //        var superBatchChunkDto = new SuperBatchChunkDto();
-                
-
-
-        //    }
-        //    catch (Exception e)
-        //    { 
-            
-        //    }
-
-        //}
-      
     }
 }
