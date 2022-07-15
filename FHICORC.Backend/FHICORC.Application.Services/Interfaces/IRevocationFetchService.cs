@@ -11,5 +11,8 @@ namespace FHICORC.Application.Services
         IEnumerable<int> FetchSuperBatchRevocationList(DateTime dateTime);
         SuperBatch FetchSuperBatch(int id);
         SuperBatchChunkDto FetchSuperBatchesChunk(DateTime dateTime);
+        int HashCount();
+
+
     }
 }

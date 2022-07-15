@@ -73,5 +73,13 @@ namespace FHICORC.ApplicationHost.Api.Controllers
             return Ok(revocation);
         }
 
+        //Remove this for production
+        [HttpGet("hash-count")]
+        public IActionResult HashCount()
+        {
+            var hashCount = _revocationFetchService.HashCount();
+            return Ok(hashCount);
+        }
+
     }
 }

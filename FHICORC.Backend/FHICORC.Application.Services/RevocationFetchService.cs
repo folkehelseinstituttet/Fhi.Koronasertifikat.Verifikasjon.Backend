@@ -109,5 +109,9 @@ namespace FHICORC.Application.Services
 
         }
 
+        public int HashCount() { 
+            return _coronapassContext.RevocationHash.Count();
+        }
+
     }
 }
