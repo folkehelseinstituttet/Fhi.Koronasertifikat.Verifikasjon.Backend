@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using FHICORC.Application.Models.Revocation;
+using FHICORC.Domain.Models;
 
 namespace FHICORC.Application.Services
 {
@@ -103,7 +104,7 @@ namespace FHICORC.Application.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("Error: {e}", e);
+                _logger.LogError($"Error: {e}");
             }
             return null;
 
@@ -111,6 +112,25 @@ namespace FHICORC.Application.Services
 
         public int HashCount() { 
             return _coronapassContext.RevocationHash.Count();
+        }
+
+        public RevocationHash FetchRevokedHash(string hash)
+        {
+            try
+            {
+                var revokedHash = _coronapassContext.RevocationHash
+                    .Where(s => s.Hash == hash)
+                    .Select(x => new RevocationHash(x.BatchId, x.Hash))
+                    .FirstOrDefault();
+
+                return revokedHash;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Unable to fetch Hash: {e}");
+                return null;
+            }
+
         }
 
     }

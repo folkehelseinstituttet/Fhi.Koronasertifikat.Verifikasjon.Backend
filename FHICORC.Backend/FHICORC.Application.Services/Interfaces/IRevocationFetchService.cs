@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using FHICORC.Application.Models;
 using FHICORC.Application.Models.Revocation;
+using FHICORC.Domain.Models;
 
 namespace FHICORC.Application.Services
 {
@@ -12,7 +13,7 @@ namespace FHICORC.Application.Services
         SuperBatch FetchSuperBatch(int id);
         SuperBatchChunkDto FetchSuperBatchesChunk(DateTime dateTime);
         int HashCount();
-
+        RevocationHash FetchRevokedHash(string hash);
 
     }
 }
