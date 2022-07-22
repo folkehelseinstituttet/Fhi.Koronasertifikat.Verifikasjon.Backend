@@ -133,5 +133,23 @@ namespace FHICORC.Application.Services
 
         }
 
+        public IEnumerable<RevocationHash> Fetch100RevokedHashes()
+        {
+            try
+            {
+                var revokedHash = _coronapassContext.RevocationHash
+                    .Select(x => new RevocationHash(x.BatchId, x.Hash))
+                    .Take(100);
+
+                return revokedHash;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Unable to fetch Hash: {e}");
+                return null;
+            }
+
+        }
+
     }
 }

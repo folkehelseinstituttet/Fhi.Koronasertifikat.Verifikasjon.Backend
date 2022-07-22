@@ -14,6 +14,6 @@ namespace FHICORC.Application.Services
         SuperBatchChunkDto FetchSuperBatchesChunk(DateTime dateTime);
         int HashCount();
         RevocationHash FetchRevokedHash(string hash);
-
+        IEnumerable<RevocationHash> Fetch100RevokedHashes();
     }
 }

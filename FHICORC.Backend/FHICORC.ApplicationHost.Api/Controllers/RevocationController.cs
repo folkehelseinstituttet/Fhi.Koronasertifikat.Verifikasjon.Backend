@@ -83,9 +83,20 @@ namespace FHICORC.ApplicationHost.Api.Controllers
 
         //Remove this for production
         [HttpGet("download/revocation-single-hash")]
-        public IActionResult DownloadAllRevokedBatches([FromHeader] string hash)
+        public IActionResult DownloadRevokedHash(string hash)
         {
             var revocation = _revocationFetchService.FetchRevokedHash(hash);
+            if (revocation is null)
+            {
+                return NoContent();
+            }
+            return Ok(revocation);
+        }
+        //Remove this for production
+        [HttpGet("download/revocation-list-hashes-limit100")]
+        public IActionResult Download10RevokedHashes()
+        {
+            var revocation = _revocationFetchService.Fetch100RevokedHashes();
             if (revocation is null)
             {
                 return NoContent();
