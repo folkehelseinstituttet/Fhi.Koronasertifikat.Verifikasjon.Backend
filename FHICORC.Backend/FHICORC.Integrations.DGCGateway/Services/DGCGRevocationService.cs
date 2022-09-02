@@ -135,10 +135,10 @@ namespace FHICORC.Integrations.DGCGateway.Services
         private void AddHashRevoc(string batchId, DGCGRevocationBatchRespondDto batch) {
             foreach (var b in batch.Entries)
             {
-                if (b.Hash == null)
+                if (b == null)
                     continue;
 
-                var _revocationHash = new RevocationHash(batchId, b.Hash);
+                var _revocationHash = new RevocationHash(batchId, b);
                 _coronapassContext.RevocationHash.Add(_revocationHash);
             }
         }

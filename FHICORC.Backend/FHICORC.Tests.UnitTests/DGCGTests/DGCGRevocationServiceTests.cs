@@ -44,11 +44,7 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
                 HashType = "UCI",
                 Expires = DateTime.UtcNow.AddDays(100),
                 Kid = "dasido",
-                Entries = new List<DgcgHashItem>() {
-                    new DgcgHashItem(){ Hash = "hash1"},
-                    new DgcgHashItem(){ Hash = "hash2"},
-                    new DgcgHashItem(){ Hash = "hash3"}
-                }
+                Entries = new List<string>() {"hash1", "hash2", "hash3"}
             };
         }
 
