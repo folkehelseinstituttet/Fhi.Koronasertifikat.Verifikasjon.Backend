@@ -8,5 +8,7 @@ namespace FHICORC.Application.Models.Options
         public bool UseNiGateway { get; set; }
         public bool UseScGateway { get; set; }
         public bool UseBouncyCastleEuDgcValidation { get; set; }
+
+        public bool SeedDbWithLocalData { get; set; }
     }
 }

@@ -5,6 +5,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="BloomFilterService.cs.bak" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <PackageReference Include="SharpZipLib" Version="1.3.1" />
 	</ItemGroup>
 

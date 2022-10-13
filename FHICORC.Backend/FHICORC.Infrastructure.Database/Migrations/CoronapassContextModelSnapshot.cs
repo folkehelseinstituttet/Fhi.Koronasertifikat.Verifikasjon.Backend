@@ -47,13 +47,15 @@ namespace FHICORC.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("FHICORC.Domain.Models.CountriesReportModel", b =>
                 {
-                    b.Property<string>("CountriesReport")
-                        .HasColumnType("varchar(5000)");
-
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("CountriesReport")
+                        .HasColumnType("varchar(5000)");
+
+                    b.HasKey("Id");
 
                     b.ToTable("CountriesReportModels");
                 });
@@ -97,6 +99,139 @@ namespace FHICORC.Infrastructure.Database.Migrations
                     b.HasKey("EuDocSignerCertificateId");
 
                     b.ToTable("EuDocSignerCertificates");
+                });
+
+            modelBuilder.Entity("FHICORC.Domain.Models.Revocation.RevocationDownloadJobSucceeded", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("LastDownloadJobSucceeded")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RevocationDownloadJobSucceeded");
+                });
+
+            modelBuilder.Entity("FHICORC.Domain.Models.RevocationBatch", b =>
+                {
+                    b.Property<string>("BatchId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("HashType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Kid")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("SuperId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Upload")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("BatchId");
+
+                    b.HasIndex("SuperId");
+
+                    b.ToTable("RevocationBatch");
+                });
+
+            modelBuilder.Entity("FHICORC.Domain.Models.RevocationHash", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("BatchId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Hash")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BatchId");
+
+                    b.ToTable("RevocationHash");
+                });
+
+            modelBuilder.Entity("FHICORC.Domain.Models.RevocationSuperFilter", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int>("BatchCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Bucket")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("HashType")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("SuperCountry")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("SuperExpires")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<byte[]>("SuperFilter")
+                        .HasMaxLength(5992)
+                        .HasColumnType("bytea");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RevocationSuperFilter");
+                });
+
+            modelBuilder.Entity("FHICORC.Domain.Models.RevocationBatch", b =>
+                {
+                    b.HasOne("FHICORC.Domain.Models.RevocationSuperFilter", "RevocationSuperFilter")
+                        .WithMany("RevocationBatches")
+                        .HasForeignKey("SuperId");
+
+                    b.Navigation("RevocationSuperFilter");
+                });
+
+            modelBuilder.Entity("FHICORC.Domain.Models.RevocationHash", b =>
+                {
+                    b.HasOne("FHICORC.Domain.Models.RevocationBatch", "RevocationBatch")
+                        .WithMany("RevocationHashes")
+                        .HasForeignKey("BatchId");
+
+                    b.Navigation("RevocationBatch");
+                });
+
+            modelBuilder.Entity("FHICORC.Domain.Models.RevocationBatch", b =>
+                {
+                    b.Navigation("RevocationHashes");
+                });
+
+            modelBuilder.Entity("FHICORC.Domain.Models.RevocationSuperFilter", b =>
+                {
+                    b.Navigation("RevocationBatches");
                 });
 #pragma warning restore 612, 618
         }

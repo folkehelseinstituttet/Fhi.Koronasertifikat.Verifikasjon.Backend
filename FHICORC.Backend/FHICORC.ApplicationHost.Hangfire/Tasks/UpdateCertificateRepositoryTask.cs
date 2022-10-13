@@ -43,7 +43,7 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
 
         public void SetupTask()
         {
-            _logger.LogInformation("Adding task 'UpdateEuCertificateRepository' {CronString}", _cronOptions.UpdateEuCertificateRepositoryCron);
+            _logger.LogInformation("Adding task 'UpdateRevocationListTask' {CronString}", _cronOptions.UpdateEuCertificateRepositoryCron);
             RecurringJob.AddOrUpdate("update-eu-certificate-repo", () => UpdateEuCertificateRepository(), _cronOptions.UpdateEuCertificateRepositoryCron);
             _logger.LogInformation($"Scheduling update-eu-certificate-repo on startup after {_cronOptions.ScheduleUpdateEuCertificateRepositoryOnStartupAfterSeconds} seconds");
             BackgroundJob.Schedule(() => UpdateEuCertificateRepository(),
@@ -55,7 +55,7 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
         public async Task UpdateEuCertificateRepository()
         {
             var failure = false;
-
+            
             try
             {
                 var trustlistResponse = await _dgcgService.GetTrustListAsync();
@@ -75,7 +75,7 @@ namespace FHICORC.ApplicationHost.Hangfire.Tasks
                     cleanupOptions |= CleanupWhichCertificates.UkScCertificates;
                 }
 
-                await _euCertificateRepository.CleanupAndPersistEuDocSignerCertificates(euDocSignerCertificates, cleanupOptions);
+                var a = await _euCertificateRepository.CleanupAndPersistEuDocSignerCertificates(euDocSignerCertificates, cleanupOptions);
 
                 _metricLogService.AddMetric("RetrieveEuCertificates_Success", true);
             }

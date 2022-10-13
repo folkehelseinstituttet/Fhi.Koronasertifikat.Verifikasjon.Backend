@@ -49,7 +49,7 @@ namespace FHICORC.Tests.UnitTests.DGCGTests
 
             _mockCertificateOptions.Object.DGCGTrustAnchorPath = "Certificates/local_ta.pem";
         }
-
+        
         [Test]
         [Ignore("Skip because Unit test is invalid - Inconsistent on different machines")]
         public void All_Returned_Countries_Are_Verified()

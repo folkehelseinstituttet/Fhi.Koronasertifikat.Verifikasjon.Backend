@@ -19,6 +19,7 @@ using FHICORC.Application.Validation;
 using FHICORC.ApplicationHost.Api.Middleware;
 using FHICORC.Infrastructure.Database;
 using FHICORC.Infrastructure.Database.Context;
+using System.Collections;
 
 namespace FHICORC.ApplicationHost.Api
 {
@@ -43,7 +44,8 @@ namespace FHICORC.ApplicationHost.Api
                 .AddValidatedOptions<TextCacheOptions>(Configuration)
                 .AddValidatedOptions<TextOptions>(Configuration)
                 .AddValidatedOptions<ValueSetCacheOptions>(Configuration)
-                .AddValidatedOptions<ValueSetOptions>(Configuration);
+                .AddValidatedOptions<ValueSetOptions>(Configuration)
+                .AddValidatedOptions<BatchOptions>(Configuration);
 
             services
                 .AddControllers()

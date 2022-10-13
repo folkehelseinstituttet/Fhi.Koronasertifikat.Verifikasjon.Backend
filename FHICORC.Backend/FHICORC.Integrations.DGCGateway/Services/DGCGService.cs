@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using FHICORC.Application.Models;
 using FHICORC.Application.Models.Options;
 using FHICORC.Integrations.DGCGateway.Services.Interfaces;
+using System;
+using System.IO;
 
 namespace FHICORC.Integrations.DGCGateway.Services
 {
@@ -41,6 +43,21 @@ namespace FHICORC.Integrations.DGCGateway.Services
                 _logger.LogInformation("Verified successfully {count} ", verifiedResponse.TrustListItems.Count);
                 return verifiedResponse;
             }
-        } 
-    }
+        }
+
+        public async Task<DgcgRevocationBatchListRespondDto> GetRevocationBatchListAsync(DateTime modifiedSince) 
+        {
+            var fullResponse = await _dgcgClient.FetchRevocationBatchListAsync(modifiedSince);
+
+            return fullResponse;
+
+        }
+
+        public async Task<DGCGRevocationBatchRespondDto> GetRevocationBatchAsync(string batchId)
+        {
+
+            var fullResponse = await _dgcgClient.FetchRevocationBatchAsync(batchId);
+            return fullResponse;
+        }
+    }   
 }
