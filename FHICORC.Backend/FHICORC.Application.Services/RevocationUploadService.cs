@@ -3,10 +3,7 @@ using FHICORC.Application.Models.Options;
 using FHICORC.Domain.Models;
 using FHICORC.Infrastructure.Database.Context;
 using FHICORC.Integrations.DGCGateway.Util;
-using FHICORC.Application.Models;
-using FHICORC.Integrations.DGCGateway.Services.Interfaces;
 using System.Collections.Generic;
-using FHICORC.Core.Services.Enum;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
@@ -18,7 +15,6 @@ namespace FHICORC.Application.Services
     {
         private readonly ILogger<RevocationUploadService> _logger;
         private readonly CoronapassContext _coronapassContext;
-        private readonly IBloomBucketService _bloomBucketService;
         private readonly BatchOptions _valueBatchOptions;
         private readonly DateTime _expiryDateInThreeMonth = DateTime.Now.AddMonths(3).Date;
 

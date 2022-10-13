@@ -4,14 +4,22 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace FHICORC.Infrastructure.Database.Migrations
 {
-    public partial class AddRevocationTables : Migration
+    public partial class AddingRevocationTables : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_CountriesReportModels",
-                table: "CountriesReportModels",
-                column: "Id");
+            migrationBuilder.CreateTable(
+                name: "RevocationDownloadJobSucceeded",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    LastDownloadJobSucceeded = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RevocationDownloadJobSucceeded", x => x.Id);
+                });
 
             migrationBuilder.CreateTable(
                 name: "RevocationSuperFilter",
@@ -91,6 +99,9 @@ namespace FHICORC.Infrastructure.Database.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "RevocationDownloadJobSucceeded");
+
+            migrationBuilder.DropTable(
                 name: "RevocationHash");
 
             migrationBuilder.DropTable(
@@ -99,9 +110,6 @@ namespace FHICORC.Infrastructure.Database.Migrations
             migrationBuilder.DropTable(
                 name: "RevocationSuperFilter");
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_CountriesReportModels",
-                table: "CountriesReportModels");
         }
     }
 }

@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using FHICORC.Application.Models;
+using FHICORC.Application.Models.Revocation;
+using FHICORC.Domain.Models;
 
 namespace FHICORC.Application.Services
 {
     public interface IRevocationFetchService
     {
-        bool ContainsCertificate(string dcc, string country);
         IEnumerable<SuperBatch> FetchSuperBatches(DateTime dateTime);
-        IEnumerable<BucketItem> FetchBucketInfo();
+        IEnumerable<int> FetchSuperBatchRevocationList(DateTime dateTime);
+        SuperBatch FetchSuperBatch(int id);
+        SuperBatchChunkDto FetchSuperBatchesChunk(DateTime dateTime);
+        int HashCount();
+        RevocationHash FetchRevokedHash(string hash);
+        IEnumerable<RevocationHash> Fetch100RevokedHashes();
     }
 }
